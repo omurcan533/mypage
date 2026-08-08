@@ -1,416 +1,1006 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projeler — Ömür Can Yılmaz</title>
-  <meta name="description" content="Ömür Can Yılmaz'ın projeleri">
-  <link rel="stylesheet" href="../css/style.css">
-  <style>
-    .projects-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 16px;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projeler — Ömür Can Yılmaz</title>
+    <meta name="description" content="Ömür Can Yılmaz'ın projeleri" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      .projects-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+      }
 
-    .project-card {
-      background: var(--bg-card);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-xl);
-      padding: 24px;
-      transition: var(--transition);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      animation: fadeInUp 0.4s ease;
-      position: relative;
-      overflow: hidden;
-    }
+      .project-card {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        transition: var(--transition);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        animation: fadeInUp 0.4s ease;
+        position: relative;
+        overflow: hidden;
+      }
 
-    .project-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      transition: var(--transition);
-      opacity: 0;
-    }
+      .project-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        transition: var(--transition);
+        opacity: 0;
+      }
 
-    .project-card:hover {
-      border-color: var(--glass-border-hover);
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-md);
-    }
+      .project-card:hover {
+        border-color: var(--glass-border-hover);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+      }
 
-    .project-card:hover::before { opacity: 1; }
+      .project-card:hover::before {
+        opacity: 1;
+      }
 
-    .project-icon {
-      width: 48px; height: 48px;
-      border-radius: var(--radius-md);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px;
-    }
+      .project-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+      }
 
-    .project-name {
-      font-size: 16px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
+      .project-name {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
 
-    .project-desc {
-      font-size: 13px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      flex: 1;
-    }
+      .project-desc {
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        flex: 1;
+      }
 
-    .project-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
+      .project-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
 
-    .project-tag {
-      padding: 3px 10px;
-      border-radius: var(--radius-pill);
-      font-size: 11px;
-      font-weight: 600;
-      background: rgba(255,255,255,0.06);
-      color: var(--text-muted);
-      border: 1px solid var(--glass-border);
-    }
+      .project-tag {
+        padding: 3px 10px;
+        border-radius: var(--radius-pill);
+        font-size: 11px;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text-muted);
+        border: 1px solid var(--glass-border);
+      }
 
-    .project-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-top: 12px;
-      border-top: 1px solid var(--glass-border);
-    }
+      .project-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 12px;
+        border-top: 1px solid var(--glass-border);
+      }
 
-    .project-status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      font-weight: 600;
-    }
+      .project-status {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        font-weight: 600;
+      }
 
-    .status-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-    }
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+      }
 
-    .project-links {
-      display: flex;
-      gap: 8px;
-    }
+      .project-links {
+        display: flex;
+        gap: 8px;
+      }
 
-    .project-link {
-      padding: 5px 12px;
-      border-radius: var(--radius-pill);
-      font-size: 11px;
-      font-weight: 600;
-      border: 1px solid var(--glass-border);
-      background: var(--bg-card);
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: var(--transition);
-      text-decoration: none;
-    }
+      .project-link {
+        padding: 5px 12px;
+        border-radius: var(--radius-pill);
+        font-size: 11px;
+        font-weight: 600;
+        border: 1px solid var(--glass-border);
+        background: var(--bg-card);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: var(--transition);
+        text-decoration: none;
+      }
 
-    .project-link:hover {
-      border-color: var(--accent);
-      color: var(--accent-light);
-    }
+      .project-link:hover {
+        border-color: var(--accent);
+        color: var(--accent-light);
+      }
 
-    .project-actions {
-      position: absolute;
-      top: 12px; right: 12px;
-      display: flex;
-      gap: 4px;
-      opacity: 0;
-      transition: var(--transition);
-    }
-    .project-card:hover .project-actions { opacity: 1; }
+      .project-actions {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: flex;
+        gap: 6px;
+        opacity: 0;
+        transition: var(--transition);
+        transform: translateY(-4px);
+      }
+      .project-card:hover .project-actions {
+        opacity: 1;
+        transform: translateY(0);
+      }
 
-    /* Status filter */
-    .filter-bar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 24px;
-    }
-    .filter-btn {
-      padding: 7px 16px;
-      border-radius: var(--radius-pill);
-      font-size: 12px;
-      font-weight: 600;
-      border: 1px solid var(--glass-border);
-      background: var(--bg-card);
-      color: var(--text-muted);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-    .filter-btn.active {
-      background: rgba(108,99,255,0.12);
-      border-color: var(--accent);
-      color: var(--accent-light);
-    }
-  </style>
-</head>
-<body>
-<div class="bg-orbs"></div>
-<div class="app-layout">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon">Ö</div>
-      <div><div class="logo-text">Ömür Can</div><div class="logo-sub" data-i18n="nav_personal_space">Kişisel Alan</div></div>
+      .project-actions .icon-btn {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        border: 1px solid var(--glass-border);
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-secondary);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+        backdrop-filter: blur(12px);
+        box-shadow: var(--shadow-sm);
+      }
+      .project-actions .icon-btn:hover {
+        background: rgba(108, 99, 255, 0.16);
+        border-color: var(--accent);
+        color: var(--accent-light);
+        transform: translateY(-1px);
+      }
+      .project-actions .icon-btn.delete:hover {
+        background: rgba(251, 113, 133, 0.16);
+        border-color: var(--rose);
+        color: var(--rose);
+      }
+
+      .confirm-delete-modal .modal {
+        max-width: 420px;
+      }
+      .confirm-delete-body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+      .confirm-delete-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(251, 113, 133, 0.12);
+        color: var(--rose);
+        font-size: 24px;
+        margin-bottom: 14px;
+      }
+      .confirm-delete-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 8px;
+      }
+      .confirm-delete-subtitle {
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-bottom: 20px;
+      }
+      .confirm-delete-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .project-skeleton {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        width: 100%;
+      }
+      .project-skeleton-card {
+        height: 220px;
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--glass-border);
+        background: linear-gradient(90deg, rgba(255,255,255,0.05), rgba(255,255,255,0.08), rgba(255,255,255,0.05));
+        background-size: 200% 100%;
+        animation: shimmer 1.2s linear infinite;
+        padding: 24px;
+      }
+      .project-skeleton-line {
+        height: 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.08);
+        margin-bottom: 12px;
+      }
+      .project-skeleton-line.short { width: 65%; }
+      .project-skeleton-line.medium { width: 85%; }
+      .project-skeleton-line.long { width: 100%; }
+
+      @keyframes shimmer {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+      }
+
+      /* Status filter */
+      .filter-bar {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+      }
+      .filter-btn {
+        padding: 7px 16px;
+        border-radius: var(--radius-pill);
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid var(--glass-border);
+        background: var(--bg-card);
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: var(--transition);
+      }
+      .filter-btn.active {
+        background: rgba(108, 99, 255, 0.12);
+        border-color: var(--accent);
+        color: var(--accent-light);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-orbs"></div>
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon">Ö</div>
+          <div>
+            <div class="logo-text">Ömür Can</div>
+            <div class="logo-sub" data-i18n="nav_personal_space">
+              Kişisel Alan
+            </div>
+          </div>
+        </div>
+        <span class="nav-group-label" data-i18n="nav_navigation"
+          >Navigasyon</span
+        >
+        <ul class="nav-links">
+          <li>
+            <a href="home.html"
+              ><span class="nav-icon">🏠</span>
+              <span data-i18n="nav_home">Ana Sayfa</span></a
+            >
+          </li>
+          <li>
+            <a href="habits.html"
+              ><span class="nav-icon">✅</span>
+              <span data-i18n="nav_habits">Alışkanlıklar</span></a
+            >
+          </li>
+          <li>
+            <a href="projects.html" class="active"
+              ><span class="nav-icon">🚀</span>
+              <span data-i18n="nav_projects">Projeler</span></a
+            >
+          </li>
+          <li>
+            <a href="travels.html"
+              ><span class="nav-icon">✈️</span>
+              <span data-i18n="nav_travels">Geziler</span></a
+            >
+          </li>
+          <li>
+            <a href="contact.html"
+              ><span class="nav-icon">📬</span>
+              <span data-i18n="nav_contact">İletişim</span></a
+            >
+          </li>
+          <li>
+            <a href="books.html"
+              ><span class="nav-icon">📚</span>
+              <span>Kitaplar</span></a
+            >
+          </li>
+        </ul>
+
+        <div class="sidebar-bottom">
+          <div
+            style="
+              display: flex;
+              gap: 4px;
+              margin-bottom: 16px;
+              justify-content: center;
+            "
+          >
+            <button
+              id="lang-tr"
+              onclick="i18n.setLang('tr')"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+              "
+            >
+              TR
+            </button>
+            <button
+              id="lang-en"
+              onclick="i18n.setLang('en')"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+              "
+            >
+              EN
+            </button>
+            <button
+              id="theme-toggle"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+                flex: 1;
+              "
+            >
+              ☀️ Açık Tema
+            </button>
+          </div>
+          <div class="user-info">
+            <div class="user-avatar" id="nav-user-avatar">Ö</div>
+            <div>
+              <div class="user-name" id="nav-user-name">Ömür Can</div>
+              <div class="user-role" id="nav-user-role">Admin</div>
+            </div>
+          </div>
+          <button class="logout-btn" id="logout-btn">
+            <span>🚪</span> <span data-i18n="nav_logout">Çıkış Yap</span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div
+          class="page-header"
+          style="
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+          "
+        >
+          <div>
+            <h1 class="page-title">
+              🚀 <span data-i18n="projects_title">Projeler</span>
+            </h1>
+            <p class="page-subtitle" data-i18n="projects_subtitle">
+              Geliştirdiğim ve üzerinde çalıştığım projeler
+            </p>
+          </div>
+          <button class="btn btn-primary" id="add-project-btn">
+            ＋ Proje Ekle
+          </button>
+        </div>
+
+        <div class="filter-bar" id="filter-bar">
+          <button class="filter-btn active" data-filter="all" data-i18n="all">
+            Tümü
+          </button>
+          <button class="filter-btn" data-filter="active">🟢 Aktif</button>
+          <button class="filter-btn" data-filter="completed">
+            ✅ Tamamlandı
+          </button>
+          <button class="filter-btn" data-filter="paused">⏸ Beklemede</button>
+        </div>
+
+        <div class="projects-grid" id="projects-grid"></div>
+      </main>
     </div>
-    <span class="nav-group-label" data-i18n="nav_navigation">Navigasyon</span>
-    <ul class="nav-links">
-      <li><a href="home.html"><span class="nav-icon">🏠</span> <span data-i18n="nav_home">Ana Sayfa</span></a></li>
-      <li><a href="habits.html"><span class="nav-icon">✅</span> <span data-i18n="nav_habits">Alışkanlıklar</span></a></li>
-      <li><a href="projects.html"><span class="nav-icon">🚀</span> <span data-i18n="nav_projects">Projeler</span></a></li>
-      <li><a href="travels.html"><span class="nav-icon">✈️</span> <span data-i18n="nav_travels">Geziler</span></a></li>
-      <li><a href="contact.html"><span class="nav-icon">📬</span> <span data-i18n="nav_contact">İletişim</span></a></li>
-    </ul>
 
-    <div class="sidebar-bottom">
-      <div style="display:flex; gap:4px; margin-bottom:16px; justify-content: center;">
-         <button id="lang-tr" onclick="i18n.setLang('tr')" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); border-radius:4px; padding:4px 8px; cursor:pointer;">TR</button>
-         <button id="lang-en" onclick="i18n.setLang('en')" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); border-radius:4px; padding:4px 8px; cursor:pointer;">EN</button>
-         <button id="theme-toggle" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); border-radius:4px; padding:4px 8px; cursor:pointer; flex:1;">☀️ Açık Tema</button>
-      </div>
-      <div class="user-info">
-        <div class="user-avatar" id="nav-user-avatar">Ö</div>
-        <div>
-          <div class="user-name" id="nav-user-name">Ömür Can</div>
-          <div class="user-role" id="nav-user-role">Admin</div>
+    <!-- Add/Edit Project Modal -->
+    <div class="modal-overlay" id="project-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title" id="project-modal-title">🚀 Yeni Proje</div>
+          <button class="modal-close" type="button" aria-label="Kapat">✕</button>
         </div>
+        <form id="project-form">
+          <input type="hidden" id="edit-project-id" />
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 12px;
+              margin-bottom: 14px;
+            "
+          >
+            <div class="input-group" style="grid-column: 1/-1">
+              <label class="input-label">Proje Adı</label>
+              <input
+                type="text"
+                class="input-field"
+                id="proj-name"
+                placeholder="Proje adı..."
+                required
+                maxlength="60"
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">İkon</label>
+              <input
+                type="text"
+                class="input-field"
+                id="proj-icon"
+                placeholder="🚀"
+                maxlength="4"
+                value="🚀"
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Durum</label>
+              <select
+                class="input-field"
+                id="proj-status"
+                style="cursor: pointer"
+              >
+                <option value="active">🟢 Aktif</option>
+                <option value="completed">✅ Tamamlandı</option>
+                <option value="paused">⏸ Beklemede</option>
+              </select>
+            </div>
+            <div class="input-group" style="grid-column: 1/-1">
+              <label class="input-label">Açıklama</label>
+              <textarea
+                class="input-field"
+                id="proj-desc"
+                rows="3"
+                placeholder="Proje açıklaması..."
+                style="resize: vertical"
+              ></textarea>
+            </div>
+            <div class="input-group">
+              <label class="input-label">GitHub URL</label>
+              <input
+                type="url"
+                class="input-field"
+                id="proj-github"
+                placeholder="https://github.com/..."
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Demo URL</label>
+              <input
+                type="url"
+                class="input-field"
+                id="proj-demo"
+                placeholder="https://..."
+              />
+            </div>
+            <div class="input-group" style="grid-column: 1/-1">
+              <label class="input-label">Teknolojiler (virgülle ayır)</label>
+              <input
+                type="text"
+                class="input-field"
+                id="proj-tags"
+                placeholder="React, Node.js, PostgreSQL"
+              />
+            </div>
+            <div class="input-group" style="grid-column: 1/-1">
+              <label class="input-label">Accent Rengi</label>
+              <input
+                type="color"
+                id="proj-color"
+                value="#6c63ff"
+                style="
+                  width: 48px;
+                  height: 36px;
+                  border: none;
+                  background: none;
+                  cursor: pointer;
+                  border-radius: 8px;
+                "
+              />
+            </div>
+          </div>
+          <div
+            style="
+              display: flex;
+              gap: 10px;
+              justify-content: flex-end;
+              margin-top: 8px;
+            "
+          >
+            <button type="button" class="btn btn-ghost modal-close">
+              İptal
+            </button>
+            <button type="submit" class="btn btn-primary">✓ Kaydet</button>
+          </div>
+        </form>
       </div>
-      <button class="logout-btn" id="logout-btn">
-        <span>🚪</span> <span data-i18n="nav_logout">Çıkış Yap</span>
-      </button>
     </div>
-  </aside>
 
-  <main class="main-content">
-    <div class="page-header" style="display:flex; align-items:flex-start; justify-content:space-between;">
-      <div>
-        <h1 class="page-title">🚀 <span data-i18n="projects_title">Projeler</span></h1>
-        <p class="page-subtitle" data-i18n="projects_subtitle">Geliştirdiğim ve üzerinde çalıştığım projeler</p>
-      </div>
-      <button class="btn btn-primary" id="add-project-btn">＋ Proje Ekle</button>
-    </div>
-
-    <div class="filter-bar" id="filter-bar">
-      <button class="filter-btn active" data-filter="all" data-i18n="all">Tümü</button>
-      <button class="filter-btn" data-filter="active">🟢 Aktif</button>
-      <button class="filter-btn" data-filter="completed">✅ Tamamlandı</button>
-      <button class="filter-btn" data-filter="paused">⏸ Beklemede</button>
-    </div>
-
-    <div class="projects-grid" id="projects-grid"></div>
-  </main>
-</div>
-
-<!-- Add/Edit Project Modal -->
-<div class="modal-overlay" id="project-modal">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="project-modal-title">🚀 Yeni Proje</div>
-      <button class="modal-close">✕</button>
-    </div>
-    <form id="project-form">
-      <input type="hidden" id="edit-project-id">
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
-        <div class="input-group" style="grid-column: 1/-1;">
-          <label class="input-label">Proje Adı</label>
-          <input type="text" class="input-field" id="proj-name" placeholder="Proje adı..." required maxlength="60">
+    <div class="modal-overlay" id="confirm-delete-modal">
+      <div class="modal confirm-delete-modal">
+        <div class="modal-header">
+          <div class="modal-title">🗑 Projeyi Sil</div>
+          <button class="modal-close" type="button" aria-label="Kapat">✕</button>
         </div>
-        <div class="input-group">
-          <label class="input-label">İkon</label>
-          <input type="text" class="input-field" id="proj-icon" placeholder="🚀" maxlength="4" value="🚀">
-        </div>
-        <div class="input-group">
-          <label class="input-label">Durum</label>
-          <select class="input-field" id="proj-status" style="cursor:pointer;">
-            <option value="active">🟢 Aktif</option>
-            <option value="completed">✅ Tamamlandı</option>
-            <option value="paused">⏸ Beklemede</option>
-          </select>
-        </div>
-        <div class="input-group" style="grid-column: 1/-1;">
-          <label class="input-label">Açıklama</label>
-          <textarea class="input-field" id="proj-desc" rows="3" placeholder="Proje açıklaması..." style="resize:vertical;"></textarea>
-        </div>
-        <div class="input-group">
-          <label class="input-label">GitHub URL</label>
-          <input type="url" class="input-field" id="proj-github" placeholder="https://github.com/...">
-        </div>
-        <div class="input-group">
-          <label class="input-label">Demo URL</label>
-          <input type="url" class="input-field" id="proj-demo" placeholder="https://...">
-        </div>
-        <div class="input-group" style="grid-column: 1/-1;">
-          <label class="input-label">Teknolojiler (virgülle ayır)</label>
-          <input type="text" class="input-field" id="proj-tags" placeholder="React, Node.js, PostgreSQL">
-        </div>
-        <div class="input-group" style="grid-column: 1/-1;">
-          <label class="input-label">Accent Rengi</label>
-          <input type="color" id="proj-color" value="#6c63ff" style="width:48px; height:36px; border:none; background:none; cursor:pointer; border-radius:8px;">
+        <div class="confirm-delete-body">
+          <div class="confirm-delete-icon">🗑</div>
+          <div class="confirm-delete-title">Bu projeyi silmek istediğinizden emin misiniz?</div>
+          <div class="confirm-delete-subtitle" id="confirm-delete-project-name">
+            Bu projeyi silmek üzeresiniz.
+          </div>
+          <div class="confirm-delete-actions">
+            <button type="button" class="btn btn-ghost" id="cancel-delete-btn">
+              İptal
+            </button>
+            <button type="button" class="btn btn-danger" id="confirm-delete-btn">
+              Evet, Sil
+            </button>
+          </div>
         </div>
       </div>
-      <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:8px;">
-        <button type="button" class="btn btn-ghost modal-close">İptal</button>
-        <button type="submit" class="btn btn-primary">✓ Kaydet</button>
-      </div>
-    </form>
-  </div>
-</div>
+    </div>
 
-<script src="../js/i18n.js"></script>
-<script src="../js/auth.js"></script>
-<script src="../js/nav.js"></script>
-<script>
-  Auth.guard();
-  Nav.init();
-  Modal.setup('project-modal');
+    <script src="../js/i18n.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/nav.js"></script>
+    <script>
+      Nav.init();
+      Modal.setup("project-modal");
+      Modal.setup("confirm-delete-modal");
 
-  const PROJ_KEY = 'oyp_projects';
-  let activeFilter = 'all';
+      let activeFilter = "all";
+      let pendingDeleteProjectId = null;
+      let isAdminMode = false;
 
-  function getProjects() {
-    try { return JSON.parse(localStorage.getItem(PROJ_KEY)) || []; }
-    catch { return []; }
-  }
-  function saveProjects(p) { localStorage.setItem(PROJ_KEY, JSON.stringify(p)); }
+      async function syncProjectAccess() {
+        isAdminMode = await Auth.canManageContent();
+        const addBtn = document.getElementById("add-project-btn");
 
-  const statusMap = {
-    active: { label: 'Aktif', color: '#34d399', dot: '#34d399' },
-    completed: { label: 'Tamamlandı', color: '#6c63ff', dot: '#6c63ff' },
-    paused: { label: 'Beklemede', color: '#fbbf24', dot: '#fbbf24' }
-  };
+        if (addBtn) {
+          addBtn.style.display = isAdminMode ? "inline-flex" : "none";
+        }
+      }
 
-  function renderProjects() {
-    const all = getProjects();
-    const filtered = activeFilter === 'all' ? all : all.filter(p => p.status === activeFilter);
-    const grid = document.getElementById('projects-grid');
+      const PROJECTS_KEY = "oyp_projects";
 
-    if (filtered.length === 0) {
-      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1; padding:80px 20px;">
+      function getLocalProjects() {
+        try {
+          return JSON.parse(localStorage.getItem(PROJECTS_KEY)) || [];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveLocalProjects(projects) {
+        localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
+      }
+
+      async function getProjects() {
+        let supabaseProjects = null;
+        try {
+          const { data, error } = await window.supabaseClient
+            .from("projects")
+            .select("*")
+            .order("created_at", {
+              ascending: false,
+            });
+
+          if (!error && data && data.length > 0) {
+            supabaseProjects = data.map((p) => ({
+              ...p,
+              desc: p.description || p.desc || "",
+              github: p.github_url || p.github || "",
+              demo: p.demo_url || p.demo || "",
+            }));
+          }
+        } catch (e) {
+          console.warn("Supabase fetch projects exception:", e);
+        }
+
+        if (supabaseProjects && supabaseProjects.length > 0) {
+          saveLocalProjects(supabaseProjects);
+          return supabaseProjects;
+        }
+
+        return getLocalProjects();
+      }
+
+      const statusMap = {
+        active: { label: "Aktif", color: "#34d399", dot: "#34d399" },
+        completed: { label: "Tamamlandı", color: "#6c63ff", dot: "#6c63ff" },
+        paused: { label: "Beklemede", color: "#fbbf24", dot: "#fbbf24" },
+      };
+
+      async function renderProjects({ loading = false } = {}) {
+        const grid = document.getElementById("projects-grid");
+
+        if (loading) {
+          grid.innerHTML = `<div class="project-skeleton">
+            <div class="project-skeleton-card">
+              <div class="project-skeleton-line long"></div>
+              <div class="project-skeleton-line medium"></div>
+              <div class="project-skeleton-line short"></div>
+              <div class="project-skeleton-line long" style="margin-top:24px;"></div>
+              <div class="project-skeleton-line medium"></div>
+            </div>
+            <div class="project-skeleton-card">
+              <div class="project-skeleton-line long"></div>
+              <div class="project-skeleton-line medium"></div>
+              <div class="project-skeleton-line short"></div>
+              <div class="project-skeleton-line long" style="margin-top:24px;"></div>
+              <div class="project-skeleton-line medium"></div>
+            </div>
+            <div class="project-skeleton-card">
+              <div class="project-skeleton-line long"></div>
+              <div class="project-skeleton-line medium"></div>
+              <div class="project-skeleton-line short"></div>
+              <div class="project-skeleton-line long" style="margin-top:24px;"></div>
+              <div class="project-skeleton-line medium"></div>
+            </div>
+          </div>`;
+          return;
+        }
+
+        const canManage = await Auth.canManageContent();
+        const all = await getProjects();
+        const filtered =
+          activeFilter === "all"
+            ? all
+            : all.filter((p) => p.status === activeFilter);
+
+        if (filtered.length === 0) {
+          grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1; padding:80px 20px;">
         <div class="empty-icon">🚀</div>
-        <div class="empty-title">${activeFilter === 'all' ? 'Henüz proje yok' : 'Bu kategoride proje yok'}</div>
-        <div class="empty-sub">İlk projeyi ekle!</div>
+        <div class="empty-title">${activeFilter === "all" ? "Henüz proje yok" : "Bu kategoride proje yok"}</div>
+        <div class="empty-sub">${canManage ? "İlk projeyi ekle!" : "Şu anda görüntülenecek proje bulunmuyor."}</div>
       </div>`;
-      return;
-    }
+          return;
+        }
 
-    grid.innerHTML = filtered.map(p => {
-      const st = statusMap[p.status] || statusMap.active;
-      const tags = (p.tags || []).map(t => `<span class="project-tag">${t}</span>`).join('');
-      return `<div class="project-card" style="--card-accent: ${p.color};">
+        grid.innerHTML = filtered
+          .map((p) => {
+            const st = statusMap[p.status] || statusMap.active;
+            const tags = (p.tags || [])
+              .map((t) => `<span class="project-tag">${t}</span>`)
+              .join("");
+            const actionsMarkup = canManage
+              ? `<div class="project-actions">
+                  <button class="icon-btn" onclick="editProject('${p.id}')" title="Düzenle">✏️</button>
+                  <button class="icon-btn delete" onclick="requestDeleteProject('${p.id}')" title="Sil">🗑</button>
+                </div>`
+              : "";
+
+            const descText = p.desc || p.description || "";
+            const githubUrl = p.github || p.github_url || "";
+            const demoUrl = p.demo || p.demo_url || "";
+
+            return `<div class="project-card" style="--card-accent: ${p.color};">
         <style>.project-card:hover::before { background: linear-gradient(90deg, ${p.color}, transparent); }</style>
-        <div class="project-actions">
-          <button class="icon-btn" onclick="editProject('${p.id}')" title="Düzenle">✏️</button>
-          <button class="icon-btn delete" onclick="deleteProject('${p.id}')" title="Sil">🗑</button>
-        </div>
-        <div class="project-icon" style="background: ${p.color}22;">${p.icon || '🚀'}</div>
+        ${actionsMarkup}
+        <div class="project-icon" style="background: ${p.color}22;">${p.icon || "🚀"}</div>
         <div>
           <div class="project-name">${p.name}</div>
-          ${p.desc ? `<div class="project-desc" style="margin-top:6px;">${p.desc}</div>` : ''}
+          ${descText ? `<div class="project-desc" style="margin-top:6px;">${descText}</div>` : ""}
         </div>
-        ${tags ? `<div class="project-tags">${tags}</div>` : ''}
+        ${tags ? `<div class="project-tags">${tags}</div>` : ""}
         <div class="project-footer">
           <div class="project-status">
             <div class="status-dot" style="background: ${st.dot};"></div>
             <span style="color: ${st.color}; font-size: 12px;">${st.label}</span>
           </div>
           <div class="project-links">
-            ${p.github ? `<a class="project-link" href="${p.github}" target="_blank">GitHub</a>` : ''}
-            ${p.demo ? `<a class="project-link" href="${p.demo}" target="_blank">Demo</a>` : ''}
+            ${githubUrl ? `<a class="project-link" href="${githubUrl}" target="_blank">GitHub</a>` : ""}
+            ${demoUrl ? `<a class="project-link" href="${demoUrl}" target="_blank">Demo</a>` : ""}
           </div>
         </div>
       </div>`;
-    }).join('');
-  }
+          })
+          .join("");
+      }
 
-  function editProject(id) {
-    const p = getProjects().find(x => x.id === id);
-    if (!p) return;
-    document.getElementById('project-modal-title').textContent = '✏️ Projeyi Düzenle';
-    document.getElementById('edit-project-id').value = id;
-    document.getElementById('proj-name').value = p.name;
-    document.getElementById('proj-icon').value = p.icon || '🚀';
-    document.getElementById('proj-status').value = p.status;
-    document.getElementById('proj-desc').value = p.desc || '';
-    document.getElementById('proj-github').value = p.github || '';
-    document.getElementById('proj-demo').value = p.demo || '';
-    document.getElementById('proj-tags').value = (p.tags || []).join(', ');
-    document.getElementById('proj-color').value = p.color || '#6c63ff';
-    Modal.open('project-modal');
-  }
+      async function editProject(id) {
+        if (!(await Auth.canManageContent())) {
+          Toast.error("Bu işlem için admin girişi gerekli.");
+          return;
+        }
 
-  function deleteProject(id) {
-    if (!confirm('Bu projeyi silmek istediğinizden emin misiniz?')) return;
-    saveProjects(getProjects().filter(p => p.id !== id));
-    Toast.info('Proje silindi.');
-    renderProjects();
-  }
+        const projects = await getProjects();
 
-  document.getElementById('add-project-btn').addEventListener('click', () => {
-    document.getElementById('project-modal-title').textContent = '🚀 Yeni Proje';
-    document.getElementById('project-form').reset();
-    document.getElementById('edit-project-id').value = '';
-    document.getElementById('proj-icon').value = '🚀';
-    document.getElementById('proj-color').value = '#6c63ff';
-    Modal.open('project-modal');
-  });
+        const p = projects.find((x) => String(x.id) === String(id));
 
-  document.getElementById('project-form').addEventListener('submit', e => {
-    e.preventDefault();
-    const editId = document.getElementById('edit-project-id').value;
-    const projData = {
-      id: editId || Date.now().toString(),
-      name: document.getElementById('proj-name').value.trim(),
-      icon: document.getElementById('proj-icon').value.trim() || '🚀',
-      status: document.getElementById('proj-status').value,
-      desc: document.getElementById('proj-desc').value.trim(),
-      github: document.getElementById('proj-github').value.trim(),
-      demo: document.getElementById('proj-demo').value.trim(),
-      tags: document.getElementById('proj-tags').value.split(',').map(t=>t.trim()).filter(Boolean),
-      color: document.getElementById('proj-color').value,
-      createdAt: editId ? undefined : DateUtils.today()
-    };
+        if (!p) return;
 
-    let projs = getProjects();
-    if (editId) {
-      projs = projs.map(p => p.id === editId ? { ...p, ...projData } : p);
-      Toast.success('Proje güncellendi!');
-    } else {
-      projs.push(projData);
-      Toast.success('Proje eklendi!');
-    }
-    saveProjects(projs);
-    Modal.close('project-modal');
-    renderProjects();
-  });
+        document.getElementById("project-modal-title").textContent =
+          "✏️ Projeyi Düzenle";
 
-  // Filters
-  document.getElementById('filter-bar').addEventListener('click', e => {
-    const btn = e.target.closest('.filter-btn');
-    if (!btn) return;
-    activeFilter = btn.dataset.filter;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b === btn));
-    renderProjects();
-  });
+        document.getElementById("edit-project-id").value = id;
 
-  window.editProject = editProject;
-  window.deleteProject = deleteProject;
-  renderProjects();
-  window.addEventListener('languageChanged', () => { if(typeof render === 'function') render(); else if(typeof init === 'function') init(); });
-</script>
-</body>
+        document.getElementById("proj-name").value = p.name || "";
+
+        document.getElementById("proj-icon").value = p.icon || "🚀";
+
+        document.getElementById("proj-status").value = p.status || "active";
+
+        document.getElementById("proj-desc").value = p.desc || p.description || "";
+
+        document.getElementById("proj-github").value = p.github || p.github_url || "";
+
+        document.getElementById("proj-demo").value = p.demo || p.demo_url || "";
+
+        document.getElementById("proj-tags").value = (p.tags || []).join(", ");
+
+        document.getElementById("proj-color").value = p.color || "#6c63ff";
+
+        Modal.open("project-modal");
+      }
+
+      async function requestDeleteProject(id) {
+        if (!(await Auth.canManageContent())) {
+          Toast.error("Bu işlem için admin girişi gerekli.");
+          return;
+        }
+
+        const projects = await getProjects();
+        const project = projects.find((x) => String(x.id) === String(id));
+
+        pendingDeleteProjectId = id;
+        document.getElementById("confirm-delete-project-name").textContent =
+          project?.name
+            ? `“${project.name}” adlı projeyi silmek üzeresiniz.`
+            : "Bu projeyi silmek üzeresiniz.";
+
+        Modal.open("confirm-delete-modal");
+      }
+
+      async function deleteProject() {
+        if (!(await Auth.canManageContent())) {
+          Toast.error("Bu işlem için admin girişi gerekli.");
+          return;
+        }
+
+        if (!pendingDeleteProjectId) {
+          return;
+        }
+
+        const user = await Auth.getUser();
+
+        if (user) {
+          const { error } = await window.supabaseClient
+            .from("projects")
+            .delete()
+            .eq("id", pendingDeleteProjectId);
+
+          if (error) {
+            console.error("Project delete error:", error);
+          }
+        }
+
+        const localList = getLocalProjects().filter(
+          (p) => String(p.id) !== String(pendingDeleteProjectId)
+        );
+        saveLocalProjects(localList);
+
+        Toast.success("Proje silindi.");
+        closeDeleteModal();
+
+        await renderProjects({ loading: true });
+        await renderProjects();
+      }
+
+      document
+        .getElementById("add-project-btn")
+        .addEventListener("click", async () => {
+          if (!(await Auth.canManageContent())) {
+            Toast.error("Bu işlem için admin girişi gerekli.");
+            return;
+          }
+
+          document.getElementById("project-modal-title").textContent =
+            "🚀 Yeni Proje";
+          document.getElementById("project-form").reset();
+          document.getElementById("edit-project-id").value = "";
+          document.getElementById("proj-icon").value = "🚀";
+          document.getElementById("proj-color").value = "#6c63ff";
+          Modal.open("project-modal");
+        });
+
+      function closeDeleteModal() {
+        Modal.close("confirm-delete-modal");
+        pendingDeleteProjectId = null;
+      }
+
+      document
+        .getElementById("cancel-delete-btn")
+        .addEventListener("click", closeDeleteModal);
+
+      document
+        .getElementById("confirm-delete-modal")
+        .addEventListener("click", (e) => {
+          if (e.target.id === "confirm-delete-modal") {
+            closeDeleteModal();
+          }
+        });
+
+      document
+        .getElementById("confirm-delete-btn")
+        .addEventListener("click", deleteProject);
+
+      document
+        .getElementById("project-form")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          if (!(await Auth.canManageContent())) {
+            Toast.error("Bu işlem için admin girişi gerekli.");
+            return;
+          }
+
+          const editId = document.getElementById("edit-project-id").value;
+
+          const name = document.getElementById("proj-name").value.trim();
+
+          const icon =
+            document.getElementById("proj-icon").value.trim() || "🚀";
+
+          const status = document.getElementById("proj-status").value;
+
+          const description = document.getElementById("proj-desc").value.trim();
+
+          const github_url = document
+            .getElementById("proj-github")
+            .value.trim();
+
+          const demo_url = document.getElementById("proj-demo").value.trim();
+
+          const tags = document
+            .getElementById("proj-tags")
+            .value.split(",")
+            .map((t) => t.trim())
+            .filter(Boolean);
+
+          const color = document.getElementById("proj-color").value;
+
+          const user = await Auth.getUser();
+
+          const projectObj = {
+            id: editId || String(Date.now()),
+            user_id: user ? user.id : "admin",
+            name,
+            icon,
+            status,
+            description,
+            desc: description,
+            github_url,
+            github: github_url,
+            demo_url,
+            demo: demo_url,
+            tags,
+            color,
+            created_at: new Date().toISOString(),
+          };
+
+          if (user) {
+            if (editId) {
+              const { error } = await window.supabaseClient
+                .from("projects")
+                .update({
+                  name: name,
+                  icon: icon,
+                  status: status,
+                  description: description,
+                  github_url: github_url,
+                  demo_url: demo_url,
+                  tags: tags,
+                  color: color,
+                })
+                .eq("id", editId);
+
+              if (error) {
+                console.error("Project update error:", error);
+              }
+            } else {
+              const { error } = await window.supabaseClient
+                .from("projects")
+                .insert({
+                  user_id: user.id,
+                  name: name,
+                  icon: icon,
+                  status: status,
+                  description: description,
+                  github_url: github_url,
+                  demo_url: demo_url,
+                  tags: tags,
+                  color: color,
+                });
+
+              if (error) {
+                console.error("Project insert error:", error);
+              }
+            }
+          }
+
+          // Always update LocalStorage cache so all users can view created projects
+          const localList = getLocalProjects();
+          if (editId) {
+            const idx = localList.findIndex((p) => String(p.id) === String(editId));
+            if (idx !== -1) {
+              localList[idx] = { ...localList[idx], ...projectObj };
+            } else {
+              localList.unshift(projectObj);
+            }
+          } else {
+            localList.unshift(projectObj);
+          }
+          saveLocalProjects(localList);
+
+          Toast.success(editId ? "Proje güncellendi!" : "Proje eklendi!");
+          Modal.close("project-modal");
+
+          await renderProjects({ loading: true });
+          await renderProjects();
+        });
+
+      document.getElementById("filter-bar").addEventListener("click", async (e) => {
+        const btn = e.target.closest(".filter-btn");
+        if (!btn) return;
+        activeFilter = btn.dataset.filter;
+        document
+          .querySelectorAll(".filter-btn")
+          .forEach((b) => b.classList.toggle("active", b === btn));
+        await renderProjects({ loading: true });
+        await renderProjects();
+      });
+
+      window.editProject = editProject;
+      window.deleteProject = deleteProject;
+      (async () => {
+        await syncProjectAccess();
+        await renderProjects({ loading: true });
+        await renderProjects();
+      })();
+      window.addEventListener("auth:changed", async () => {
+        await syncProjectAccess();
+        await renderProjects({ loading: true });
+        await renderProjects();
+      });
+      window.addEventListener("languageChanged", () => {
+        if (typeof render === "function") render();
+        else if (typeof init === "function") init();
+      });
+    </script>
+  </body>
 </html>

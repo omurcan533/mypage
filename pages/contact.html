@@ -1,390 +1,610 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>İletişim — Ömür Can Yılmaz</title>
-  <meta name="description" content="Ömür Can Yılmaz ile iletişime geç">
-  <link rel="stylesheet" href="../css/style.css">
-  <style>
-    .contact-layout {
-      display: grid;
-      grid-template-columns: 1fr 1.4fr;
-      gap: 24px;
-      align-items: start;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>İletişim — Ömür Can Yılmaz</title>
+    <meta name="description" content="Ömür Can Yılmaz ile iletişime geç" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      .contact-layout {
+        display: grid;
+        grid-template-columns: 1fr 1.4fr;
+        gap: 24px;
+        align-items: start;
+      }
 
-    /* ── Social Links ── */
-    .social-card {
-      padding: 28px;
-      background: var(--bg-card);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-xl);
-    }
+      /* ── Social Links ── */
+      .social-card {
+        padding: 28px;
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+      }
 
-    .social-card-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 20px;
-    }
+      .social-card-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 20px;
+      }
 
-    .social-links-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+      .social-links-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
 
-    .social-link-item {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 12px 16px;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--glass-border);
-      background: transparent;
-      color: var(--text-secondary);
-      text-decoration: none;
-      transition: var(--transition);
-      cursor: pointer;
-      font-family: 'Inter', sans-serif;
-      width: 100%;
-      text-align: left;
-    }
+      .social-link-item {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 16px;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--glass-border);
+        background: transparent;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: var(--transition);
+        cursor: pointer;
+        font-family: "Inter", sans-serif;
+        width: 100%;
+        text-align: left;
+      }
 
-    .social-link-item:hover {
-      border-color: var(--glass-border-hover);
-      background: var(--bg-card-hover);
-      color: var(--text-primary);
-      transform: translateX(4px);
-    }
+      .social-link-item:hover {
+        border-color: var(--glass-border-hover);
+        background: var(--bg-card-hover);
+        color: var(--text-primary);
+        transform: translateX(4px);
+      }
 
-    .social-icon-wrap {
-      width: 40px;
-      height: 40px;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      flex-shrink: 0;
-    }
+      .social-icon-wrap {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        flex-shrink: 0;
+      }
 
-    .social-info { flex: 1; }
-    .social-name { font-size: 13px; font-weight: 600; }
-    .social-handle { font-size: 11px; color: var(--text-muted); margin-top: 1px; }
-    .social-arrow { font-size: 14px; color: var(--text-muted); }
+      .social-info {
+        flex: 1;
+      }
+      .social-name {
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .social-handle {
+        font-size: 11px;
+        color: var(--text-muted);
+        margin-top: 1px;
+      }
+      .social-arrow {
+        font-size: 14px;
+        color: var(--text-muted);
+      }
 
-    /* ── Profile Card ── */
-    .profile-mini {
-      text-align: center;
-      padding: 28px;
-      background: var(--bg-card);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-xl);
-      margin-bottom: 16px;
-    }
+      /* ── Profile Card ── */
+      .profile-mini {
+        text-align: center;
+        padding: 28px;
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        margin-bottom: 16px;
+      }
 
-    .profile-avatar-big {
-      width: 80px;
-      height: 80px;
-      background: linear-gradient(135deg, var(--accent), var(--pink));
-      border-radius: 24px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      font-weight: 800;
-      color: white;
-      margin: 0 auto 16px;
-      box-shadow: 0 8px 30px var(--accent-glow);
-    }
+      .profile-avatar-big {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--accent), var(--pink));
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        font-weight: 800;
+        color: white;
+        margin: 0 auto 16px;
+        box-shadow: 0 8px 30px var(--accent-glow);
+      }
 
-    .profile-name {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--text-primary);
-      letter-spacing: -0.02em;
-    }
+      .profile-name {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.02em;
+      }
 
-    .profile-bio {
-      font-size: 13px;
-      color: var(--text-secondary);
-      line-height: 1.6;
-      margin-top: 10px;
-      max-width: 280px;
-      margin-left: auto;
-      margin-right: auto;
-    }
+      .profile-bio {
+        font-size: 13px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        margin-top: 10px;
+        max-width: 280px;
+        margin-left: auto;
+        margin-right: auto;
+      }
 
-    .profile-location {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 12px;
-    }
+      .profile-location {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 12px;
+      }
 
-    /* ── Contact Form ── */
-    .contact-form-card {
-      padding: 28px;
-      background: var(--bg-card);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-xl);
-    }
+      /* ── Contact Form ── */
+      .contact-form-card {
+        padding: 28px;
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+      }
 
-    .contact-form-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text-primary);
-      margin-bottom: 20px;
-    }
+      .contact-form-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 20px;
+      }
 
-    .contact-form {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
+      .contact-form {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
 
-    .contact-form .input-field {
-      width: 100%;
-    }
+      .contact-form .input-field {
+        width: 100%;
+      }
 
-    .contact-form textarea.input-field {
-      min-height: 130px;
-      resize: vertical;
-    }
+      .contact-form textarea.input-field {
+        min-height: 130px;
+        resize: vertical;
+      }
 
-    .contact-form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
+      .contact-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
 
-    .send-btn {
-      width: 100%;
-      padding: 13px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      border: none;
-      border-radius: var(--radius-pill);
-      font-size: 14px;
-      font-weight: 700;
-      font-family: 'Inter', sans-serif;
-      color: white;
-      cursor: pointer;
-      transition: var(--transition);
-      box-shadow: 0 4px 20px var(--accent-glow);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
+      .send-btn {
+        width: 100%;
+        padding: 13px;
+        background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+        border: none;
+        border-radius: var(--radius-pill);
+        font-size: 14px;
+        font-weight: 700;
+        font-family: "Inter", sans-serif;
+        color: white;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: 0 4px 20px var(--accent-glow);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
 
-    .send-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px var(--accent-glow);
-    }
+      .send-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px var(--accent-glow);
+      }
 
-    /* Availability badge */
-    .availability-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 16px;
-      border-radius: var(--radius-pill);
-      background: rgba(52, 211, 153, 0.1);
-      border: 1px solid rgba(52, 211, 153, 0.2);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--emerald);
-      margin-top: 14px;
-    }
+      /* Availability badge */
+      .availability-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: var(--radius-pill);
+        background: rgba(52, 211, 153, 0.1);
+        border: 1px solid rgba(52, 211, 153, 0.2);
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--emerald);
+        margin-top: 14px;
+      }
 
-    .avail-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--emerald);
-      animation: pulse 2s ease infinite;
-    }
+      .avail-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--emerald);
+        animation: pulse 2s ease infinite;
+      }
 
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.4); }
-      50% { box-shadow: 0 0 0 6px rgba(52, 211, 153, 0); }
-    }
+      @keyframes pulse {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 0 6px rgba(52, 211, 153, 0);
+        }
+      }
 
-    @media (max-width: 900px) {
-      .contact-layout { grid-template-columns: 1fr; }
-    }
-  </style>
-</head>
-<body>
-<div class="bg-orbs"></div>
-<div class="app-layout">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon">Ö</div>
-      <div><div class="logo-text">Ömür Can</div><div class="logo-sub" data-i18n="nav_personal_space">Kişisel Alan</div></div>
-    </div>
-    <span class="nav-group-label" data-i18n="nav_navigation">Navigasyon</span>
-    <ul class="nav-links">
-      <li><a href="home.html"><span class="nav-icon">🏠</span> <span data-i18n="nav_home">Ana Sayfa</span></a></li>
-      <li><a href="habits.html"><span class="nav-icon">✅</span> <span data-i18n="nav_habits">Alışkanlıklar</span></a></li>
-      <li><a href="projects.html"><span class="nav-icon">🚀</span> <span data-i18n="nav_projects">Projeler</span></a></li>
-      <li><a href="travels.html"><span class="nav-icon">✈️</span> <span data-i18n="nav_travels">Geziler</span></a></li>
-      <li><a href="contact.html"><span class="nav-icon">📬</span> <span data-i18n="nav_contact">İletişim</span></a></li>
-    </ul>
-
-    <div class="sidebar-bottom">
-      <div style="display:flex; gap:4px; margin-bottom:16px; justify-content: center;">
-         <button id="lang-tr" onclick="i18n.setLang('tr')" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); border-radius:4px; padding:4px 8px; cursor:pointer;">TR</button>
-         <button id="lang-en" onclick="i18n.setLang('en')" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); border-radius:4px; padding:4px 8px; cursor:pointer;">EN</button>
-         <button id="theme-toggle" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); border-radius:4px; padding:4px 8px; cursor:pointer; flex:1;">☀️ Açık Tema</button>
-      </div>
-      <div class="user-info">
-        <div class="user-avatar" id="nav-user-avatar">Ö</div>
-        <div>
-          <div class="user-name" id="nav-user-name">Ömür Can</div>
-          <div class="user-role" id="nav-user-role">Admin</div>
-        </div>
-      </div>
-      <button class="logout-btn" id="logout-btn">
-        <span>🚪</span> <span data-i18n="nav_logout">Çıkış Yap</span>
-      </button>
-    </div>
-  </aside>
-
-  <main class="main-content">
-    <div class="page-header">
-      <h1 class="page-title">📬 <span data-i18n="contact_title">İletişim</span></h1>
-      <p class="page-subtitle" data-i18n="contact_subtitle">Benimle iletişime geç</p>
-    </div>
-
-    <div class="contact-layout">
-      <!-- Left Column -->
-      <div>
-        <!-- Profile Mini -->
-        <div class="profile-mini animate-fade-up">
-          <div class="profile-avatar-big">Ö</div>
-          <div class="profile-name">Ömür Can Yılmaz</div>
-          <p class="profile-bio" data-i18n="contact_bio">Yazılım geliştirici, gezgin ve sürekli öğrenen biri. Teknolojiyle hayatı birleştirmeyi seven biri.</p>
-          <div class="profile-location">📍 Türkiye</div>
-          <div class="availability-badge">
-            <div class="avail-dot"></div>
-            <span data-i18n="contact_avail">Yeni fırsatlara açık</span>
-          </div>
-        </div>
-
-        <!-- Social Links -->
-        <div class="social-card animate-fade-up" style="animation-delay: 0.1s;">
-          <div class="social-card-title">🔗 Sosyal Medya</div>
-          <div class="social-links-list">
-            <a href="https://github.com" target="_blank" class="social-link-item">
-              <div class="social-icon-wrap" style="background: rgba(255,255,255,0.06);">🐙</div>
-              <div class="social-info">
-                <div class="social-name">GitHub</div>
-                <div class="social-handle">@omurcanyilmaz</div>
-              </div>
-              <span class="social-arrow">→</span>
-            </a>
-            <a href="https://linkedin.com" target="_blank" class="social-link-item">
-              <div class="social-icon-wrap" style="background: rgba(10, 102, 194, 0.15);">💼</div>
-              <div class="social-info">
-                <div class="social-name">LinkedIn</div>
-                <div class="social-handle">Ömür Can Yılmaz</div>
-              </div>
-              <span class="social-arrow">→</span>
-            </a>
-            <a href="https://twitter.com" target="_blank" class="social-link-item">
-              <div class="social-icon-wrap" style="background: rgba(29, 155, 240, 0.12);">🐦</div>
-              <div class="social-info">
-                <div class="social-name">Twitter / X</div>
-                <div class="social-handle">@omurcanyilmaz</div>
-              </div>
-              <span class="social-arrow">→</span>
-            </a>
-            <a href="mailto:info@omurcanyilmaz.com" class="social-link-item">
-              <div class="social-icon-wrap" style="background: rgba(108, 99, 255, 0.15);">✉️</div>
-              <div class="social-info">
-                <div class="social-name">E-posta</div>
-                <div class="social-handle">info@omurcanyilmaz.com</div>
-              </div>
-              <span class="social-arrow">→</span>
-            </a>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Column: Contact Form -->
-      <div class="contact-form-card animate-fade-up" style="animation-delay: 0.15s;">
-        <div class="contact-form-title" data-i18n="contact_form_title">💬 Mesaj Gönder</div>
-        <form class="contact-form" id="contact-form">
-          <div class="contact-form-grid">
-            <div class="input-group">
-              <label class="input-label" data-i18n="contact_form_name">Adınız</label>
-              <input type="text" class="input-field" id="cf-name" data-i18n="contact_form_name" placeholder="Adınız" required>
-            </div>
-            <div class="input-group">
-              <label class="input-label">E-posta</label>
-              <input type="email" class="input-field" id="cf-email" placeholder="email@örnek.com" required>
+      @media (max-width: 900px) {
+        .contact-layout {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-orbs"></div>
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon">Ö</div>
+          <div>
+            <div class="logo-text">Ömür Can</div>
+            <div class="logo-sub" data-i18n="nav_personal_space">
+              Kişisel Alan
             </div>
           </div>
-          <div class="input-group">
-            <label class="input-label" data-i18n="contact_form_subject">Konu</label>
-            <input type="text" class="input-field" id="cf-subject" data-i18n="contact_form_subject" placeholder="Mesajınızın konusu..." required>
+        </div>
+        <span class="nav-group-label" data-i18n="nav_navigation"
+          >Navigasyon</span
+        >
+        <ul class="nav-links">
+          <li>
+            <a href="home.html"
+              ><span class="nav-icon">🏠</span>
+              <span data-i18n="nav_home">Ana Sayfa</span></a
+            >
+          </li>
+          <li>
+            <a href="habits.html"
+              ><span class="nav-icon">✅</span>
+              <span data-i18n="nav_habits">Alışkanlıklar</span></a
+            >
+          </li>
+          <li>
+            <a href="projects.html"
+              ><span class="nav-icon">🚀</span>
+              <span data-i18n="nav_projects">Projeler</span></a
+            >
+          </li>
+          <li>
+            <a href="travels.html"
+              ><span class="nav-icon">✈️</span>
+              <span data-i18n="nav_travels">Geziler</span></a
+            >
+          </li>
+          <li>
+            <a href="contact.html" class="active"
+              ><span class="nav-icon">📬</span>
+              <span data-i18n="nav_contact">İletişim</span></a
+            >
+          </li>
+          <li>
+            <a href="books.html"
+              ><span class="nav-icon">📚</span>
+              <span>Kitaplar</span></a
+            >
+          </li>
+        </ul>
+
+        <div class="sidebar-bottom">
+          <div
+            style="
+              display: flex;
+              gap: 4px;
+              margin-bottom: 16px;
+              justify-content: center;
+            "
+          >
+            <button
+              id="lang-tr"
+              onclick="i18n.setLang('tr')"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+              "
+            >
+              TR
+            </button>
+            <button
+              id="lang-en"
+              onclick="i18n.setLang('en')"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+              "
+            >
+              EN
+            </button>
+            <button
+              id="theme-toggle"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+                flex: 1;
+              "
+            >
+              ☀️ Açık Tema
+            </button>
           </div>
-          <div class="input-group">
-            <label class="input-label" data-i18n="contact_form_message">Mesaj</label>
-            <textarea class="input-field" id="cf-message" data-i18n="contact_form_message" placeholder="Merhaba Ömür Can,&#10;&#10;..." required></textarea>
+          <div class="user-info">
+            <div class="user-avatar" id="nav-user-avatar">Ö</div>
+            <div>
+              <div class="user-name" id="nav-user-name">Ömür Can</div>
+              <div class="user-role" id="nav-user-role">Admin</div>
+            </div>
           </div>
-          <button type="submit" class="send-btn">
-            <span id="send-btn-text" data-i18n="contact_btn_send">📨 Mesaj Gönder</span>
+          <button class="logout-btn" id="logout-btn">
+            <span>🚪</span> <span data-i18n="nav_logout">Çıkış Yap</span>
           </button>
-          <div id="form-success" style="display:none; padding:14px; border-radius:12px; background: rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.2); font-size:13px; color: var(--emerald); text-align:center;">
-            ✅ Mesajın iletildi! En kısa sürede yanıt vereceğim.
-          </div>
-        </form>
-
-        <!-- Info note -->
-        <div style="margin-top: 20px; padding: 14px; background: rgba(108,99,255,0.06); border: 1px solid rgba(108,99,255,0.15); border-radius: var(--radius-md); font-size: 12px; color: var(--text-muted); line-height: 1.6;">
-          💡 <strong style="color:var(--accent-light);">Not:</strong> Form şu an mailto bağlantısı kullanıyor. EmailJS entegrasyonu kurulduktan sonra direkt gönderim aktif olacak.
         </div>
-      </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="page-header">
+          <h1 class="page-title">
+            📬 <span data-i18n="contact_title">İletişim</span>
+          </h1>
+          <p class="page-subtitle" data-i18n="contact_subtitle">
+            Benimle iletişime geç
+          </p>
+        </div>
+
+        <div class="contact-layout">
+          <!-- Left Column -->
+          <div>
+            <!-- Profile Mini -->
+            <div class="profile-mini animate-fade-up">
+              <div class="profile-avatar-big">Ö</div>
+              <div class="profile-name">Ömür Can Yılmaz</div>
+              <p class="profile-bio" data-i18n="contact_bio">
+                Yazılım geliştirici, gezgin ve sürekli öğrenen biri.
+                Teknolojiyle hayatı birleştirmeyi seven biri.
+              </p>
+              <div class="profile-location">📍 Türkiye</div>
+              <div class="availability-badge">
+                <div class="avail-dot"></div>
+                <span data-i18n="contact_avail">Yeni fırsatlara açık</span>
+              </div>
+            </div>
+
+            <!-- Social Links -->
+            <div
+              class="social-card animate-fade-up"
+              style="animation-delay: 0.1s"
+            >
+              <div class="social-card-title">🔗 Sosyal Medya</div>
+              <div class="social-links-list">
+                <a
+                  href="https://github.com"
+                  target="_blank"
+                  class="social-link-item"
+                >
+                  <div
+                    class="social-icon-wrap"
+                    style="background: rgba(255, 255, 255, 0.06)"
+                  >
+                    🐙
+                  </div>
+                  <div class="social-info">
+                    <div class="social-name">GitHub</div>
+                    <div class="social-handle">@omurcanyilmaz</div>
+                  </div>
+                  <span class="social-arrow">→</span>
+                </a>
+                <a
+                  href="https://linkedin.com"
+                  target="_blank"
+                  class="social-link-item"
+                >
+                  <div
+                    class="social-icon-wrap"
+                    style="background: rgba(10, 102, 194, 0.15)"
+                  >
+                    💼
+                  </div>
+                  <div class="social-info">
+                    <div class="social-name">LinkedIn</div>
+                    <div class="social-handle">Ömür Can Yılmaz</div>
+                  </div>
+                  <span class="social-arrow">→</span>
+                </a>
+                <a
+                  href="https://twitter.com"
+                  target="_blank"
+                  class="social-link-item"
+                >
+                  <div
+                    class="social-icon-wrap"
+                    style="background: rgba(29, 155, 240, 0.12)"
+                  >
+                    🐦
+                  </div>
+                  <div class="social-info">
+                    <div class="social-name">Twitter / X</div>
+                    <div class="social-handle">@omurcanyilmaz</div>
+                  </div>
+                  <span class="social-arrow">→</span>
+                </a>
+                <a
+                  href="mailto:info@omurcanyilmaz.com"
+                  class="social-link-item"
+                >
+                  <div
+                    class="social-icon-wrap"
+                    style="background: rgba(108, 99, 255, 0.15)"
+                  >
+                    ✉️
+                  </div>
+                  <div class="social-info">
+                    <div class="social-name">E-posta</div>
+                    <div class="social-handle">info@omurcanyilmaz.com</div>
+                  </div>
+                  <span class="social-arrow">→</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Contact Form -->
+          <div
+            class="contact-form-card animate-fade-up"
+            style="animation-delay: 0.15s"
+          >
+            <div class="contact-form-title" data-i18n="contact_form_title">
+              💬 Mesaj Gönder
+            </div>
+            <form class="contact-form" id="contact-form">
+              <div class="contact-form-grid">
+                <div class="input-group">
+                  <label class="input-label" data-i18n="contact_form_name"
+                    >Adınız</label
+                  >
+                  <input
+                    type="text"
+                    class="input-field"
+                    id="cf-name"
+                    data-i18n="contact_form_name"
+                    placeholder="Adınız"
+                    required
+                  />
+                </div>
+                <div class="input-group">
+                  <label class="input-label">E-posta</label>
+                  <input
+                    type="email"
+                    class="input-field"
+                    id="cf-email"
+                    placeholder="email@örnek.com"
+                    required
+                  />
+                </div>
+              </div>
+              <div class="input-group">
+                <label class="input-label" data-i18n="contact_form_subject"
+                  >Konu</label
+                >
+                <input
+                  type="text"
+                  class="input-field"
+                  id="cf-subject"
+                  data-i18n="contact_form_subject"
+                  placeholder="Mesajınızın konusu..."
+                  required
+                />
+              </div>
+              <div class="input-group">
+                <label class="input-label" data-i18n="contact_form_message"
+                  >Mesaj</label
+                >
+                <textarea
+                  class="input-field"
+                  id="cf-message"
+                  data-i18n="contact_form_message"
+                  placeholder="Merhaba Ömür Can,&#10;&#10;..."
+                  required
+                ></textarea>
+              </div>
+              <button type="submit" class="send-btn">
+                <span id="send-btn-text" data-i18n="contact_btn_send"
+                  >📨 Mesaj Gönder</span
+                >
+              </button>
+              <div
+                id="form-success"
+                style="
+                  display: none;
+                  padding: 14px;
+                  border-radius: 12px;
+                  background: rgba(52, 211, 153, 0.08);
+                  border: 1px solid rgba(52, 211, 153, 0.2);
+                  font-size: 13px;
+                  color: var(--emerald);
+                  text-align: center;
+                "
+              >
+                ✅ Mesajın iletildi! En kısa sürede yanıt vereceğim.
+              </div>
+            </form>
+
+            <!-- Info note -->
+            <div
+              style="
+                margin-top: 20px;
+                padding: 14px;
+                background: rgba(108, 99, 255, 0.06);
+                border: 1px solid rgba(108, 99, 255, 0.15);
+                border-radius: var(--radius-md);
+                font-size: 12px;
+                color: var(--text-muted);
+                line-height: 1.6;
+              "
+            >
+              💡 <strong style="color: var(--accent-light)">Not:</strong> Form
+              şu an mailto bağlantısı kullanıyor. EmailJS entegrasyonu
+              kurulduktan sonra direkt gönderim aktif olacak.
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
-  </main>
-</div>
 
-<script src="../js/i18n.js"></script>
-<script src="../js/auth.js"></script>
-<script src="../js/nav.js"></script>
-<script>
-  Auth.guard();
-  Nav.init();
+    <script src="../js/i18n.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/nav.js"></script>
+    <script>
+      Nav.init();
 
-  document.getElementById('contact-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    const name = document.getElementById('cf-name').value;
-    const email = document.getElementById('cf-email').value;
-    const subject = document.getElementById('cf-subject').value;
-    const message = document.getElementById('cf-message').value;
+      document
+        .getElementById("contact-form")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const name = document.getElementById("cf-name").value;
+          const email = document.getElementById("cf-email").value;
+          const subject = document.getElementById("cf-subject").value;
+          const message = document.getElementById("cf-message").value;
 
-    // Open mailto for now (EmailJS will replace this later)
-    const mailtoLink = `mailto:info@omurcanyilmaz.com?subject=${encodeURIComponent(subject + ' - ' + name)}&body=${encodeURIComponent('Gönderen: ' + name + '\nE-posta: ' + email + '\n\n' + message)}`;
-    window.location.href = mailtoLink;
+          // Open mailto for now (EmailJS will replace this later)
+          const mailtoLink = `mailto:info@omurcanyilmaz.com?subject=${encodeURIComponent(subject + " - " + name)}&body=${encodeURIComponent("Gönderen: " + name + "\nE-posta: " + email + "\n\n" + message)}`;
+          window.location.href = mailtoLink;
 
-    // Show success
-    document.getElementById('form-success').style.display = 'block';
-    document.getElementById('send-btn-text').textContent = '✅ Gönderildi!';
-    setTimeout(() => {
-      document.getElementById('form-success').style.display = 'none';
-      document.getElementById('send-btn-text').textContent = '📨 Mesaj Gönder';
-      document.getElementById('contact-form').reset();
-    }, 4000);
-  });
-  window.addEventListener('languageChanged', () => { if(typeof render === 'function') render(); else if(typeof init === 'function') init(); });
-</script>
-</body>
+          // Show success
+          document.getElementById("form-success").style.display = "block";
+          document.getElementById("send-btn-text").textContent =
+            "✅ Gönderildi!";
+          setTimeout(() => {
+            document.getElementById("form-success").style.display = "none";
+            document.getElementById("send-btn-text").textContent =
+              "📨 Mesaj Gönder";
+            document.getElementById("contact-form").reset();
+          }, 4000);
+        });
+      window.addEventListener("languageChanged", () => {
+        if (typeof render === "function") render();
+        else if (typeof init === "function") init();
+      });
+    </script>
+  </body>
 </html>

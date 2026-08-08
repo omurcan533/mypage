@@ -1,457 +1,727 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="tr">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Geziler — Ömür Can Yılmaz</title>
-  <meta name="description" content="Ömür Can Yılmaz'ın gezileri ve seyahatleri">
-  <link rel="stylesheet" href="../css/style.css">
-  <style>
-    .travel-header-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 28px;
-      flex-wrap: wrap;
-      gap: 16px;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geziler — Ömür Can Yılmaz</title>
+    <meta
+      name="description"
+      content="Ömür Can Yılmaz'ın gezileri ve seyahatleri"
+    />
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      .travel-header-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 28px;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
 
-    /* Map-style world display */
-    .travel-world-bar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 24px;
-      background: var(--bg-card);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-xl);
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-    .world-stat { display: flex; align-items: center; gap: 8px; }
-    .world-stat-val { font-size: 24px; font-weight: 800; color: var(--text-primary); }
-    .world-stat-label { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
-    .world-divider { width: 1px; height: 36px; background: var(--glass-border); }
+      /* Map-style world display */
+      .travel-world-bar {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 24px;
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+      .world-stat {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .world-stat-val {
+        font-size: 24px;
+        font-weight: 800;
+        color: var(--text-primary);
+      }
+      .world-stat-label {
+        font-size: 12px;
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .world-divider {
+        width: 1px;
+        height: 36px;
+        background: var(--glass-border);
+      }
 
-    /* Travel cards */
-    .travels-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 16px;
-    }
+      /* Travel cards */
+      .travels-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+      }
 
-    .travel-card {
-      background: var(--bg-card);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--radius-xl);
-      overflow: hidden;
-      transition: var(--transition);
-      animation: fadeInUp 0.4s ease;
-      position: relative;
-    }
+      .travel-card {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        transition: var(--transition);
+        animation: fadeInUp 0.4s ease;
+        position: relative;
+      }
 
-    .travel-card:hover {
-      border-color: var(--glass-border-hover);
-      transform: translateY(-4px);
-      box-shadow: var(--shadow-md);
-    }
+      .travel-card:hover {
+        border-color: var(--glass-border-hover);
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-md);
+      }
 
-    .travel-card-banner {
-      height: 120px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 56px;
-      position: relative;
-      overflow: hidden;
-    }
+      .travel-card-banner {
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 56px;
+        position: relative;
+        overflow: hidden;
+      }
 
-    .travel-card-banner::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      opacity: 0.8;
-    }
+      .travel-card-banner::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.8;
+      }
 
-    .travel-card-banner .flag {
-      position: relative;
-      z-index: 1;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
-    }
+      .travel-card-banner .flag {
+        position: relative;
+        z-index: 1;
+        filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+      }
 
-    .travel-card-body { padding: 18px 20px; }
+      .travel-card-body {
+        padding: 18px 20px;
+      }
 
-    .travel-city {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--text-primary);
-    }
+      .travel-city {
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
 
-    .travel-country {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-top: 2px;
-    }
+      .travel-country {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-top: 2px;
+      }
 
-    .travel-date {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 10px;
-    }
+      .travel-date {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 10px;
+      }
 
-    .travel-note {
-      font-size: 12px;
-      color: var(--text-secondary);
-      line-height: 1.5;
-      margin-top: 8px;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+      .travel-note {
+        font-size: 12px;
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin-top: 8px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
 
-    .travel-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      margin-top: 10px;
-    }
+      .travel-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 10px;
+      }
 
-    .travel-tag {
-      padding: 2px 8px;
-      border-radius: var(--radius-pill);
-      font-size: 10px;
-      font-weight: 600;
-      background: rgba(255,255,255,0.06);
-      color: var(--text-muted);
-    }
+      .travel-tag {
+        padding: 2px 8px;
+        border-radius: var(--radius-pill);
+        font-size: 10px;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text-muted);
+      }
 
-    .travel-card-actions {
-      position: absolute;
-      top: 10px; right: 10px;
-      display: flex;
-      gap: 4px;
-      opacity: 0;
-      transition: var(--transition);
-    }
-    .travel-card:hover .travel-card-actions { opacity: 1; }
-    .travel-card-actions .icon-btn {
-      background: rgba(9,14,26,0.7);
-      backdrop-filter: blur(4px);
-    }
+      .travel-card-actions {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        display: flex;
+        gap: 4px;
+        opacity: 0;
+        transition: var(--transition);
+      }
+      .travel-card:hover .travel-card-actions {
+        opacity: 1;
+      }
+      .travel-card-actions .icon-btn {
+        background: rgba(9, 14, 26, 0.7);
+        backdrop-filter: blur(4px);
+      }
 
-    /* Rating stars */
-    .travel-rating { display: flex; gap: 2px; margin-top: 8px; }
-    .star { font-size: 12px; opacity: 0.3; }
-    .star.filled { opacity: 1; }
+      /* Rating stars */
+      .travel-rating {
+        display: flex;
+        gap: 2px;
+        margin-top: 8px;
+      }
+      .star {
+        font-size: 12px;
+        opacity: 0.3;
+      }
+      .star.filled {
+        opacity: 1;
+      }
 
-    /* Continent sections */
-    .continent-header {
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      margin: 24px 0 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .continent-header::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--glass-border);
-    }
-  </style>
-</head>
-<body>
-<div class="bg-orbs"></div>
-<div class="app-layout">
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-logo">
-      <div class="logo-icon">Ö</div>
-      <div><div class="logo-text">Ömür Can</div><div class="logo-sub" data-i18n="nav_personal_space">Kişisel Alan</div></div>
+      /* Continent sections */
+      .continent-header {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin: 24px 0 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .continent-header::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--glass-border);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-orbs"></div>
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon">Ö</div>
+          <div>
+            <div class="logo-text">Ömür Can</div>
+            <div class="logo-sub" data-i18n="nav_personal_space">
+              Kişisel Alan
+            </div>
+          </div>
+        </div>
+        <span class="nav-group-label" data-i18n="nav_navigation"
+          >Navigasyon</span
+        >
+        <ul class="nav-links">
+          <li>
+            <a href="home.html"
+              ><span class="nav-icon">🏠</span>
+              <span data-i18n="nav_home">Ana Sayfa</span></a
+            >
+          </li>
+          <li>
+            <a href="habits.html"
+              ><span class="nav-icon">✅</span>
+              <span data-i18n="nav_habits">Alışkanlıklar</span></a
+            >
+          </li>
+          <li>
+            <a href="projects.html"
+              ><span class="nav-icon">🚀</span>
+              <span data-i18n="nav_projects">Projeler</span></a
+            >
+          </li>
+          <li>
+            <a href="travels.html" class="active"
+              ><span class="nav-icon">✈️</span>
+              <span data-i18n="nav_travels">Geziler</span></a
+            >
+          </li>
+          <li>
+            <a href="contact.html"
+              ><span class="nav-icon">📬</span>
+              <span data-i18n="nav_contact">İletişim</span></a
+            >
+          </li>
+          <li>
+            <a href="books.html"
+              ><span class="nav-icon">📚</span>
+              <span>Kitaplar</span></a
+            >
+          </li>
+        </ul>
+
+        <div class="sidebar-bottom">
+          <div
+            style="
+              display: flex;
+              gap: 4px;
+              margin-bottom: 16px;
+              justify-content: center;
+            "
+          >
+            <button
+              id="lang-tr"
+              onclick="i18n.setLang('tr')"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+              "
+            >
+              TR
+            </button>
+            <button
+              id="lang-en"
+              onclick="i18n.setLang('en')"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+              "
+            >
+              EN
+            </button>
+            <button
+              id="theme-toggle"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+                flex: 1;
+              "
+            >
+              ☀️ Açık Tema
+            </button>
+          </div>
+          <div class="user-info">
+            <div class="user-avatar" id="nav-user-avatar">Ö</div>
+            <div>
+              <div class="user-name" id="nav-user-name">Ömür Can</div>
+              <div class="user-role" id="nav-user-role">Admin</div>
+            </div>
+          </div>
+          <button class="logout-btn" id="logout-btn">
+            <span>🚪</span> <span data-i18n="nav_logout">Çıkış Yap</span>
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="travel-header-row">
+          <div class="page-header" style="margin-bottom: 0">
+            <h1 class="page-title">
+              ✈️ <span data-i18n="travels_title">Geziler</span>
+            </h1>
+            <p class="page-subtitle" data-i18n="travels_subtitle">
+              Gittiğim yerler, anılar ve keşifler
+            </p>
+          </div>
+          <button class="btn btn-primary" id="add-travel-btn">
+            ＋ Gezi Ekle
+          </button>
+        </div>
+
+        <!-- Stats bar -->
+        <div class="travel-world-bar" id="travel-stats-bar">
+          <div class="world-stat">
+            <span class="world-stat-val" id="ts-trips">0</span>
+            <span class="world-stat-label">Gezi</span>
+          </div>
+          <div class="world-divider"></div>
+          <div class="world-stat">
+            <span class="world-stat-val" id="ts-countries">0</span>
+            <span class="world-stat-label">Ülke</span>
+          </div>
+          <div class="world-divider"></div>
+          <div class="world-stat">
+            <span class="world-stat-val" id="ts-cities">0</span>
+            <span class="world-stat-label">Şehir</span>
+          </div>
+          <div class="world-divider"></div>
+          <div class="world-stat">
+            <span class="world-stat-val" id="ts-continents">0</span>
+            <span class="world-stat-label">Kıta</span>
+          </div>
+        </div>
+
+        <div id="travels-container"></div>
+      </main>
     </div>
-    <span class="nav-group-label" data-i18n="nav_navigation">Navigasyon</span>
-    <ul class="nav-links">
-      <li><a href="home.html"><span class="nav-icon">🏠</span> <span data-i18n="nav_home">Ana Sayfa</span></a></li>
-      <li><a href="habits.html"><span class="nav-icon">✅</span> <span data-i18n="nav_habits">Alışkanlıklar</span></a></li>
-      <li><a href="projects.html"><span class="nav-icon">🚀</span> <span data-i18n="nav_projects">Projeler</span></a></li>
-      <li><a href="travels.html"><span class="nav-icon">✈️</span> <span data-i18n="nav_travels">Geziler</span></a></li>
-      <li><a href="contact.html"><span class="nav-icon">📬</span> <span data-i18n="nav_contact">İletişim</span></a></li>
-    </ul>
 
-    <div class="sidebar-bottom">
-      <div style="display:flex; gap:4px; margin-bottom:16px; justify-content: center;">
-         <button id="lang-tr" onclick="i18n.setLang('tr')" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); border-radius:4px; padding:4px 8px; cursor:pointer;">TR</button>
-         <button id="lang-en" onclick="i18n.setLang('en')" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); border-radius:4px; padding:4px 8px; cursor:pointer;">EN</button>
-         <button id="theme-toggle" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); border-radius:4px; padding:4px 8px; cursor:pointer; flex:1;">☀️ Açık Tema</button>
-      </div>
-      <div class="user-info">
-        <div class="user-avatar" id="nav-user-avatar">Ö</div>
-        <div>
-          <div class="user-name" id="nav-user-name">Ömür Can</div>
-          <div class="user-role" id="nav-user-role">Admin</div>
+    <!-- Add/Edit Travel Modal -->
+    <div class="modal-overlay" id="travel-modal">
+      <div class="modal" style="max-width: 500px">
+        <div class="modal-header">
+          <div class="modal-title" id="travel-modal-title">✈️ Yeni Gezi</div>
+          <button class="modal-close">✕</button>
         </div>
+        <form id="travel-form">
+          <input type="hidden" id="edit-travel-id" />
+          <div
+            style="
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 12px;
+              margin-bottom: 14px;
+            "
+          >
+            <div class="input-group">
+              <label class="input-label">Şehir</label>
+              <input
+                type="text"
+                class="input-field"
+                id="travel-city"
+                placeholder="İstanbul"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Ülke</label>
+              <input
+                type="text"
+                class="input-field"
+                id="travel-country"
+                placeholder="Türkiye"
+                required
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Kıta</label>
+              <select
+                class="input-field"
+                id="travel-continent"
+                style="cursor: pointer"
+              >
+                <option value="Avrupa">🌍 Avrupa</option>
+                <option value="Asya">🌏 Asya</option>
+                <option value="Amerika">🌎 Amerika</option>
+                <option value="Afrika">🌍 Afrika</option>
+                <option value="Okyanusya">🌏 Okyanusya</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Bayrak Emojisi</label>
+              <input
+                type="text"
+                class="input-field"
+                id="travel-flag"
+                placeholder="🇹🇷"
+                maxlength="4"
+                value="🇹🇷"
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Gidiş Tarihi</label>
+              <input type="date" class="input-field" id="travel-date-start" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Dönüş Tarihi</label>
+              <input type="date" class="input-field" id="travel-date-end" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Puan (1-5)</label>
+              <input
+                type="number"
+                class="input-field"
+                id="travel-rating"
+                min="1"
+                max="5"
+                value="5"
+              />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Banner Rengi</label>
+              <input
+                type="color"
+                id="travel-color"
+                value="#6c63ff"
+                style="
+                  width: 48px;
+                  height: 36px;
+                  border: none;
+                  background: none;
+                  cursor: pointer;
+                  border-radius: 8px;
+                "
+              />
+            </div>
+            <div class="input-group" style="grid-column: 1/-1">
+              <label class="input-label">Not / Anı</label>
+              <textarea
+                class="input-field"
+                id="travel-note"
+                rows="3"
+                placeholder="Bu seyahat hakkında notlarını yaz..."
+                style="resize: vertical"
+              ></textarea>
+            </div>
+            <div class="input-group" style="grid-column: 1/-1">
+              <label class="input-label">Etiketler (virgülle ayır)</label>
+              <input
+                type="text"
+                class="input-field"
+                id="travel-tags"
+                placeholder="yemek, kültür, doğa, tatil"
+              />
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end">
+            <button type="button" class="btn btn-ghost modal-close">
+              İptal
+            </button>
+            <button type="submit" class="btn btn-primary">✓ Kaydet</button>
+          </div>
+        </form>
       </div>
-      <button class="logout-btn" id="logout-btn">
-        <span>🚪</span> <span data-i18n="nav_logout">Çıkış Yap</span>
-      </button>
     </div>
-  </aside>
 
-  <main class="main-content">
-    <div class="travel-header-row">
-      <div class="page-header" style="margin-bottom:0;">
-        <h1 class="page-title">✈️ <span data-i18n="travels_title">Geziler</span></h1>
-        <p class="page-subtitle" data-i18n="travels_subtitle">Gittiğim yerler, anılar ve keşifler</p>
-      </div>
-      <button class="btn btn-primary" id="add-travel-btn">＋ Gezi Ekle</button>
-    </div>
+    <script src="../js/i18n.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/nav.js"></script>
+    <script>
+      Nav.init();
+      Modal.setup("travel-modal");
 
-    <!-- Stats bar -->
-    <div class="travel-world-bar" id="travel-stats-bar">
-      <div class="world-stat">
-        <span class="world-stat-val" id="ts-trips">0</span>
-        <span class="world-stat-label">Gezi</span>
-      </div>
-      <div class="world-divider"></div>
-      <div class="world-stat">
-        <span class="world-stat-val" id="ts-countries">0</span>
-        <span class="world-stat-label">Ülke</span>
-      </div>
-      <div class="world-divider"></div>
-      <div class="world-stat">
-        <span class="world-stat-val" id="ts-cities">0</span>
-        <span class="world-stat-label">Şehir</span>
-      </div>
-      <div class="world-divider"></div>
-      <div class="world-stat">
-        <span class="world-stat-val" id="ts-continents">0</span>
-        <span class="world-stat-label">Kıta</span>
-      </div>
-    </div>
+      const TRAVEL_KEY = "oyp_travels";
 
-    <div id="travels-container"></div>
-  </main>
-</div>
+      function getTravels() {
+        try {
+          return JSON.parse(localStorage.getItem(TRAVEL_KEY)) || [];
+        } catch {
+          return [];
+        }
+      }
+      let isAdminMode = false;
 
-<!-- Add/Edit Travel Modal -->
-<div class="modal-overlay" id="travel-modal">
-  <div class="modal" style="max-width: 500px;">
-    <div class="modal-header">
-      <div class="modal-title" id="travel-modal-title">✈️ Yeni Gezi</div>
-      <button class="modal-close">✕</button>
-    </div>
-    <form id="travel-form">
-      <input type="hidden" id="edit-travel-id">
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px;">
-        <div class="input-group">
-          <label class="input-label">Şehir</label>
-          <input type="text" class="input-field" id="travel-city" placeholder="İstanbul" required>
-        </div>
-        <div class="input-group">
-          <label class="input-label">Ülke</label>
-          <input type="text" class="input-field" id="travel-country" placeholder="Türkiye" required>
-        </div>
-        <div class="input-group">
-          <label class="input-label">Kıta</label>
-          <select class="input-field" id="travel-continent" style="cursor:pointer;">
-            <option value="Avrupa">🌍 Avrupa</option>
-            <option value="Asya">🌏 Asya</option>
-            <option value="Amerika">🌎 Amerika</option>
-            <option value="Afrika">🌍 Afrika</option>
-            <option value="Okyanusya">🌏 Okyanusya</option>
-          </select>
-        </div>
-        <div class="input-group">
-          <label class="input-label">Bayrak Emojisi</label>
-          <input type="text" class="input-field" id="travel-flag" placeholder="🇹🇷" maxlength="4" value="🇹🇷">
-        </div>
-        <div class="input-group">
-          <label class="input-label">Gidiş Tarihi</label>
-          <input type="date" class="input-field" id="travel-date-start">
-        </div>
-        <div class="input-group">
-          <label class="input-label">Dönüş Tarihi</label>
-          <input type="date" class="input-field" id="travel-date-end">
-        </div>
-        <div class="input-group">
-          <label class="input-label">Puan (1-5)</label>
-          <input type="number" class="input-field" id="travel-rating" min="1" max="5" value="5">
-        </div>
-        <div class="input-group">
-          <label class="input-label">Banner Rengi</label>
-          <input type="color" id="travel-color" value="#6c63ff" style="width:48px; height:36px; border:none; background:none; cursor:pointer; border-radius:8px;">
-        </div>
-        <div class="input-group" style="grid-column:1/-1;">
-          <label class="input-label">Not / Anı</label>
-          <textarea class="input-field" id="travel-note" rows="3" placeholder="Bu seyahat hakkında notlarını yaz..." style="resize:vertical;"></textarea>
-        </div>
-        <div class="input-group" style="grid-column:1/-1;">
-          <label class="input-label">Etiketler (virgülle ayır)</label>
-          <input type="text" class="input-field" id="travel-tags" placeholder="yemek, kültür, doğa, tatil">
-        </div>
-      </div>
-      <div style="display:flex; gap:10px; justify-content:flex-end;">
-        <button type="button" class="btn btn-ghost modal-close">İptal</button>
-        <button type="submit" class="btn btn-primary">✓ Kaydet</button>
-      </div>
-    </form>
-  </div>
-</div>
+      async function syncTravelAccess() {
+        isAdminMode = await Auth.canManageContent();
+        const addBtn = document.getElementById("add-travel-btn");
+        if (addBtn) {
+          addBtn.style.display = isAdminMode ? "inline-flex" : "none";
+        }
+      }
 
-<script src="../js/i18n.js"></script>
-<script src="../js/auth.js"></script>
-<script src="../js/nav.js"></script>
-<script>
-  Auth.guard();
-  Nav.init();
-  Modal.setup('travel-modal');
+      function saveTravels(t) {
+        localStorage.setItem(TRAVEL_KEY, JSON.stringify(t));
+      }
 
-  const TRAVEL_KEY = 'oyp_travels';
+      async function renderTravels() {
+        const travels = getTravels();
+        const canManage = await Auth.canManageContent();
+        // Stats
+        const countries = new Set(travels.map((t) => t.country)).size;
+        const cities = new Set(travels.map((t) => t.city)).size;
+        const continents = new Set(travels.map((t) => t.continent)).size;
+        document.getElementById("ts-trips").textContent = travels.length;
+        document.getElementById("ts-countries").textContent = countries;
+        document.getElementById("ts-cities").textContent = cities;
+        document.getElementById("ts-continents").textContent = continents;
 
-  function getTravels() {
-    try { return JSON.parse(localStorage.getItem(TRAVEL_KEY)) || []; }
-    catch { return []; }
-  }
-  function saveTravels(t) { localStorage.setItem(TRAVEL_KEY, JSON.stringify(t)); }
+        const container = document.getElementById("travels-container");
 
-  function renderTravels() {
-    const travels = getTravels();
-
-    // Stats
-    const countries = new Set(travels.map(t => t.country)).size;
-    const cities = new Set(travels.map(t => t.city)).size;
-    const continents = new Set(travels.map(t => t.continent)).size;
-    document.getElementById('ts-trips').textContent = travels.length;
-    document.getElementById('ts-countries').textContent = countries;
-    document.getElementById('ts-cities').textContent = cities;
-    document.getElementById('ts-continents').textContent = continents;
-
-    const container = document.getElementById('travels-container');
-
-    if (travels.length === 0) {
-      container.innerHTML = `<div class="empty-state glass-card" style="padding:80px 20px;">
+        if (travels.length === 0) {
+          container.innerHTML = `<div class="empty-state glass-card" style="padding:80px 20px;">
         <div class="empty-icon">✈️</div>
         <div class="empty-title">Henüz gezi yok</div>
-        <div class="empty-sub">İlk gezini ekle ve anılarını kaydet!</div>
+        <div class="empty-sub">${canManage ? "İlk gezini ekle ve anılarını kaydet!" : "Şu anda görüntülenecek gezi bulunmuyor."}</div>
       </div>`;
-      return;
-    }
+          return;
+        }
 
-    // Group by continent
-    const byContinent = {};
-    travels.forEach(t => {
-      const k = t.continent || 'Diğer';
-      if (!byContinent[k]) byContinent[k] = [];
-      byContinent[k].push(t);
-    });
+        // Group by continent
+        const byContinent = {};
+        travels.forEach((t) => {
+          const k = t.continent || "Diğer";
+          if (!byContinent[k]) byContinent[k] = [];
+          byContinent[k].push(t);
+        });
 
-    container.innerHTML = Object.entries(byContinent).map(([continent, items]) => {
-      const continentEmoji = { Avrupa: '🌍', Asya: '🌏', Amerika: '🌎', Afrika: '🌍', Okyanusya: '🌏', Diğer: '🌐' };
-      const cards = items.map(t => {
-        const stars = Array.from({length:5}, (_,i) => `<span class="star${i < (t.rating||5) ? ' filled' : ''}">★</span>`).join('');
-        const tags = (t.tags||[]).map(tg => `<span class="travel-tag">${tg}</span>`).join('');
-        const dateStr = t.dateStart ? `${t.dateStart}${t.dateEnd ? ' → ' + t.dateEnd : ''}` : '';
-        return `<div class="travel-card">
-          <div class="travel-card-actions">
-            <button class="icon-btn" onclick="editTravel('${t.id}')" title="Düzenle">✏️</button>
-            <button class="icon-btn delete" onclick="deleteTravel('${t.id}')" title="Sil">🗑</button>
-          </div>
-          <div class="travel-card-banner" style="background: linear-gradient(135deg, ${t.color||'#6c63ff'}44, ${t.color||'#6c63ff'}11);">
-            <span class="flag">${t.flag || '🌍'}</span>
+        container.innerHTML = Object.entries(byContinent)
+          .map(([continent, items]) => {
+            const continentEmoji = {
+              Avrupa: "🌍",
+              Asya: "🌏",
+              Amerika: "🌎",
+              Afrika: "🌍",
+              Okyanusya: "🌏",
+              Diğer: "🌐",
+            };
+            const cards = items
+              .map((t) => {
+                const stars = Array.from(
+                  { length: 5 },
+                  (_, i) =>
+                    `<span class="star${i < (t.rating || 5) ? " filled" : ""}">★</span>`,
+                ).join("");
+                const tags = (t.tags || [])
+                  .map((tg) => `<span class="travel-tag">${tg}</span>`)
+                  .join("");
+                const dateStr = t.dateStart
+                  ? `${t.dateStart}${t.dateEnd ? " → " + t.dateEnd : ""}`
+                  : "";
+                const actionsMarkup = canManage
+                  ? `<div class="travel-card-actions">
+                      <button class="icon-btn" onclick="editTravel('${t.id}')" title="Düzenle">✏️</button>
+                      <button class="icon-btn delete" onclick="deleteTravel('${t.id}')" title="Sil">🗑</button>
+                    </div>`
+                  : "";
+
+                return `<div class="travel-card">
+          ${actionsMarkup}
+          <div class="travel-card-banner" style="background: linear-gradient(135deg, ${t.color || "#6c63ff"}44, ${t.color || "#6c63ff"}11);">
+            <span class="flag">${t.flag || "🌍"}</span>
           </div>
           <div class="travel-card-body">
             <div class="travel-city">${t.city}</div>
             <div class="travel-country">${t.country}</div>
             <div class="travel-rating">${stars}</div>
-            ${dateStr ? `<div class="travel-date">📅 ${dateStr}</div>` : ''}
-            ${t.note ? `<div class="travel-note">${t.note}</div>` : ''}
-            ${tags ? `<div class="travel-tags">${tags}</div>` : ''}
+            ${dateStr ? `<div class="travel-date">📅 ${dateStr}</div>` : ""}
+            ${t.note ? `<div class="travel-note">${t.note}</div>` : ""}
+            ${tags ? `<div class="travel-tags">${tags}</div>` : ""}
           </div>
         </div>`;
-      }).join('');
+              })
+              .join("");
 
-      return `<div class="continent-header">${continentEmoji[continent]||'🌐'} ${continent}</div>
+            return `<div class="continent-header">${continentEmoji[continent] || "🌐"} ${continent}</div>
         <div class="travels-grid">${cards}</div>`;
-    }).join('');
-  }
+          })
+          .join("");
+      }
 
-  function editTravel(id) {
-    const t = getTravels().find(x => x.id === id);
-    if (!t) return;
-    document.getElementById('travel-modal-title').textContent = '✏️ Geziyi Düzenle';
-    document.getElementById('edit-travel-id').value = id;
-    document.getElementById('travel-city').value = t.city;
-    document.getElementById('travel-country').value = t.country;
-    document.getElementById('travel-continent').value = t.continent || 'Avrupa';
-    document.getElementById('travel-flag').value = t.flag || '🌍';
-    document.getElementById('travel-date-start').value = t.dateStart || '';
-    document.getElementById('travel-date-end').value = t.dateEnd || '';
-    document.getElementById('travel-rating').value = t.rating || 5;
-    document.getElementById('travel-color').value = t.color || '#6c63ff';
-    document.getElementById('travel-note').value = t.note || '';
-    document.getElementById('travel-tags').value = (t.tags||[]).join(', ');
-    Modal.open('travel-modal');
-  }
+      async function editTravel(id) {
+        if (!(await Auth.canManageContent())) {
+          Toast.error("Bu işlem için admin girişi gerekli.");
+          return;
+        }
 
-  function deleteTravel(id) {
-    if (!confirm('Bu geziyi silmek istediğinizden emin misiniz?')) return;
-    saveTravels(getTravels().filter(t => t.id !== id));
-    Toast.info('Gezi silindi.');
-    renderTravels();
-  }
+        const t = getTravels().find((x) => x.id === id);
+        if (!t) return;
+        document.getElementById("travel-modal-title").textContent =
+          "✏️ Geziyi Düzenle";
+        document.getElementById("edit-travel-id").value = id;
+        document.getElementById("travel-city").value = t.city;
+        document.getElementById("travel-country").value = t.country;
+        document.getElementById("travel-continent").value =
+          t.continent || "Avrupa";
+        document.getElementById("travel-flag").value = t.flag || "🌍";
+        document.getElementById("travel-date-start").value = t.dateStart || "";
+        document.getElementById("travel-date-end").value = t.dateEnd || "";
+        document.getElementById("travel-rating").value = t.rating || 5;
+        document.getElementById("travel-color").value = t.color || "#6c63ff";
+        document.getElementById("travel-note").value = t.note || "";
+        document.getElementById("travel-tags").value = (t.tags || []).join(
+          ", ",
+        );
+        Modal.open("travel-modal");
+      }
 
-  document.getElementById('add-travel-btn').addEventListener('click', () => {
-    document.getElementById('travel-modal-title').textContent = '✈️ Yeni Gezi';
-    document.getElementById('travel-form').reset();
-    document.getElementById('edit-travel-id').value = '';
-    document.getElementById('travel-flag').value = '🌍';
-    document.getElementById('travel-rating').value = 5;
-    document.getElementById('travel-color').value = '#6c63ff';
-    Modal.open('travel-modal');
-  });
+      async function deleteTravel(id) {
+        if (!(await Auth.canManageContent())) {
+          Toast.error("Bu işlem için admin girişi gerekli.");
+          return;
+        }
 
-  document.getElementById('travel-form').addEventListener('submit', e => {
-    e.preventDefault();
-    const editId = document.getElementById('edit-travel-id').value;
-    const data = {
-      id: editId || Date.now().toString(),
-      city: document.getElementById('travel-city').value.trim(),
-      country: document.getElementById('travel-country').value.trim(),
-      continent: document.getElementById('travel-continent').value,
-      flag: document.getElementById('travel-flag').value.trim(),
-      dateStart: document.getElementById('travel-date-start').value,
-      dateEnd: document.getElementById('travel-date-end').value,
-      rating: parseInt(document.getElementById('travel-rating').value),
-      color: document.getElementById('travel-color').value,
-      note: document.getElementById('travel-note').value.trim(),
-      tags: document.getElementById('travel-tags').value.split(',').map(t=>t.trim()).filter(Boolean)
-    };
+        if (!confirm("Bu geziyi silmek istediğinizden emin misiniz?")) return;
+        saveTravels(getTravels().filter((t) => t.id !== id));
+        Toast.info("Gezi silindi.");
+        renderTravels();
+      }
 
-    let travels = getTravels();
-    if (editId) {
-      travels = travels.map(t => t.id === editId ? { ...t, ...data } : t);
-      Toast.success('Gezi güncellendi!');
-    } else {
-      travels.push(data);
-      Toast.success('Gezi eklendi!');
-    }
-    saveTravels(travels);
-    Modal.close('travel-modal');
-    renderTravels();
-  });
+      document
+        .getElementById("add-travel-btn")
+        .addEventListener("click", async () => {
+          if (!(await Auth.canManageContent())) {
+            Toast.error("Bu işlem için admin girişi gerekli.");
+            return;
+          }
 
-  window.editTravel = editTravel;
-  window.deleteTravel = deleteTravel;
-  renderTravels();
-  window.addEventListener('languageChanged', () => { if(typeof render === 'function') render(); else if(typeof init === 'function') init(); });
-</script>
-</body>
+          document.getElementById("travel-modal-title").textContent =
+            "✈️ Yeni Gezi";
+          document.getElementById("travel-form").reset();
+          document.getElementById("edit-travel-id").value = "";
+          document.getElementById("travel-flag").value = "🌍";
+          document.getElementById("travel-rating").value = 5;
+          document.getElementById("travel-color").value = "#6c63ff";
+          Modal.open("travel-modal");
+        });
+
+      document.getElementById("travel-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        if (!(await Auth.canManageContent())) {
+          Toast.error("Bu işlem için admin girişi gerekli.");
+          return;
+        }
+
+        const editId = document.getElementById("edit-travel-id").value;
+        const data = {
+          id: editId || Date.now().toString(),
+          city: document.getElementById("travel-city").value.trim(),
+          country: document.getElementById("travel-country").value.trim(),
+          continent: document.getElementById("travel-continent").value,
+          flag: document.getElementById("travel-flag").value.trim(),
+          dateStart: document.getElementById("travel-date-start").value,
+          dateEnd: document.getElementById("travel-date-end").value,
+          rating: parseInt(document.getElementById("travel-rating").value),
+          color: document.getElementById("travel-color").value,
+          note: document.getElementById("travel-note").value.trim(),
+          tags: document
+            .getElementById("travel-tags")
+            .value.split(",")
+            .map((t) => t.trim())
+            .filter(Boolean),
+        };
+
+        let travels = getTravels();
+        if (editId) {
+          travels = travels.map((t) =>
+            t.id === editId ? { ...t, ...data } : t,
+          );
+          Toast.success("Gezi güncellendi!");
+        } else {
+          travels.push(data);
+          Toast.success("Gezi eklendi!");
+        }
+        saveTravels(travels);
+        Modal.close("travel-modal");
+        renderTravels();
+      });
+
+      window.editTravel = editTravel;
+      window.deleteTravel = deleteTravel;
+      (async () => {
+        await syncTravelAccess();
+        await renderTravels();
+      })();
+      window.addEventListener("auth:changed", async () => {
+        await syncTravelAccess();
+        await renderTravels();
+      });
+      window.addEventListener("languageChanged", () => {
+        if (typeof render === "function") render();
+        else if (typeof init === "function") init();
+      });
+    </script>
+  </body>
 </html>

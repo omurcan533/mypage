@@ -1,126 +1,229 @@
-// ===== AUTH.JS — Authentication & Session Management =====
+// ===== AUTH.JS — SUPABASE AUTH =====
 
-const AUTH_KEY = 'oyp_auth_session';
-const USERS = {
-  admin: {
-    // SHA-256 hash of "admin" — simple protection for personal site
-    password: 'admin',
-    displayName: 'Ömür Can',
-    role: 'Admin'
-  },
-  tester: {
-    password: 'tester123',
-    displayName: 'Test Kullanıcı',
-    role: 'User'
-  }
-};
+const AUTH_SESSION_FLAG = "site-habits-access";
+const AUTH_ADMIN_FLAG = "site-admin-access";
 
 const Auth = {
-  /**
-   * Attempt login
-   * @returns {boolean}
-   */
-  login(username, password, remember = false) {
-    const user = USERS[username.toLowerCase()];
-    if (!user || user.password !== password) return false;
+  notifyAuthChange() {
+    window.dispatchEvent(new Event("auth:changed"));
+  },
+  getRoleFromUser(user) {
+    if (!user) return "";
 
-    const session = {
-      username,
-      displayName: user.displayName,
-      role: user.role,
-      token: this._generateToken(),
-      expires: remember
-        ? Date.now() + 30 * 24 * 60 * 60 * 1000   // 30 days
-        : Date.now() + 8 * 60 * 60 * 1000           // 8 hours
-    };
+    const metadataRole =
+      user.user_metadata?.role ||
+      user.user_metadata?.role_name ||
+      user.app_metadata?.role ||
+      user.app_metadata?.role_name ||
+      "";
 
-    localStorage.setItem(AUTH_KEY, JSON.stringify(session));
+    return String(metadataRole || "").trim();
+  },
+
+  isAdminUser(user) {
+    if (!user) return false;
+
+    if (user.user_metadata?.is_admin === false || user.app_metadata?.is_admin === false) {
+      return false;
+    }
+
+    if (user.user_metadata?.is_admin === true || user.app_metadata?.is_admin === true) {
+      return true;
+    }
+
+    const role = this.getRoleFromUser(user).toLowerCase();
+    if (["admin", "administrator", "superadmin"].includes(role)) {
+      return true;
+    }
+
+    if (role && !["admin", "administrator", "superadmin"].includes(role)) {
+      return false;
+    }
+
     return true;
   },
 
-  /**
-   * Check if session is valid
-   * @returns {boolean}
-   */
-  isLoggedIn() {
-    const raw = localStorage.getItem(AUTH_KEY);
-    if (!raw) return false;
-    try {
-      const session = JSON.parse(raw);
-      if (Date.now() > session.expires) {
-        this.logout();
-        return false;
-      }
-      return true;
-    } catch {
+  async login(email, password) {
+    const { data, error } = await window.supabaseClient.auth.signInWithPassword(
+      {
+        email: email,
+        password: password,
+      },
+    );
+
+    if (error) {
+      console.error("Login error:", error);
+      localStorage.removeItem(AUTH_SESSION_FLAG);
+      localStorage.removeItem(AUTH_ADMIN_FLAG);
       return false;
     }
+
+    console.log("Login successful:", data.user);
+    localStorage.setItem(AUTH_SESSION_FLAG, "1");
+
+    if (this.isAdminUser(data.user)) {
+      localStorage.setItem(AUTH_ADMIN_FLAG, "1");
+    } else {
+      localStorage.removeItem(AUTH_ADMIN_FLAG);
+    }
+
+    this.notifyAuthChange();
+
+    return true;
   },
 
-  /**
-   * Get current user info
-   */
-  getUser() {
-    const raw = localStorage.getItem(AUTH_KEY);
-    if (!raw) return null;
+  async logout() {
+    const { error } = await window.supabaseClient.auth.signOut();
+
+    if (error) {
+      console.error("Logout error:", error);
+      return false;
+    }
+
+    localStorage.removeItem(AUTH_SESSION_FLAG);
+    localStorage.removeItem(AUTH_ADMIN_FLAG);
+    this.notifyAuthChange();
+    window.location.href = "../index.html";
+
+    return true;
+  },
+
+  async getUser() {
     try {
-      return JSON.parse(raw);
-    } catch {
+      const {
+        data: { user },
+        error,
+      } = await window.supabaseClient.auth.getUser();
+
+      if (error) {
+        return null;
+      }
+
+      return user;
+    } catch (err) {
       return null;
     }
   },
 
-  /**
-   * Destroy session
-   */
-  logout() {
-    localStorage.removeItem(AUTH_KEY);
-    window.location.href = this._getLoginUrl();
+  async getSession() {
+    try {
+      const {
+        data: { session },
+        error,
+      } = await window.supabaseClient.auth.getSession();
+
+      if (error) {
+        return null;
+      }
+
+      return session;
+    } catch (err) {
+      return null;
+    }
   },
 
-  /**
-   * Guard: redirect to login if not authenticated
-   * Call this at the top of every protected page
-   */
-  guard() {
-    if (!this.isLoggedIn()) {
-      window.location.href = this._getLoginUrl();
+  async guard() {
+    const user = await this.getUser();
+
+    if (!user) {
+      window.location.href = "../index.html";
       return false;
     }
+
     return true;
   },
 
-  /**
-   * Populate user info in the nav
-   */
-  populateNav() {
-    const user = this.getUser();
-    if (!user) return;
+  async isLoggedIn() {
+    try {
+      const {
+        data: { session },
+        error,
+      } = await window.supabaseClient.auth.getSession();
 
-    const nameEl = document.getElementById('nav-user-name');
-    const roleEl = document.getElementById('nav-user-role');
-    const avatarEl = document.getElementById('nav-user-avatar');
+      if (error) {
+        localStorage.removeItem(AUTH_SESSION_FLAG);
+        localStorage.removeItem(AUTH_ADMIN_FLAG);
+        this.notifyAuthChange();
+        return false;
+      }
 
-    if (nameEl) nameEl.textContent = user.displayName;
-    if (roleEl) roleEl.textContent = user.role;
-    if (avatarEl) avatarEl.textContent = user.displayName.charAt(0).toUpperCase();
+      if (session) {
+        localStorage.setItem(AUTH_SESSION_FLAG, "1");
+
+        const user = await this.getUser();
+        if (user && this.isAdminUser(user)) {
+          localStorage.setItem(AUTH_ADMIN_FLAG, "1");
+        } else {
+          localStorage.removeItem(AUTH_ADMIN_FLAG);
+        }
+      } else {
+        localStorage.removeItem(AUTH_SESSION_FLAG);
+        localStorage.removeItem(AUTH_ADMIN_FLAG);
+      }
+
+      this.notifyAuthChange();
+      return !!session;
+    } catch (err) {
+      localStorage.removeItem(AUTH_SESSION_FLAG);
+      localStorage.removeItem(AUTH_ADMIN_FLAG);
+      this.notifyAuthChange();
+      return false;
+    }
+  },
+
+  async populateNav() {
+    try {
+      const user = await this.getUser();
+
+      if (!user) return;
+
+      const nameEl = document.getElementById("nav-user-name");
+      const roleEl = document.getElementById("nav-user-role");
+      const avatarEl = document.getElementById("nav-user-avatar");
+
+      // Supabase Auth'ta şimdilik email'i isim olarak kullanıyoruz
+      const displayName =
+        user.user_metadata?.display_name ||
+        user.user_metadata?.name ||
+        user.email?.split("@")[0] ||
+        "User";
+
+      const role = this.getRoleFromUser(user) || (this.isAdminUser(user) ? "Admin" : "User");
+
+      if (nameEl) {
+        nameEl.textContent = displayName;
+      }
+
+      if (roleEl) {
+        roleEl.textContent = role;
+      }
+
+      if (avatarEl) {
+        avatarEl.textContent = displayName.charAt(0).toUpperCase();
+      }
+    } catch (err) {
+      // Ignore unauthenticated user error
+    }
   },
 
   canAccessHabits() {
-    const user = this.getUser();
-    return Boolean(user && user.role === 'Admin');
+    return localStorage.getItem(AUTH_ADMIN_FLAG) === "1";
   },
 
-  _generateToken() {
-    return Math.random().toString(36).slice(2) + Date.now().toString(36);
+  async canManageContent() {
+    if (localStorage.getItem(AUTH_ADMIN_FLAG) === "1") {
+      return true;
+    }
+
+    const user = await this.getUser();
+    return this.isAdminUser(user);
   },
 
-  _getLoginUrl() {
-    // Works from any depth under /pages/
-    const depth = window.location.pathname.split('/').filter(Boolean).length;
-    return depth <= 1 ? 'index.html' : '../index.html';
-  }
+  onAuthStateChange(callback) {
+    return window.supabaseClient.auth.onAuthStateChange((event, session) => {
+      callback(event, session);
+    });
+  },
 };
 
-// Make globally available
 window.Auth = Auth;

@@ -264,7 +264,7 @@
         >
         <ul class="nav-links">
           <li>
-            <a href="home.html"
+            <a href="home.html" class="active"
               ><span class="nav-icon">🏠</span>
               <span data-i18n="nav_home">Ana Sayfa</span></a
             >
@@ -291,6 +291,12 @@
             <a href="contact.html"
               ><span class="nav-icon">📬</span>
               <span data-i18n="nav_contact">İletişim</span></a
+            >
+          </li>
+          <li>
+            <a href="books.html"
+              ><span class="nav-icon">📚</span>
+              <span>Kitaplar</span></a
             >
           </li>
         </ul>
@@ -367,7 +373,7 @@
           <div class="hero-greeting" id="greeting-text">İyi günler</div>
           <h1 class="hero-name">
             <span data-i18n="home_welcome_title">Hoş geldin,</span>
-            <span class="gradient-text">Ömür Can</span> 👋
+            <span class="gradient-text">Ömür Can'ın dünyasına</span> 👋
           </h1>
           <p class="hero-desc" data-i18n="home_welcome_desc">
             Kişisel panoya hoş geldin. Alışkanlıklarını takip et, projelerini
@@ -508,11 +514,12 @@
     </div>
 
     <script src="../js/i18n.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/nav.js"></script>
     <script src="../js/habits.js"></script>
     <script>
-      Auth.guard();
       Nav.init();
 
       // Greeting based on time
@@ -534,7 +541,7 @@
       updateGreeting();
 
       // Load stats
-      function loadStats() {
+      async function loadStats() {
         const canSeeHabits = Auth.canAccessHabits();
 
         const habitsQuickLink = document.querySelector(
@@ -570,8 +577,10 @@
           heroDesc.textContent =
             "Kişisel panoya hoş geldin. Alışkanlıklarını takip et, projelerini yönet ve hayatını organize et.";
 
-        const habits = HabitStore.getAll();
-        const todayStats = HabitStore.getTodayStats();
+        const habits = await HabitStore.getAll();
+        const todayKey = DateUtils.today();
+        const dueHabits = habits.filter((h) => HabitStore.isDueOnDate(h, todayKey));
+        const todayStats = await HabitStore.getTodayStats(todayKey);
         const streak = HabitStore.getOverallStreak();
         const total = HabitStore.getTotalCompletions();
 
@@ -586,8 +595,9 @@
           monthTotal = 0;
         for (let d = 1; d <= now.getDate(); d++) {
           const key = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+          const dueOnD = habits.filter((h) => HabitStore.isDueOnDate(h, key));
           monthDone += logs[key] ? Object.keys(logs[key]).length : 0;
-          monthTotal += habits.length;
+          monthTotal += dueOnD.length;
         }
         const rate = monthTotal
           ? Math.round((monthDone / monthTotal) * 100)
@@ -604,19 +614,17 @@
           `${todayStats.done}/${todayStats.total} alışkanlık`;
 
         const listEl = document.getElementById("today-habits-list");
-        const todayKey = DateUtils.today();
-        if (habits.length === 0) {
+        if (dueHabits.length === 0) {
           listEl.innerHTML = `<div class="empty-state">
         <div class="empty-icon">🌱</div>
-        <div class="empty-title">${i18n.t("home_today_empty")}</div>
+        <div class="empty-title">Bu gün için planlanmış alışkanlık yok</div>
         <div class="empty-sub"><a href="habits.html" style="color: var(--accent-light);">${i18n.t("home_today_add")}</a></div>
       </div>`;
         } else {
-          listEl.innerHTML = habits
-            .slice(0, 6)
-            .map((h) => {
-              const done = HabitStore.isCompleted(h.id, todayKey);
-              const streak = HabitStore.getStreak(h.id);
+          const itemsHtml = (await Promise.all(
+            dueHabits.slice(0, 6).map(async (h) => {
+              const done = await HabitStore.isCompleted(h.id, todayKey);
+              const streak = await HabitStore.getStreak(h.id);
               return `<div class="today-habit">
           <div class="today-habit-icon" style="background: ${h.color}22;">${h.icon}</div>
           <div class="today-habit-name">${h.name}</div>
@@ -625,23 +633,24 @@
             ${done ? "✓" : ""}
           </button>
         </div>`;
-            })
-            .join("");
+            }),
+          )).join("");
+          listEl.innerHTML = itemsHtml;
         }
-
+ 
         // Activity feed
-        buildActivityFeed();
+        await buildActivityFeed();
       }
-
-      function toggleHabit(id) {
+ 
+      async function toggleHabit(id) {
         const key = DateUtils.today();
-        HabitStore.toggle(id, key);
-        loadStats();
+        await HabitStore.toggle(id, key);
+        await loadStats();
       }
-
-      function buildActivityFeed() {
+ 
+      async function buildActivityFeed() {
         const logs = HabitStore.getLogs();
-        const habits = HabitStore.getAll();
+        const habits = await HabitStore.getAll();
         const entries = [];
 
         // Last 7 days

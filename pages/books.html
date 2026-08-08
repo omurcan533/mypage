@@ -1,0 +1,625 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kitaplar — Ömür Can Yılmaz</title>
+    <meta name="description" content="Okuduğum kitaplar, yorumlarım ve notlarım" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      /* ===== BOOKS PAGE ===== */
+      .books-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+      .books-stat-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:16px 20px;display:flex;align-items:center;gap:14px;transition:var(--transition);}
+      .books-stat-card:hover{border-color:var(--glass-border-hover);background:var(--bg-card-hover);}
+      .books-stat-icon{font-size:26px;flex-shrink:0;}
+      .books-stat-value{font-size:24px;font-weight:800;color:var(--text-primary);line-height:1;}
+      .books-stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;}
+      .books-filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;}
+      .book-filter-btn{padding:8px 18px;border-radius:var(--radius-pill);font-size:13px;font-weight:600;border:1px solid var(--glass-border);background:var(--bg-card);color:var(--text-muted);cursor:pointer;transition:var(--transition);}
+      .book-filter-btn:hover{border-color:var(--glass-border-hover);color:var(--text-primary);}
+      .book-filter-btn.active{background:rgba(108,99,255,.15);border-color:var(--accent);color:var(--accent-light);}
+      .books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:24px;}
+      .book-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-xl);overflow:hidden;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+      .book-card:hover{transform:translateY(-6px);border-color:rgba(108,99,255,.4);box-shadow:0 20px 60px rgba(108,99,255,.18),0 4px 20px rgba(0,0,0,.4);}
+      .book-cover-wrap{position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;flex-shrink:0;}
+      .book-cover-img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
+      .book-card:hover .book-cover-img{transform:scale(1.05);}
+      .book-cover-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-size:48px;color:rgba(255,255,255,.85);}
+      .book-cover-ph .bip{font-size:13px;font-weight:700;text-align:center;padding:0 12px;line-height:1.3;color:rgba(255,255,255,.9);}
+      .book-fav-badge{position:absolute;top:10px;right:10px;font-size:18px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));z-index:2;}
+      .book-status-badge{position:absolute;top:10px;left:10px;padding:4px 10px;border-radius:var(--radius-pill);font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;z-index:2;backdrop-filter:blur(10px);}
+      .status-reading{background:rgba(34,211,238,.2);border:1px solid rgba(34,211,238,.4);color:#22d3ee;}
+      .status-completed{background:rgba(52,211,153,.2);border:1px solid rgba(52,211,153,.4);color:#34d399;}
+      .status-want_to_read{background:rgba(251,191,36,.2);border:1px solid rgba(251,191,36,.4);color:#fbbf24;}
+      .book-card-body{padding:16px;flex:1;display:flex;flex-direction:column;gap:6px;}
+      .book-title{font-size:15px;font-weight:700;color:var(--text-primary);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+      .book-author{font-size:12px;color:var(--text-secondary);font-weight:500;}
+      .book-genre-pill{display:inline-block;padding:2px 10px;border-radius:var(--radius-pill);font-size:11px;font-weight:600;background:rgba(108,99,255,.12);color:var(--accent-light);border:1px solid rgba(108,99,255,.2);width:fit-content;}
+      .book-stars{display:flex;gap:2px;}
+      .star{font-size:14px;}
+      .star.filled{color:#fbbf24;}
+      .star.empty{color:rgba(255,255,255,.2);}
+      .book-review-preview{font-size:12px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:4px;flex:1;}
+      .book-card-footer{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--glass-border);}
+      .book-admin-btn{flex:1;padding:7px 0;border-radius:var(--radius-md);font-size:12px;font-weight:600;border:1px solid var(--glass-border);background:transparent;cursor:pointer;transition:var(--transition);color:var(--text-secondary);}
+      .book-admin-btn:hover{border-color:var(--accent);color:var(--accent-light);}
+      .book-admin-btn.danger:hover{border-color:var(--rose);color:var(--rose);background:rgba(251,113,133,.08);}
+      /* Detail modal */
+      .book-detail-wrap{display:grid;grid-template-columns:200px 1fr;}
+      .book-detail-cover-col{display:flex;align-items:stretch;}
+      .book-detail-cover-col img{width:100%;height:100%;object-fit:cover;}
+      .book-detail-cover-ph{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-size:52px;color:rgba(255,255,255,.8);padding:24px;}
+      .book-detail-body{padding:28px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:80vh;}
+      .book-detail-title{font-size:22px;font-weight:800;color:var(--text-primary);line-height:1.25;}
+      .book-detail-author{font-size:14px;color:var(--accent-light);font-weight:600;margin-top:4px;}
+      .book-detail-section-lbl{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+      .book-detail-text{font-size:14px;color:var(--text-secondary);line-height:1.7;white-space:pre-wrap;}
+      .book-detail-notes-box{background:rgba(108,99,255,.06);border:1px solid rgba(108,99,255,.15);border-radius:var(--radius-md);padding:14px 16px;}
+      .bk-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.15);color:white;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;transition:var(--transition);}
+      .bk-close:hover{background:rgba(255,255,255,.15);}
+      /* Star input */
+      .star-input-row{display:flex;gap:6px;}
+      .star-inp{font-size:26px;cursor:pointer;color:rgba(255,255,255,.22);transition:all .15s ease;line-height:1;user-select:none;}
+      .star-inp.sel,.star-inp.hov{color:#fbbf24;transform:scale(1.15);}
+      /* Empty state */
+      .books-empty{grid-column:1/-1;text-align:center;padding:80px 40px;}
+      .books-empty-icon{font-size:64px;margin-bottom:16px;}
+      .books-empty-title{font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:8px;}
+      .books-empty-sub{font-size:14px;color:var(--text-muted);}
+      /* Hero */
+      .books-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
+      .books-hero h1{font-size:28px;font-weight:800;color:var(--text-primary);margin-bottom:4px;}
+      .books-hero p{font-size:14px;color:var(--text-muted);}
+      /* Cover gradients */
+      .g0{background:linear-gradient(135deg,#1e1b4b,#4f46e5);}
+      .g1{background:linear-gradient(135deg,#1a1a2e,#e94560);}
+      .g2{background:linear-gradient(135deg,#0a3d2e,#00b4d8);}
+      .g3{background:linear-gradient(135deg,#2c1810,#d97706);}
+      .g4{background:linear-gradient(135deg,#1a0533,#7c3aed);}
+      .g5{background:linear-gradient(135deg,#0f2027,#2c5364);}
+      @media(max-width:900px){.books-stats{grid-template-columns:1fr 1fr;}}
+      @media(max-width:640px){.books-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}.book-detail-wrap{grid-template-columns:1fr;}}
+    </style>
+  </head>
+  <body>
+    <div class="bg-orbs"></div>
+    <div class="app-layout">
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon">Ö</div>
+          <div>
+            <div class="logo-text">Ömür Can</div>
+            <div class="logo-sub" data-i18n="nav_personal_space">Kişisel Alan</div>
+          </div>
+        </div>
+        <span class="nav-group-label" data-i18n="nav_navigation">Navigasyon</span>
+        <ul class="nav-links">
+          <li><a href="home.html"><span class="nav-icon">🏠</span><span data-i18n="nav_home">Ana Sayfa</span></a></li>
+          <li><a href="habits.html"><span class="nav-icon">✅</span><span data-i18n="nav_habits">Alışkanlıklar</span></a></li>
+          <li><a href="projects.html"><span class="nav-icon">🚀</span><span data-i18n="nav_projects">Projeler</span></a></li>
+          <li><a href="travels.html"><span class="nav-icon">✈️</span><span data-i18n="nav_travels">Geziler</span></a></li>
+          <li><a href="contact.html"><span class="nav-icon">📬</span><span data-i18n="nav_contact">İletişim</span></a></li>
+          <li><a href="books.html" class="active"><span class="nav-icon">📚</span><span>Kitaplar</span></a></li>
+        </ul>
+        <div class="sidebar-bottom">
+          <div style="display:flex;gap:4px;margin-bottom:16px;justify-content:center;">
+            <button id="lang-tr" onclick="i18n.setLang('tr')" style="background:transparent;border:1px solid var(--glass-border);color:var(--text-secondary);border-radius:4px;padding:4px 8px;cursor:pointer;">TR</button>
+            <button id="lang-en" onclick="i18n.setLang('en')" style="background:transparent;border:1px solid var(--glass-border);color:var(--text-secondary);border-radius:4px;padding:4px 8px;cursor:pointer;">EN</button>
+            <button id="theme-toggle" style="background:transparent;border:1px solid var(--glass-border);color:var(--text-secondary);border-radius:4px;padding:4px 8px;cursor:pointer;flex:1;">☀️ Açık Tema</button>
+          </div>
+          <div class="user-info">
+            <div class="user-avatar" id="nav-user-avatar">Ö</div>
+            <div>
+              <div class="user-name" id="nav-user-name">Ömür Can</div>
+              <div class="user-role" id="nav-user-role">Admin</div>
+            </div>
+          </div>
+          <button class="logout-btn" id="logout-btn"><span>🚪</span> <span data-i18n="nav_logout">Çıkış Yap</span></button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <div class="books-hero">
+          <div>
+            <h1>📚 Okuduklarim</h1>
+            <p>Kitaplar, yorumlar ve notlarim &mdash; zihnimi besleyen yapıtlar</p>
+          </div>
+          <button class="btn btn-primary" id="add-book-btn" style="display:none;">+ Kitap Ekle</button>
+        </div>
+        <div class="books-stats">
+          <div class="books-stat-card"><div class="books-stat-icon">📖</div><div><div class="books-stat-value" id="stat-total">0</div><div class="books-stat-label">Toplam Kitap</div></div></div>
+          <div class="books-stat-card"><div class="books-stat-icon">✅</div><div><div class="books-stat-value" id="stat-completed">0</div><div class="books-stat-label">Tamamlandı</div></div></div>
+          <div class="books-stat-card"><div class="books-stat-icon">🔵</div><div><div class="books-stat-value" id="stat-reading">0</div><div class="books-stat-label">Okunuyor</div></div></div>
+          <div class="books-stat-card"><div class="books-stat-icon">📌</div><div><div class="books-stat-value" id="stat-want">0</div><div class="books-stat-label">Okunacak</div></div></div>
+        </div>
+        <div class="books-filter-bar">
+          <button class="book-filter-btn active" data-filter="all">📚 Tümü</button>
+          <button class="book-filter-btn" data-filter="completed">✅ Tamamlandı</button>
+          <button class="book-filter-btn" data-filter="reading">🔵 Okunuyor</button>
+          <button class="book-filter-btn" data-filter="want_to_read">📌 Okunacak</button>
+          <button class="book-filter-btn" data-filter="favorite">❤️ Favoriler</button>
+        </div>
+        <div class="books-grid" id="books-grid">
+          <div class="books-empty"><div class="books-empty-icon">📚</div><div class="books-empty-title">Yükleniyor...</div></div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="modal-overlay" id="book-detail-modal">
+      <div class="modal" style="max-width:700px;padding:0;overflow:hidden;position:relative;">
+        <button class="bk-close" id="book-detail-close">✕</button>
+        <div id="book-detail-content" class="book-detail-wrap"></div>
+      </div>
+    </div>
+
+    <!-- Form Modal -->
+    <div class="modal-overlay" id="book-form-modal">
+      <div class="modal" style="max-width:560px;">
+        <div class="modal-header">
+          <div class="modal-title" id="book-form-title">📚 Yeni Kitap</div>
+          <button class="modal-close" type="button" aria-label="Kapat">✕</button>
+        </div>
+        <form id="book-form">
+          <input type="hidden" id="edit-book-id" />
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">Kitap Adı *</label>
+              <input type="text" class="input-field" id="book-title" placeholder="Kitap adı..." required maxlength="120" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Yazar *</label>
+              <input type="text" class="input-field" id="book-author" placeholder="Yazar adı..." required maxlength="80" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Tür</label>
+              <input type="text" class="input-field" id="book-genre" placeholder="Roman, Bilim, Felsefe..." maxlength="40" />
+            </div>
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">Kapak Görseli URL</label>
+              <input type="url" class="input-field" id="book-cover-url" placeholder="https://... (isteğe bağlı)" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Durum</label>
+              <select class="input-field" id="book-status">
+                <option value="completed">✅ Tamamlandı</option>
+                <option value="reading">🔵 Okunuyor</option>
+                <option value="want_to_read">📌 Okunacak</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Favori</label>
+              <div style="display:flex;align-items:center;gap:10px;padding-top:10px;">
+                <input type="checkbox" id="book-is-favorite" style="width:18px;height:18px;cursor:pointer;accent-color:var(--accent);" />
+                <label for="book-is-favorite" style="color:var(--text-secondary);font-size:14px;cursor:pointer;">❤️ Favori kitap</label>
+              </div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Başlangıç Tarihi</label>
+              <input type="date" class="input-field" id="book-started-at" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Bitiş Tarihi</label>
+              <input type="date" class="input-field" id="book-finished-at" />
+            </div>
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">Puanım</label>
+              <div class="star-input-row" id="star-input-row">
+                <span class="star-inp" data-val="1">★</span>
+                <span class="star-inp" data-val="2">★</span>
+                <span class="star-inp" data-val="3">★</span>
+                <span class="star-inp" data-val="4">★</span>
+                <span class="star-inp" data-val="5">★</span>
+              </div>
+              <input type="hidden" id="book-rating" value="0" />
+            </div>
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">İnceleme / Yorum</label>
+              <textarea class="input-field" id="book-review" rows="4" placeholder="Bu kitap hakkında düşünceleriniz..." style="resize:vertical;"></textarea>
+            </div>
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">Kişisel Notlar</label>
+              <textarea class="input-field" id="book-notes" rows="3" placeholder="Hatırlatmak istediğiniz alıntılar, notlar..." style="resize:vertical;"></textarea>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button type="button" class="btn btn-ghost modal-close">İptal</button>
+            <button type="submit" class="btn btn-primary">✓ Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div class="modal-overlay" id="book-delete-modal">
+      <div class="modal confirm-delete-modal">
+        <div class="modal-header">
+          <div class="modal-title">🗑 Kitabı Sil</div>
+          <button class="modal-close" type="button">✕</button>
+        </div>
+        <div class="confirm-delete-body">
+          <div class="confirm-delete-icon">📚</div>
+          <div class="confirm-delete-title">Bu kitabı silmek istediğinizden emin misiniz?</div>
+          <div class="confirm-delete-subtitle" id="delete-book-label">Bu işlem geri alınamaz.</div>
+          <div class="confirm-delete-actions">
+            <button type="button" class="btn btn-ghost" id="cancel-delete-book-btn">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirm-delete-book-btn">Evet, Sil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/nav.js"></script>
+    <script src="../js/i18n.js"></script>
+    <script>
+      function bookImgError(img) {
+        img.style.display = 'none';
+        if (img.nextElementSibling) img.nextElementSibling.style.display = 'flex';
+      }
+
+      Nav.init();
+
+      const BOOKS_KEY = "oyp_books";
+
+      const DEFAULT_BOOKS = [
+        {
+          id: "book-1",
+          title: "Nutuk",
+          author: "Mustafa Kemal Atatürk",
+          genre: "Tarih / Otobiyografi",
+          cover_url: "",
+          status: "completed",
+          rating: 5,
+          is_favorite: true,
+          started_at: "2024-01-01",
+          finished_at: "2024-01-20",
+          review: "Türkiye Cumhuriyeti'nin kuruluş sürecini ve verilen bağımsızlık mücadelesini kurucusunun kaleminden okumak eşsiz bir deneyim.",
+          notes: "Bağımsızlık ve egemenlik ilkeleri; gençliğe hitabe bölümü özellikle ilham verici."
+        },
+        {
+          id: "book-2",
+          title: "Atomik Alışkanlıklar",
+          author: "James Clear",
+          genre: "Kişisel Gelişim",
+          cover_url: "",
+          status: "completed",
+          rating: 5,
+          is_favorite: true,
+          started_at: "2024-02-01",
+          finished_at: "2024-02-15",
+          review: "Küçük değişimlerin zamanla nasıl devasa sonuçlar doğurduğunu pratik sistemlerle anlatan harika bir rehber.",
+          notes: "%1 daha iyi olma kuralı. Alışkanlık döngüsü: İşaret -> İstek -> Tepki -> Ödül."
+        },
+        {
+          id: "book-3",
+          title: "Simyacı",
+          author: "Paulo Coelho",
+          genre: "Felsefi Roman",
+          cover_url: "",
+          status: "reading",
+          rating: 4,
+          is_favorite: false,
+          started_at: "2024-03-01",
+          finished_at: "",
+          review: "Kişisel menzillerini takip eden insanların evrenin işaretleriyle nasıl buluştuğunu anlatan masalsı bir yolculuk.",
+          notes: "Bir şeyi gerçekten istersen, bütün evren onu gerçekleştirmen için iş birliği yapar."
+        }
+      ];
+
+      function getLocalBooks() {
+        try {
+          const stored = localStorage.getItem(BOOKS_KEY);
+          return stored ? JSON.parse(stored) : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveLocalBooks(books) {
+        try {
+          localStorage.setItem(BOOKS_KEY, JSON.stringify(books));
+        } catch (e) {
+          console.warn("saveLocalBooks error:", e);
+        }
+      }
+
+      let isAdmin = false, allBooks = [], activeFilter = 'all', pendingDeleteId = null, selectedRating = 0;
+
+      const openModal = id => { const el = document.getElementById(id); if (el) { el.classList.add('open'); document.body.style.overflow = 'hidden'; } };
+      const closeModal = id => { const el = document.getElementById(id); if (el) { el.classList.remove('open'); document.body.style.overflow = ''; } };
+
+      document.querySelectorAll('.modal-overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o) closeModal(o.id); }));
+      document.querySelectorAll('.modal-close').forEach(b => b.addEventListener('click', () => { const m = b.closest('.modal-overlay'); if (m) closeModal(m.id); }));
+      document.getElementById('book-detail-close').addEventListener('click', () => closeModal('book-detail-modal'));
+      document.getElementById('cancel-delete-book-btn').addEventListener('click', () => closeModal('book-delete-modal'));
+
+      async function syncAccess() {
+        isAdmin = await Auth.canManageContent();
+        document.getElementById('add-book-btn').style.display = isAdmin ? 'inline-flex' : 'none';
+      }
+
+      async function fetchBooks() {
+        let sbBooks = null;
+        try {
+          const { data, error } = await window.supabaseClient
+            .from('books')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (!error && data && data.length > 0) {
+            sbBooks = data;
+          }
+        } catch (err) {
+          console.warn('Supabase fetch error:', err);
+        }
+
+        if (sbBooks && sbBooks.length > 0) {
+          saveLocalBooks(sbBooks);
+          return sbBooks;
+        }
+
+        const local = getLocalBooks();
+        if (local && local.length > 0) {
+          return local;
+        }
+
+        saveLocalBooks(DEFAULT_BOOKS);
+        return DEFAULT_BOOKS;
+      }
+
+      async function saveBook(bd) {
+        const id = document.getElementById('edit-book-id').value;
+        const user = await Auth.getUser();
+
+        // 1. Try Supabase
+        if (user) {
+          try {
+            if (id) {
+              await window.supabaseClient.from('books').update(bd).eq('id', id);
+            } else {
+              await window.supabaseClient.from('books').insert([{ ...bd, user_id: user.id }]);
+            }
+          } catch (err) {
+            console.warn('Supabase save error:', err);
+          }
+        }
+
+        // 2. Always update local storage
+        const local = getLocalBooks();
+        if (id) {
+          const idx = local.findIndex(b => String(b.id) === String(id));
+          if (idx !== -1) {
+            local[idx] = { ...local[idx], ...bd, id };
+          } else {
+            local.unshift({ ...bd, id });
+          }
+        } else {
+          const newBook = { ...bd, id: 'book-' + Date.now(), created_at: new Date().toISOString() };
+          local.unshift(newBook);
+        }
+        saveLocalBooks(local);
+        return true;
+      }
+
+      async function deleteBook(id) {
+        const user = await Auth.getUser();
+        if (user) {
+          try {
+            await window.supabaseClient.from('books').delete().eq('id', id);
+          } catch (err) {
+            console.warn('Supabase delete error:', err);
+          }
+        }
+
+        const local = getLocalBooks().filter(b => String(b.id) !== String(id));
+        saveLocalBooks(local);
+        return true;
+      }
+
+      const GRADS = ['g0','g1','g2','g3','g4','g5'];
+      const STATUS_MAP = {
+        completed: ['status-completed', '✅ Tamamlandı'],
+        reading: ['status-reading', '🔵 Okunuyor'],
+        want_to_read: ['status-want_to_read', '📌 Okunacak']
+      };
+
+      function starsHtml(r) {
+        return '<div class="book-stars">' + [1,2,3,4,5].map(i => '<span class="star ' + (i<=r?'filled':'empty') + '">' + (i<=r?'★':'☆') + '</span>').join('') + '</div>';
+      }
+
+      function renderBooks(books) {
+        const grid = document.getElementById('books-grid');
+        if (!books.length) {
+          grid.innerHTML = '<div class="books-empty"><div class="books-empty-icon">📚</div><div class="books-empty-title">Henüz kitap yok</div><div class="books-empty-sub">' + (isAdmin ? 'İlk kitabını ekle!' : 'Yakında kitaplar eklenecek.') + '</div></div>';
+          return;
+        }
+        grid.innerHTML = books.map((b, i) => {
+          const [sc, st] = STATUS_MAP[b.status] || STATUS_MAP.completed;
+          const gc = GRADS[i % 6];
+          const cov = b.cover_url
+            ? '<img class="book-cover-img" src="' + b.cover_url + '" alt="' + b.title.replace(/"/g, '&quot;') + '" loading="lazy" onerror="bookImgError(this)"><div class="book-cover-ph ' + gc + '" style="display:none">📚<div class="bip">' + b.title + '</div></div>'
+            : '<div class="book-cover-ph ' + gc + '">📚<div class="bip">' + b.title + '</div></div>';
+          const safeTitle = (b.title || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+          const af = isAdmin
+            ? '<div class="book-card-footer"><button class="book-admin-btn book-edit-btn" data-id="' + b.id + '">✏️ Düzenle</button><button class="book-admin-btn danger book-delete-btn" data-id="' + b.id + '" data-title="' + safeTitle + '">🗑 Sil</button></div>'
+            : '';
+          return '<div class="book-card book-card-clickable" data-id="' + b.id + '">'
+            + '<div class="book-cover-wrap">' + cov
+            + '<div class="book-status-badge ' + sc + '">' + st + '</div>'
+            + (b.is_favorite ? '<div class="book-fav-badge">❤️</div>' : '')
+            + '</div><div class="book-card-body">'
+            + '<div class="book-title">' + b.title + '</div>'
+            + '<div class="book-author">&mdash; ' + b.author + '</div>'
+            + (b.genre ? '<div class="book-genre-pill">' + b.genre + '</div>' : '')
+            + (b.rating ? starsHtml(b.rating) : '')
+            + (b.review ? '<div class="book-review-preview">' + b.review + '</div>' : '')
+            + '</div>' + af + '</div>';
+        }).join('');
+      }
+
+      function updateStats(books) {
+        document.getElementById('stat-total').textContent = books.length;
+        document.getElementById('stat-completed').textContent = books.filter(b => b.status === 'completed').length;
+        document.getElementById('stat-reading').textContent = books.filter(b => b.status === 'reading').length;
+        document.getElementById('stat-want').textContent = books.filter(b => b.status === 'want_to_read').length;
+      }
+
+      function applyFilter() {
+        let f = [...allBooks];
+        if (activeFilter === 'favorite') f = f.filter(b => b.is_favorite);
+        else if (activeFilter !== 'all') f = f.filter(b => b.status === activeFilter);
+        renderBooks(f);
+      }
+
+      async function loadBooks() {
+        allBooks = await fetchBooks();
+        updateStats(allBooks);
+        applyFilter();
+      }
+
+      function openBookDetail(id) {
+        const b = allBooks.find(x => String(x.id) === String(id));
+        if (!b) return;
+        const [sc, st] = STATUS_MAP[b.status] || STATUS_MAP.completed;
+        const gc = GRADS[allBooks.indexOf(b) % 6];
+        const cov = b.cover_url
+          ? '<img src="' + b.cover_url + '" style="width:100%;height:100%;object-fit:cover;" onerror="bookImgError(this)"><div class="book-detail-cover-ph ' + gc + '" style="display:none">📚<div style="font-size:14px;font-weight:700;text-align:center;padding:0 16px;">' + b.title + '</div></div>'
+          : '<div class="book-detail-cover-ph ' + gc + '">📚<div style="font-size:14px;font-weight:700;text-align:center;padding:0 16px;">' + b.title + '</div></div>';
+        const dates = [b.started_at ? 'Başladı: ' + b.started_at : '', b.finished_at ? 'Bitti: ' + b.finished_at : ''].filter(Boolean).join(' &nbsp;&middot;&nbsp; ');
+        document.getElementById('book-detail-content').innerHTML =
+          '<div class="book-detail-cover-col ' + gc + '" style="min-height:300px;">' + cov + '</div>'
+          + '<div class="book-detail-body">'
+          + '<div><div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap;"><span class="book-status-badge ' + sc + '" style="position:static;">' + st + '</span>' + (b.is_favorite ? '<span style="font-size:16px;">❤️</span>' : '') + (b.genre ? '<span class="book-genre-pill">' + b.genre + '</span>' : '') + '</div>'
+          + '<div class="book-detail-title">' + b.title + '</div>'
+          + '<div class="book-detail-author">&mdash; ' + b.author + '</div></div>'
+          + (b.rating ? '<div>' + starsHtml(b.rating) + '</div>' : '')
+          + (dates ? '<div style="font-size:12px;color:var(--text-muted);">' + dates + '</div>' : '')
+          + (b.review ? '<div><div class="book-detail-section-lbl">📝 İnceleme</div><div class="book-detail-text">' + b.review + '</div></div>' : '')
+          + (b.notes ? '<div class="book-detail-notes-box"><div class="book-detail-section-lbl">💡 Kişisel Notlar</div><div class="book-detail-text">' + b.notes + '</div></div>' : '')
+          + '</div>';
+        openModal('book-detail-modal');
+      }
+
+      function initStarInput() {
+        const stars = document.querySelectorAll('.star-inp');
+        stars.forEach(s => {
+          s.addEventListener('mouseenter', () => { const v = +s.dataset.val; stars.forEach(x => { x.classList.toggle('hov', +x.dataset.val <= v); x.classList.remove('sel'); }); });
+          s.addEventListener('mouseleave', () => { stars.forEach(x => { x.classList.remove('hov'); x.classList.toggle('sel', +x.dataset.val <= selectedRating); }); });
+          s.addEventListener('click', () => { selectedRating = +s.dataset.val; document.getElementById('book-rating').value = selectedRating; stars.forEach(x => { x.classList.toggle('sel', +x.dataset.val <= selectedRating); x.classList.remove('hov'); }); });
+        });
+      }
+
+      function setStarInput(r) {
+        selectedRating = r || 0;
+        document.getElementById('book-rating').value = selectedRating;
+        document.querySelectorAll('.star-inp').forEach(s => { s.classList.toggle('sel', +s.dataset.val <= selectedRating); s.classList.remove('hov'); });
+      }
+
+      document.getElementById('add-book-btn').addEventListener('click', () => {
+        document.getElementById('book-form-title').textContent = '📚 Yeni Kitap';
+        document.getElementById('book-form').reset();
+        document.getElementById('edit-book-id').value = '';
+        setStarInput(0);
+        openModal('book-form-modal');
+      });
+
+      function editBook(id) {
+        const b = allBooks.find(x => String(x.id) === String(id));
+        if (!b) return;
+        document.getElementById('book-form-title').textContent = '✏️ Kitabı Düzenle';
+        document.getElementById('edit-book-id').value = b.id;
+        document.getElementById('book-title').value = b.title || '';
+        document.getElementById('book-author').value = b.author || '';
+        document.getElementById('book-genre').value = b.genre || '';
+        document.getElementById('book-cover-url').value = b.cover_url || '';
+        document.getElementById('book-status').value = b.status || 'completed';
+        document.getElementById('book-is-favorite').checked = !!b.is_favorite;
+        document.getElementById('book-started-at').value = b.started_at || '';
+        document.getElementById('book-finished-at').value = b.finished_at || '';
+        document.getElementById('book-review').value = b.review || '';
+        document.getElementById('book-notes').value = b.notes || '';
+        setStarInput(b.rating || 0);
+        openModal('book-form-modal');
+      }
+
+      function openDeleteConfirm(id, title) {
+        pendingDeleteId = id;
+        document.getElementById('delete-book-label').textContent = '"' + title + '" silinecek.';
+        openModal('book-delete-modal');
+      }
+
+      document.getElementById('book-form').addEventListener('submit', async e => {
+        e.preventDefault();
+        const btn = e.target.querySelector('[type=submit]');
+        btn.textContent = 'Kaydediliyor...'; btn.disabled = true;
+        const bd = {
+          title: document.getElementById('book-title').value.trim(),
+          author: document.getElementById('book-author').value.trim(),
+          genre: document.getElementById('book-genre').value.trim() || null,
+          cover_url: document.getElementById('book-cover-url').value.trim() || null,
+          status: document.getElementById('book-status').value,
+          is_favorite: document.getElementById('book-is-favorite').checked,
+          started_at: document.getElementById('book-started-at').value || null,
+          finished_at: document.getElementById('book-finished-at').value || null,
+          rating: parseInt(document.getElementById('book-rating').value) || null,
+          review: document.getElementById('book-review').value.trim() || null,
+          notes: document.getElementById('book-notes').value.trim() || null,
+        };
+        await saveBook(bd);
+        btn.textContent = '✓ Kaydet'; btn.disabled = false;
+        closeModal('book-form-modal');
+        await loadBooks();
+      });
+
+      document.getElementById('confirm-delete-book-btn').addEventListener('click', async () => {
+        if (!pendingDeleteId) return;
+        const btn = document.getElementById('confirm-delete-book-btn');
+        btn.textContent = 'Siliniyor...'; btn.disabled = true;
+        await deleteBook(pendingDeleteId);
+        btn.textContent = 'Evet, Sil'; btn.disabled = false;
+        pendingDeleteId = null;
+        closeModal('book-delete-modal');
+        await loadBooks();
+      });
+
+      // Event delegation for book cards, edit, delete buttons
+      document.getElementById('books-grid').addEventListener('click', e => {
+        const editBtn = e.target.closest('.book-edit-btn');
+        const deleteBtn = e.target.closest('.book-delete-btn');
+        const card = e.target.closest('.book-card-clickable');
+
+        if (editBtn) {
+          e.stopPropagation();
+          editBook(editBtn.dataset.id);
+          return;
+        }
+        if (deleteBtn) {
+          e.stopPropagation();
+          openDeleteConfirm(deleteBtn.dataset.id, deleteBtn.dataset.title);
+          return;
+        }
+        if (card && !e.target.closest('.book-card-footer')) {
+          openBookDetail(card.dataset.id);
+        }
+      });
+
+      document.querySelectorAll('.book-filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.book-filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          activeFilter = btn.dataset.filter;
+          applyFilter();
+        });
+      });
+
+      window.editBook = editBook;
+      window.openDeleteConfirm = openDeleteConfirm;
+      window.openBookDetail = openBookDetail;
+
+      (async () => { await syncAccess(); await loadBooks(); initStarInput(); })();
+      window.addEventListener('auth:changed', async () => { await syncAccess(); applyFilter(); });
+    </script>
+  </body>
+</html>
