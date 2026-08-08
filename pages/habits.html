@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alışkanlıklar — Ömür Can Yılmaz</title>
+  <meta name="description" content="Günlük, haftalık ve aylık alışkanlık takibi">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/habits.css">
+</head>
+<body>
+<div class="bg-orbs"></div>
+
+<div class="app-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">Ö</div>
+      <div>
+        <div class="logo-text">Ömür Can</div>
+        <div class="logo-sub" data-i18n="nav_personal_space">Kişisel Alan</div>
+      </div>
+    </div>
+    <span class="nav-group-label" data-i18n="nav_navigation">Navigasyon</span>
+    <ul class="nav-links">
+      <li><a href="home.html"><span class="nav-icon">🏠</span> <span data-i18n="nav_home">Ana Sayfa</span></a></li>
+      <li><a href="habits.html"><span class="nav-icon">✅</span> <span data-i18n="nav_habits">Alışkanlıklar</span></a></li>
+      <li><a href="projects.html"><span class="nav-icon">🚀</span> <span data-i18n="nav_projects">Projeler</span></a></li>
+      <li><a href="travels.html"><span class="nav-icon">✈️</span> <span data-i18n="nav_travels">Geziler</span></a></li>
+      <li><a href="contact.html"><span class="nav-icon">📬</span> <span data-i18n="nav_contact">İletişim</span></a></li>
+    </ul>
+
+    <div class="sidebar-bottom">
+      <div style="display:flex; gap:4px; margin-bottom:16px; justify-content: center;">
+         <button id="lang-tr" onclick="i18n.setLang('tr')" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); border-radius:4px; padding:4px 8px; cursor:pointer;">TR</button>
+         <button id="lang-en" onclick="i18n.setLang('en')" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); border-radius:4px; padding:4px 8px; cursor:pointer;">EN</button>
+         <button id="theme-toggle" style="background:transparent; border:1px solid var(--glass-border); color:var(--text-secondary); border-radius:4px; padding:4px 8px; cursor:pointer; flex:1;">☀️ Açık Tema</button>
+      </div>
+      <div class="user-info">
+        <div class="user-avatar" id="nav-user-avatar">Ö</div>
+        <div>
+          <div class="user-name" id="nav-user-name">Ömür Can</div>
+          <div class="user-role" id="nav-user-role">Admin</div>
+        </div>
+      </div>
+      <button class="logout-btn" id="logout-btn">
+        <span>🚪</span> <span data-i18n="nav_logout">Çıkış Yap</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">✅ <span data-i18n="habits_title">Alışkanlıklar</span></h1>
+      <p class="page-subtitle" data-i18n="habits_subtitle">Alışkanlıklarını günlük, haftalık ve aylık olarak takip et</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="habits-stats" id="habits-stats">
+      <div class="habit-stat-item">
+        <div class="habit-stat-val" id="hs-total">0</div>
+        <div class="habit-stat-label">Toplam Alışkanlık</div>
+      </div>
+      <div class="habit-stat-item">
+        <div class="habit-stat-val" id="hs-today">0/0</div>
+        <div class="habit-stat-label">Bugün</div>
+      </div>
+      <div class="habit-stat-item">
+        <div class="habit-stat-val" id="hs-streak">🔥 0</div>
+        <div class="habit-stat-label">Günlük Seri</div>
+      </div>
+      <div class="habit-stat-item">
+        <div class="habit-stat-val" id="hs-rate">0%</div>
+        <div class="habit-stat-label">Bu Ay Oran</div>
+      </div>
+    </div>
+
+    <!-- Header: Nav + View Toggle + Add Button -->
+    <div class="habits-header">
+      <div class="habits-header-left">
+        <div class="cal-nav">
+          <button class="cal-nav-btn" id="prev-btn">‹</button>
+          <div class="cal-nav-title" id="cal-title">Ağustos 2025</div>
+          <button class="cal-nav-btn" id="next-btn">›</button>
+        </div>
+        <button class="btn btn-ghost" id="today-btn" style="font-size:12px; padding: 7px 14px;">
+          📅 Bugün
+        </button>
+      </div>
+      <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="monthly" data-i18n="habits_view_monthly">Aylık</button>
+          <button class="view-btn" data-view="weekly" data-i18n="habits_view_weekly">Haftalık</button>
+          <button class="view-btn" data-view="daily" data-i18n="habits_view_daily">Günlük</button>
+        </div>
+        <button class="btn btn-primary" id="add-habit-btn">＋ Alışkanlık Ekle</button>
+      </div>
+    </div>
+
+    <!-- Main Layout -->
+    <div class="habits-layout">
+      <!-- Calendar Area -->
+      <div id="calendar-area"></div>
+
+      <!-- Sidebar -->
+      <div class="habits-sidebar">
+        <!-- Streak -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">🔥 Seri</div>
+          <div class="streak-display">
+            <div class="streak-flame">🔥</div>
+            <div class="streak-count" id="sb-streak">0</div>
+            <div class="streak-label">Günlük Seri</div>
+          </div>
+        </div>
+
+        <!-- Heatmap -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">📊 Son 90 Gün</div>
+          <div class="heatmap-container" id="heatmap"></div>
+        </div>
+
+        <!-- Habits List -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">📋 Alışkanlıklarım</div>
+          <div id="sidebar-habits-list">
+            <div class="empty-state" style="padding: 20px 0;">
+              <div class="empty-icon" style="font-size:28px;">🌱</div>
+              <div class="empty-title" style="font-size:13px;">Henüz alışkanlık yok</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ===== DAY MODAL ===== -->
+<div class="modal-overlay" id="day-modal">
+  <div class="modal" style="max-width: 440px;">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="day-modal-title">1 Ocak 2025</div>
+        <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;" id="day-modal-weekday">Çarşamba</div>
+      </div>
+      <button class="modal-close">✕</button>
+    </div>
+
+    <div id="day-modal-habits-list"></div>
+
+    <div class="day-modal-note" style="margin-top: 16px;">
+      <div class="input-label" style="margin-bottom: 8px;">📝 Günlük Not</div>
+      <textarea id="day-modal-note-input" placeholder="Bu gün hakkında bir not bırak..."></textarea>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+      <button class="btn btn-primary" id="day-modal-save">💾 Kaydet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== ADD HABIT MODAL ===== -->
+<div class="modal-overlay" id="add-modal">
+  <div class="modal" style="max-width: 480px;">
+    <div class="modal-header">
+      <div class="modal-title" id="add-modal-title">✨ Yeni Alışkanlık</div>
+      <button class="modal-close">✕</button>
+    </div>
+
+    <form id="add-habit-form">
+      <input type="hidden" id="edit-habit-id">
+
+      <div class="input-group" style="margin-bottom: 16px;">
+        <label class="input-label">Alışkanlık Adı</label>
+        <input type="text" class="input-field" id="habit-name-input" placeholder="Örn: Kitap oku, Spor yap..." maxlength="40" required>
+      </div>
+
+      <div class="input-group" style="margin-bottom: 16px;">
+        <label class="input-label">İkon</label>
+        <div class="emoji-picker" id="emoji-picker"></div>
+      </div>
+
+      <div class="input-group" style="margin-bottom: 16px;">
+        <label class="input-label">Renk</label>
+        <div class="color-picker" id="color-picker"></div>
+      </div>
+
+      <div class="input-group" style="margin-bottom: 20px;">
+        <label class="input-label">Sıklık</label>
+        <div class="frequency-options">
+          <button type="button" class="freq-btn active" data-freq="daily">Her Gün</button>
+          <button type="button" class="freq-btn" data-freq="weekdays">Hafta İçi</button>
+          <button type="button" class="freq-btn" data-freq="weekend">Hafta Sonu</button>
+          <button type="button" class="freq-btn" data-freq="custom">Özel</button>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px; justify-content: flex-end;">
+        <button type="button" class="btn btn-ghost modal-close-btn">İptal</button>
+        <button type="submit" class="btn btn-primary" id="save-habit-btn">✓ Kaydet</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== DELETE CONFIRM MODAL ===== -->
+<div class="modal-overlay" id="delete-modal">
+  <div class="modal" style="max-width: 400px;">
+    <div class="modal-header">
+      <div class="modal-title">🗑 Alışkanlığı Sil</div>
+      <button class="modal-close">✕</button>
+    </div>
+    <p style="color: var(--text-secondary); margin-bottom: 20px;">Bu alışkanlığı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.</p>
+    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+      <button type="button" class="btn btn-ghost" id="cancel-delete-btn">İptal</button>
+      <button type="button" class="btn btn-primary" id="confirm-delete-btn" style="background: var(--rose);">Sil</button>
+    </div>
+  </div>
+</div>
+
+<script src="../js/i18n.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/nav.js"></script>
+<script src="../js/habits.js"></script>
+<script>
+  Auth.guard();
+  Nav.init();
+  Modal.setup('day-modal');
+  Modal.setup('add-modal');
+  Modal.setup('delete-modal');
+
+  // ─── State ───
+  const state = {
+    view: 'monthly',
+    year: new Date().getFullYear(),
+    month: new Date().getMonth(),
+    weekDate: new Date(),
+    dailyDate: new Date(),
+    selectedEmoji: '⭐',
+    selectedColor: '#6c63ff',
+    selectedFreq: 'daily',
+    editingId: null,
+    pendingDeleteId: null
+  };
+
+  const EMOJIS = ['⭐','🎯','📚','💪','🏃','🧘','🥗','💧','😴','✍️','🎸','🎨','🧹','💻','📖','🌿','🍎','☕','🚴','🏊','🧠','💊','🫁','❤️','🌞','🎵','🦷','🤸','🏋️','🚶'];
+  const COLORS = ['#6c63ff','#f472b6','#34d399','#fbbf24','#22d3ee','#fb7185','#a78bfa','#f97316','#84cc16','#06b6d4','#e879f9','#10b981'];
+
+  // ─── Init ───
+  let eventsAttached = false;
+
+  function refreshUI() {
+    updateStats();
+    renderView();
+    buildHeatmap();
+    buildSidebarHabits();
+  }
+
+  function init() {
+    buildEmojiPicker();
+    buildColorPicker();
+    refreshUI();
+    if (!eventsAttached) {
+      attachNav();
+      attachAddHabit();
+      attachDayModal();
+      attachSidebarActions();
+      attachDeleteModal();
+      eventsAttached = true;
+    }
+  }
+
+  // ─── Stats ───
+  function updateStats() {
+    const habits = HabitStore.getAll();
+    const ts = HabitStore.getTodayStats();
+    const streak = HabitStore.getOverallStreak();
+    const now = new Date();
+    const logs = HabitStore.getLogs();
+    let monthDone = 0, monthTotal = 0;
+    for (let d = 1; d <= now.getDate(); d++) {
+      const key = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      monthDone += logs[key] ? Object.keys(logs[key]).length : 0;
+      monthTotal += habits.length;
+    }
+    const rate = monthTotal ? Math.round((monthDone / monthTotal) * 100) : 0;
+
+    document.getElementById('hs-total').textContent = habits.length;
+    document.getElementById('hs-today').textContent = `${ts.done}/${ts.total}`;
+    document.getElementById('hs-streak').textContent = `🔥 ${streak}`;
+    document.getElementById('hs-rate').textContent = rate + '%';
+    document.getElementById('sb-streak').textContent = streak;
+  }
+
+  // ─── View Toggle ───
+  function attachNav() {
+    document.querySelectorAll('.view-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        state.view = btn.dataset.view;
+        renderView();
+      });
+    });
+
+    document.getElementById('prev-btn').addEventListener('click', () => {
+      navigatePrev();
+    });
+    document.getElementById('next-btn').addEventListener('click', () => {
+      navigateNext();
+    });
+    document.getElementById('today-btn').addEventListener('click', () => {
+      const today = new Date();
+      state.year = today.getFullYear();
+      state.month = today.getMonth();
+      state.weekDate = new Date(today);
+      state.dailyDate = new Date(today);
+      renderView();
+    });
+  }
+
+  function navigatePrev() {
+    if (state.view === 'monthly') {
+      state.month--;
+      if (state.month < 0) { state.month = 11; state.year--; }
+    } else if (state.view === 'weekly') {
+      state.weekDate = DateUtils.addDays(state.weekDate, -7);
+    } else {
+      state.dailyDate = DateUtils.addDays(state.dailyDate, -1);
+    }
+    renderView();
+  }
+
+  function navigateNext() {
+    if (state.view === 'monthly') {
+      state.month++;
+      if (state.month > 11) { state.month = 0; state.year++; }
+    } else if (state.view === 'weekly') {
+      state.weekDate = DateUtils.addDays(state.weekDate, 7);
+    } else {
+      state.dailyDate = DateUtils.addDays(state.dailyDate, 1);
+    }
+    renderView();
+  }
+
+  function updateCalTitle() {
+    const titles = {
+      monthly: `${DateUtils.MONTHS[state.month]} ${state.year}`,
+      weekly: (() => {
+        const dates = DateUtils.getWeekDates(state.weekDate);
+        return `${DateUtils.format(dates[0])} – ${DateUtils.format(dates[6])}`;
+      })(),
+      daily: DateUtils.format(state.dailyDate, true)
+    };
+    document.getElementById('cal-title').textContent = titles[state.view];
+  }
+
+  // ─── Render View ───
+  function renderView() {
+    updateCalTitle();
+    if (state.view === 'monthly') renderMonthly();
+    else if (state.view === 'weekly') renderWeekly();
+    else renderDaily();
+  }
+
+  // ─── MONTHLY VIEW ───
+  function renderMonthly() {
+    const habits = HabitStore.getAll();
+    const todayKey = DateUtils.today();
+    const firstDay = DateUtils.firstDayOfMonth(state.year, state.month);
+    const daysInMonth = DateUtils.daysInMonth(state.year, state.month);
+    const prevDays = DateUtils.daysInMonth(state.year, state.month - 1 < 0 ? 11 : state.month - 1);
+
+    let cells = [];
+
+    // Prev month days
+    for (let i = firstDay - 1; i >= 0; i--) {
+      cells.push({ day: prevDays - i, current: false });
+    }
+    // Current month
+    for (let d = 1; d <= daysInMonth; d++) {
+      cells.push({ day: d, current: true });
+    }
+    // Next month
+    const remaining = 42 - cells.length;
+    for (let d = 1; d <= remaining; d++) {
+      cells.push({ day: d, current: false });
+    }
+
+    const html = `
+      <div class="calendar-container animate-scale">
+        <div class="calendar-weekdays">
+          ${DateUtils.DAYS.map(d => `<div class="cal-weekday">${d}</div>`).join('')}
+        </div>
+        <div class="calendar-grid" id="cal-grid">
+          ${cells.map(cell => {
+            if (!cell.current) return `<div class="cal-day other-month"><div class="day-num">${cell.day}</div></div>`;
+
+            const key = `${state.year}-${String(state.month+1).padStart(2,'0')}-${String(cell.day).padStart(2,'0')}`;
+            const isToday = key === todayKey;
+            const comps = HabitStore.getCompletionsForDate(key);
+            const done = habits.filter(h => comps[h.id]).length;
+            const total = habits.length;
+            const pct = total > 0 ? Math.round((done/total)*100) : 0;
+
+            const dotsHtml = habits.slice(0, 3).map(h => {
+              const isDone = comps[h.id];
+              return `<div class="day-habit-dot">
+                <div class="dot" style="background: ${isDone ? h.color : 'rgba(255,255,255,0.15)'}; opacity: ${isDone ? 1 : 0.5};"></div>
+                <span class="dot-label" style="color: ${isDone ? 'var(--text-secondary)' : 'var(--text-muted)'};">${h.name}</span>
+              </div>`;
+            }).join('');
+
+            return `<div class="cal-day${isToday ? ' today' : ''}" data-date="${key}" onclick="openDayModal('${key}')">
+              <div class="day-num">${cell.day}</div>
+              <div class="day-habits">${dotsHtml}</div>
+              ${total > 0 ? `<div class="day-completion">${done}/${total}</div>` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+
+    document.getElementById('calendar-area').innerHTML = html;
+  }
+
+  // ─── WEEKLY VIEW ───
+  function renderWeekly() {
+    const habits = HabitStore.getAll();
+    const todayKey = DateUtils.today();
+    const dates = DateUtils.getWeekDates(state.weekDate);
+
+    if (habits.length === 0) {
+      document.getElementById('calendar-area').innerHTML = `
+        <div class="empty-state glass-card" style="padding: 60px 20px;">
+          <div class="empty-icon">🌱</div>
+          <div class="empty-title">Henüz alışkanlık yok</div>
+          <div class="empty-sub">İlk alışkanlığını ekle!</div>
+        </div>`;
+      return;
+    }
+
+    const headerCols = dates.map((d, i) => {
+      const key = DateUtils.toKey(d);
+      const isToday = key === todayKey;
+      return `<div class="weekly-day-header${isToday ? ' today' : ''}">
+        <div class="weekly-day-name">${DateUtils.DAYS[i]}</div>
+        <div class="weekly-day-date" onclick="openDayModal('${key}')" style="cursor:pointer;" title="Günü aç">${d.getDate()}</div>
+      </div>`;
+    }).join('');
+
+    const rows = habits.map(h => {
+      const cells = dates.map(d => {
+        const key = DateUtils.toKey(d);
+        const done = HabitStore.isCompleted(h.id, key);
+        return `<div class="weekly-cell">
+          <div class="check-circle ${done ? 'checked' : ''}" onclick="toggleWeeklyCell('${h.id}', '${key}', this)" title="${done ? 'Geri al' : 'Tamamla'}">
+            ${done ? '✓' : ''}
+          </div>
+        </div>`;
+      }).join('');
+
+      return `<div class="weekly-habit-row">
+        <div class="weekly-habit-name">
+          <div class="habit-color-dot" style="background: ${h.color};"></div>
+          <span class="habit-name-text" title="${h.name}">${h.icon} ${h.name}</span>
+        </div>
+        ${cells}
+      </div>`;
+    }).join('');
+
+    document.getElementById('calendar-area').innerHTML = `
+      <div class="weekly-grid animate-scale">
+        <div class="weekly-header">
+          <div class="weekly-row-label">Alışkanlık</div>
+          ${headerCols}
+        </div>
+        <div class="weekly-body">${rows}</div>
+      </div>`;
+  }
+
+  // ─── DAILY VIEW ───
+  function renderDaily() {
+    const habits = HabitStore.getAll();
+    const dateKey = DateUtils.toKey(state.dailyDate);
+    const todayStats = { done: 0, total: habits.length };
+
+    habits.forEach(h => {
+      if (HabitStore.isCompleted(h.id, dateKey)) todayStats.done++;
+    });
+    const pct = todayStats.total ? Math.round((todayStats.done/todayStats.total)*100) : 0;
+
+    const habitItems = habits.length === 0
+      ? `<div class="empty-state glass-card" style="padding:60px 20px;"><div class="empty-icon">🌱</div><div class="empty-title">Henüz alışkanlık yok</div></div>`
+      : habits.map(h => {
+          const done = HabitStore.isCompleted(h.id, dateKey);
+          const streak = HabitStore.getStreak(h.id);
+          return `<div class="daily-habit-item${done ? ' completed' : ''}" id="daily-item-${h.id}">
+            <div class="daily-habit-icon" style="background: ${h.color}22;">${h.icon}</div>
+            <div class="daily-habit-info">
+              <div class="daily-habit-name">${h.name}</div>
+              <div class="daily-habit-streak">${streak > 0 ? `🔥 ${streak} günlük seri` : 'Henüz seri yok'}</div>
+            </div>
+            <button class="daily-check-btn${done ? ' checked' : ''}" onclick="toggleDailyCell('${h.id}', '${dateKey}', this)" title="${done ? 'Geri al' : 'Tamamla'}">
+              ${done ? '✓' : ''}
+            </button>
+          </div>`;
+        }).join('');
+
+    document.getElementById('calendar-area').innerHTML = `
+      <div class="daily-view animate-fade-up">
+        <div class="daily-header">
+          <div class="daily-date-big">${state.dailyDate.getDate()} ${DateUtils.MONTHS[state.dailyDate.getMonth()]}</div>
+          <div class="daily-date-sub">${DateUtils.DAYS_FULL[(state.dailyDate.getDay()+6)%7]}, ${state.dailyDate.getFullYear()}</div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-top: 12px;">
+            <span style="font-size:13px; color:var(--text-secondary);">${todayStats.done}/${todayStats.total} tamamlandı</span>
+            <span style="font-size:13px; font-weight:700; color:var(--accent-light);">${pct}%</span>
+          </div>
+          <div class="daily-progress-bar">
+            <div class="daily-progress-fill" style="width: ${pct}%"></div>
+          </div>
+        </div>
+        ${habitItems}
+      </div>`;
+  }
+
+  // ─── Toggle Helpers ───
+  function toggleWeeklyCell(habitId, dateKey, el) {
+    const done = HabitStore.toggle(habitId, dateKey);
+    el.className = `check-circle ${done ? 'checked' : ''}`;
+    el.textContent = done ? '✓' : '';
+    updateStats();
+    buildHeatmap();
+    buildSidebarHabits();
+  }
+
+  function toggleDailyCell(habitId, dateKey, btn) {
+    const done = HabitStore.toggle(habitId, dateKey);
+    btn.className = `daily-check-btn${done ? ' checked' : ''}`;
+    btn.textContent = done ? '✓' : '';
+    const item = document.getElementById(`daily-item-${habitId}`);
+    if (item) item.className = `daily-habit-item${done ? ' completed' : ''}`;
+    updateStats();
+    buildHeatmap();
+    buildSidebarHabits();
+    // Re-render to update progress bar
+    setTimeout(renderDaily, 0);
+  }
+
+  // ─── Day Modal ───
+  function openDayModal(dateKey) {
+    const date = DateUtils.fromKey(dateKey);
+    const habits = HabitStore.getAll();
+
+    document.getElementById('day-modal-title').textContent = DateUtils.format(date, false) + ' ' + date.getFullYear();
+    document.getElementById('day-modal-weekday').textContent = DateUtils.DAYS_FULL[(date.getDay()+6)%7];
+
+    const listEl = document.getElementById('day-modal-habits-list');
+    if (habits.length === 0) {
+      listEl.innerHTML = `<div class="empty-state" style="padding:20px 0;"><div class="empty-icon" style="font-size:28px;">🌱</div><div class="empty-title">Henüz alışkanlık yok</div></div>`;
+    } else {
+      listEl.innerHTML = habits.map(h => {
+        const done = HabitStore.isCompleted(h.id, dateKey);
+        return `<div class="day-modal-habit">
+          <div class="day-modal-habit-icon" style="background: ${h.color}22;">${h.icon}</div>
+          <span class="day-modal-habit-name">${h.name}</span>
+          <button class="day-modal-check${done ? ' checked' : ''}" onclick="toggleDayModal('${h.id}', '${dateKey}', this)">
+            ${done ? '✓' : ''}
+          </button>
+        </div>`;
+      }).join('');
+    }
+
+    const note = HabitStore.getNote(dateKey);
+    document.getElementById('day-modal-note-input').value = note;
+
+    document.getElementById('day-modal-save').onclick = () => {
+      const noteText = document.getElementById('day-modal-note-input').value;
+      HabitStore.saveNote(dateKey, noteText);
+      Modal.close('day-modal');
+      Toast.success('Kaydedildi!');
+      renderView();
+      updateStats();
+      buildHeatmap();
+    };
+
+    Modal.open('day-modal');
+  }
+
+  function toggleDayModal(habitId, dateKey, btn) {
+    const done = HabitStore.toggle(habitId, dateKey);
+    btn.className = `day-modal-check${done ? ' checked' : ''}`;
+    btn.textContent = done ? '✓' : '';
+    updateStats();
+  }
+
+  function attachSidebarActions() {
+    document.querySelector('.habits-sidebar').addEventListener('click', e => {
+      const deleteBtn = e.target.closest('[data-delete-id]');
+      const editBtn = e.target.closest('[data-edit-id]');
+      if (deleteBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        deleteHabit(deleteBtn.getAttribute('data-delete-id'));
+        return;
+      }
+      if (editBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        editHabit(editBtn.getAttribute('data-edit-id'));
+      }
+    });
+  }
+
+  function attachDeleteModal() {
+    const cancelDelete = () => {
+      state.pendingDeleteId = null;
+      Modal.close('delete-modal');
+    };
+    document.getElementById('confirm-delete-btn').addEventListener('click', confirmDeleteHabit);
+    document.getElementById('cancel-delete-btn').addEventListener('click', cancelDelete);
+    document.querySelector('#delete-modal .modal-close').addEventListener('click', () => {
+      state.pendingDeleteId = null;
+    });
+  }
+
+  function attachDayModal() {
+    document.querySelector('#day-modal .modal-close').addEventListener('click', () => Modal.close('day-modal'));
+    document.getElementById('day-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('day-modal')) Modal.close('day-modal');
+    });
+  }
+
+  // ─── Add Habit ───
+  function buildEmojiPicker() {
+    document.getElementById('emoji-picker').innerHTML = EMOJIS.map(e =>
+      `<button type="button" class="emoji-option${e === state.selectedEmoji ? ' selected' : ''}" data-emoji="${e}" onclick="selectEmoji('${e}', this)">${e}</button>`
+    ).join('');
+  }
+
+  function buildColorPicker() {
+    document.getElementById('color-picker').innerHTML = COLORS.map(c =>
+      `<div class="color-option${c === state.selectedColor ? ' selected' : ''}" style="background:${c};" data-color="${c}" onclick="selectColor('${c}', this)"></div>`
+    ).join('');
+  }
+
+  function selectEmoji(emoji, el) {
+    state.selectedEmoji = emoji;
+    document.querySelectorAll('.emoji-option').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function selectColor(color, el) {
+    state.selectedColor = color;
+    document.querySelectorAll('.color-option').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+  }
+
+  function attachAddHabit() {
+    document.getElementById('add-habit-btn').addEventListener('click', () => {
+      state.editingId = null;
+      document.getElementById('add-modal-title').textContent = '✨ Yeni Alışkanlık';
+      document.getElementById('save-habit-btn').textContent = '✓ Kaydet';
+      document.getElementById('habit-name-input').value = '';
+      document.getElementById('edit-habit-id').value = '';
+      state.selectedEmoji = '⭐';
+      state.selectedColor = '#6c63ff';
+      state.selectedFreq = 'daily';
+      buildEmojiPicker();
+      buildColorPicker();
+      document.querySelectorAll('.freq-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.freq === 'daily');
+      });
+      Modal.open('add-modal');
+    });
+
+    document.querySelectorAll('.freq-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.selectedFreq = btn.dataset.freq;
+        document.querySelectorAll('.freq-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    });
+
+    document.querySelector('#add-modal .modal-close').addEventListener('click', () => Modal.close('add-modal'));
+    document.querySelector('.modal-close-btn').addEventListener('click', () => Modal.close('add-modal'));
+    document.getElementById('add-modal').addEventListener('click', e => {
+      if (e.target === document.getElementById('add-modal')) Modal.close('add-modal');
+    });
+
+    document.getElementById('add-habit-form').addEventListener('submit', e => {
+      e.preventDefault();
+      const name = document.getElementById('habit-name-input').value.trim();
+      if (!name) return;
+
+      const editId = document.getElementById('edit-habit-id').value;
+      const habitData = {
+        name,
+        icon: state.selectedEmoji,
+        color: state.selectedColor,
+        frequency: state.selectedFreq
+      };
+
+      if (editId) {
+        HabitStore.update(editId, habitData);
+        Toast.success('Alışkanlık güncellendi!');
+      } else {
+        HabitStore.add(habitData);
+        Toast.success('Alışkanlık eklendi!');
+      }
+
+      Modal.close('add-modal');
+      renderView();
+      updateStats();
+      buildHeatmap();
+      buildSidebarHabits();
+    });
+  }
+
+  // ─── Edit / Delete ───
+  function editHabit(id) {
+    const h = HabitStore.getAll().find(x => HabitStore._id(x.id) === HabitStore._id(id));
+    if (!h) return;
+    state.editingId = id;
+    document.getElementById('add-modal-title').textContent = '✏️ Alışkanlığı Düzenle';
+    document.getElementById('save-habit-btn').textContent = '✓ Güncelle';
+    document.getElementById('habit-name-input').value = h.name;
+    document.getElementById('edit-habit-id').value = id;
+    state.selectedEmoji = h.icon;
+    state.selectedColor = h.color;
+    state.selectedFreq = h.frequency || 'daily';
+    buildEmojiPicker();
+    buildColorPicker();
+    document.querySelectorAll('.freq-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.freq === state.selectedFreq);
+    });
+    Modal.open('add-modal');
+  }
+
+  function deleteHabit(id) {
+    if (!id) return;
+    state.pendingDeleteId = id;
+    Modal.open('delete-modal');
+  }
+
+  function confirmDeleteHabit() {
+    if (!state.pendingDeleteId) return;
+    HabitStore.delete(state.pendingDeleteId);
+    state.pendingDeleteId = null;
+    Modal.close('delete-modal');
+    Toast.info('Alışkanlık silindi.');
+    refreshUI();
+  }
+
+  // ─── Sidebar Habits ───
+  function buildSidebarHabits() {
+    const habits = HabitStore.getAll();
+    const el = document.getElementById('sidebar-habits-list');
+    if (habits.length === 0) {
+      el.innerHTML = `<div class="empty-state" style="padding:20px 0;"><div class="empty-icon" style="font-size:28px;">🌱</div><div class="empty-title" style="font-size:13px;">Henüz alışkanlık yok</div></div>`;
+      return;
+    }
+    el.innerHTML = habits.map(h => {
+      const streak = HabitStore.getStreak(h.id);
+      const rate = HabitStore.getCompletionRate(h.id, 30);
+      return `<div class="habit-list-item">
+        <div class="habit-list-icon" style="background: ${h.color}22;">${h.icon}</div>
+        <div class="habit-list-info">
+          <div class="habit-list-name">${h.name}</div>
+          <div class="habit-list-meta">🔥${streak} seri · %${rate} başarı</div>
+        </div>
+        <div class="habit-list-actions">
+          <button type="button" class="icon-btn" data-edit-id="${h.id}" title="Düzenle">✏️</button>
+          <button type="button" class="icon-btn delete" data-delete-id="${h.id}" title="Sil">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ─── Heatmap ───
+  function buildHeatmap() {
+    const data = HabitStore.getHeatmapData(90);
+    const el = document.getElementById('heatmap');
+    el.innerHTML = data.map(cell => {
+      return `<div class="heatmap-cell lvl-${cell.level}" title="${cell.key}: ${cell.done}/${cell.total} alışkanlık"></div>`;
+    }).join('');
+  }
+
+  // Init
+  window.openDayModal = openDayModal;
+  window.toggleDayModal = toggleDayModal;
+  window.toggleWeeklyCell = toggleWeeklyCell;
+  window.toggleDailyCell = toggleDailyCell;
+  window.editHabit = editHabit;
+  window.deleteHabit = deleteHabit;
+  window.selectEmoji = selectEmoji;
+  window.selectColor = selectColor;
+
+  init();
+  window.addEventListener('languageChanged', refreshUI);
+</script>
+</body>
+</html>
