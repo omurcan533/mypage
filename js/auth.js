@@ -7,6 +7,11 @@ const USERS = {
     password: 'admin',
     displayName: 'Ömür Can',
     role: 'Admin'
+  },
+  tester: {
+    password: 'tester123',
+    displayName: 'Test Kullanıcı',
+    role: 'User'
   }
 };
 
@@ -99,6 +104,11 @@ const Auth = {
     if (nameEl) nameEl.textContent = user.displayName;
     if (roleEl) roleEl.textContent = user.role;
     if (avatarEl) avatarEl.textContent = user.displayName.charAt(0).toUpperCase();
+  },
+
+  canAccessHabits() {
+    const user = this.getUser();
+    return Boolean(user && user.role === 'Admin');
   },
 
   _generateToken() {

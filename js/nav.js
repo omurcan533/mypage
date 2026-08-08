@@ -8,6 +8,7 @@ const Nav = {
     this._setActiveLink();
     this._attachLogout();
     Auth.populateNav();
+    this._togglePrivateLinks();
   },
 
   _setActiveLink() {
@@ -26,6 +27,25 @@ const Nav = {
   _attachLogout() {
     const btn = document.getElementById('logout-btn');
     if (btn) btn.addEventListener('click', () => Auth.logout());
+  },
+
+  _togglePrivateLinks() {
+    const canSeeHabits = Auth.canAccessHabits();
+
+    document.querySelectorAll('a[href]').forEach(link => {
+      const href = link.getAttribute('href') || '';
+      const pageName = href.split('/').pop();
+
+      if (pageName !== 'habits.html') return;
+
+      if (!canSeeHabits) {
+        link.style.display = 'none';
+        link.setAttribute('aria-hidden', 'true');
+      } else {
+        link.style.display = '';
+        link.removeAttribute('aria-hidden');
+      }
+    });
   }
 };
 
