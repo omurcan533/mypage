@@ -152,21 +152,38 @@
         color: var(--text-muted);
       }
 
-      .travel-card-actions {
-        position: absolute;
-        top: 10px;
-        right: 10px;
+      .travel-card-footer {
         display: flex;
-        gap: 4px;
-        opacity: 0;
+        gap: 8px;
+        padding: 12px 16px;
+        border-top: 1px solid var(--glass-border);
+        margin-top: auto;
+      }
+      .travel-admin-btn {
+        flex: 1;
+        padding: 8px 0;
+        border-radius: var(--radius-md);
+        font-size: 12px;
+        font-weight: 600;
+        border: 1px solid var(--glass-border);
+        background: transparent;
+        cursor: pointer;
         transition: var(--transition);
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
       }
-      .travel-card:hover .travel-card-actions {
-        opacity: 1;
+      .travel-admin-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent-light);
+        background: rgba(108, 99, 255, 0.1);
       }
-      .travel-card-actions .icon-btn {
-        background: rgba(9, 14, 26, 0.7);
-        backdrop-filter: blur(4px);
+      .travel-admin-btn.danger:hover {
+        border-color: var(--rose);
+        color: var(--rose);
+        background: rgba(251, 113, 133, 0.1);
       }
 
       /* Rating stars */
@@ -325,6 +342,27 @@
       </aside>
 
       <main class="main-content">
+        <!-- Global Hero Header -->
+        <div class="welcome-hero">
+          <div class="hero-greeting" id="greeting-text">İyi günler</div>
+          <h1 class="hero-name">
+            <span data-i18n="home_welcome_title">Hoş geldin,</span>
+            <span class="gradient-text">Ömür Can'ın dünyasına</span> 👋
+          </h1>
+          <p class="hero-desc" data-i18n="home_welcome_desc">
+            Kişisel panoya hoş geldin. Alışkanlıklarını takip et, projelerini yönet ve hayatını organize et.
+          </p>
+          <div class="hero-date" id="hero-date">📅 Bugün</div>
+          <div class="hero-quick-links">
+            <a href="home.html" class="quick-link">🏠 Ana Sayfa</a>
+            <a href="habits.html" class="quick-link" data-i18n="home_quick_habits">✅ Alışkanlıklar</a>
+            <a href="projects.html" class="quick-link" data-i18n="home_quick_projects">🚀 Projelerim</a>
+            <a href="travels.html" class="quick-link active" data-i18n="home_quick_travels">✈️ Gezilerim</a>
+            <a href="books.html" class="quick-link">📚 Kitaplar</a>
+            <a href="contact.html" class="quick-link">📬 İletişim</a>
+          </div>
+        </div>
+
         <div class="travel-header-row">
           <div class="page-header" style="margin-bottom: 0">
             <h1 class="page-title">
@@ -504,13 +542,19 @@
 
       const TRAVEL_KEY = "oyp_travels";
 
-      function getTravels() {
+      function getLocalTravels() {
         try {
           return JSON.parse(localStorage.getItem(TRAVEL_KEY)) || [];
         } catch {
           return [];
         }
       }
+
+      function saveLocalTravels(travels) {
+        localStorage.setItem(TRAVEL_KEY, JSON.stringify(travels));
+      }
+
+      let allTravelsList = [];
       let isAdminMode = false;
 
       async function syncTravelAccess() {
@@ -521,12 +565,216 @@
         }
       }
 
-      function saveTravels(t) {
-        localStorage.setItem(TRAVEL_KEY, JSON.stringify(t));
+      const DEFAULT_TRAVELS = [
+        {
+          id: "travel-1",
+          city: "İstanbul",
+          country: "Türkiye",
+          continent: "Avrupa",
+          flag: "🇹🇷",
+          dateStart: "2024-01-01",
+          dateEnd: "2024-01-05",
+          rating: 5,
+          color: "#6c63ff",
+          note: "Tarihi Yarımada ve Boğaz turu harikaydı.",
+          tags: ["tarih", "kültür", "boğaz"],
+          created_at: new Date().toISOString()
+        }
+      ];
+
+      async function getTravels() {
+        let supabaseTravels = null;
+        try {
+          const { data, error } = await window.supabaseClient
+            .from("travels")
+            .select("*")
+            .order("created_at", { ascending: false });
+
+          if (!error && data) {
+            supabaseTravels = data.map((t) => ({
+              ...t,
+              dateStart: t.date_start || t.dateStart || "",
+              dateEnd: t.date_end || t.dateEnd || "",
+              note: t.note || "",
+            }));
+          }
+        } catch (e) {
+          console.warn("Supabase fetch travels error:", e);
+        }
+
+        const isUuid = (id) => typeof id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        const user = await Auth.getUser();
+        if (user && supabaseTravels) {
+          const local = getLocalTravels();
+          const unpushed = local.filter((t) => !isUuid(t.id));
+          if (unpushed.length > 0) {
+            for (const item of unpushed) {
+              const dbPayload = {
+                id: generateUUID(),
+                city: item.city,
+                country: item.country,
+                continent: item.continent || "Avrupa",
+                flag: item.flag || "🌍",
+                date_start: item.dateStart || null,
+                date_end: item.dateEnd || null,
+                rating: item.rating || 5,
+                color: item.color || "#6c63ff",
+                note: item.note || null,
+                tags: item.tags || [],
+                user_id: user.id
+              };
+              const { data: insData, error: insErr } = await window.supabaseClient
+                .from("travels")
+                .insert([dbPayload])
+                .select();
+              if (!insErr && insData && insData.length > 0) {
+                const synced = {
+                  ...insData[0],
+                  dateStart: insData[0].date_start || insData[0].dateStart || "",
+                  dateEnd: insData[0].date_end || insData[0].dateEnd || "",
+                  note: insData[0].note || "",
+                };
+                supabaseTravels.unshift(synced);
+              }
+            }
+            saveLocalTravels(supabaseTravels);
+          }
+        } else if (!user) {
+          const local = getLocalTravels();
+          const unpushed = local.filter((t) => !isUuid(t.id));
+          if (unpushed.length > 0 && window.Toast) {
+            window.Toast.info(`☁️ Yerel hafızanızda ${unpushed.length} adet gezi var. Canlıya aktarmak için lütfen giriş yapın.`);
+          }
+        }
+
+        if (supabaseTravels && supabaseTravels.length > 0) {
+          saveLocalTravels(supabaseTravels);
+          return supabaseTravels;
+        }
+
+        const local = getLocalTravels();
+        if (local && local.length > 0) {
+          return local;
+        }
+
+        return [];
+      }
+
+      function generateUUID() {
+        if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+          return crypto.randomUUID();
+        }
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+          const r = (Math.random() * 16) | 0;
+          const v = c === "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        });
+      }
+
+      async function saveTravel(td) {
+        const id = document.getElementById("edit-travel-id").value;
+        const user = await Auth.getUser();
+        let savedTravel = null;
+
+        const dbPayload = {
+          city: td.city,
+          country: td.country,
+          continent: td.continent || "Avrupa",
+          flag: td.flag || "🌍",
+          date_start: td.dateStart || null,
+          date_end: td.dateEnd || null,
+          rating: td.rating || 5,
+          color: td.color || "#6c63ff",
+          note: td.note || null,
+          tags: td.tags || [],
+        };
+
+        if (user && user.id) {
+          dbPayload.user_id = user.id;
+        }
+
+        if (!id) {
+          dbPayload.id = generateUUID();
+        }
+
+        if (user) {
+          try {
+            if (id) {
+              const { data, error } = await window.supabaseClient
+                .from("travels")
+                .update(dbPayload)
+                .eq("id", id)
+                .select();
+              if (error) {
+                console.error("Supabase travel update error:", error);
+              } else if (data && data.length > 0) {
+                savedTravel = data[0];
+              }
+            } else {
+              const { data, error } = await window.supabaseClient
+                .from("travels")
+                .insert([dbPayload])
+                .select();
+              if (error) {
+                console.error("Supabase travel insert error:", error);
+              } else if (data && data.length > 0) {
+                savedTravel = data[0];
+              }
+            }
+          } catch (err) {
+            console.warn("Supabase travel save error:", err);
+          }
+        } else {
+          if (window.Toast) {
+            window.Toast.warn("Supabase oturumunuz açık olmadığı için kayıt canlıya aktarılamadı. Lütfen giriş yapın.");
+          }
+          if (window.Nav && typeof window.Nav.openAdminModal === 'function') {
+            setTimeout(() => window.Nav.openAdminModal(), 600);
+          }
+        }
+
+        const local = getLocalTravels();
+        const formattedSaved = savedTravel
+          ? {
+              ...savedTravel,
+              dateStart: savedTravel.date_start || savedTravel.dateStart || "",
+              dateEnd: savedTravel.date_end || savedTravel.dateEnd || "",
+              note: savedTravel.note || "",
+            }
+          : null;
+
+        if (id) {
+          const idx = local.findIndex((t) => String(t.id) === String(id));
+          const travelData = formattedSaved || { ...td, id };
+          if (idx !== -1) {
+            local[idx] = { ...local[idx], ...travelData };
+          } else {
+            local.unshift(travelData);
+          }
+        } else {
+          const newTravel = formattedSaved || {
+            ...td,
+            id: "travel-" + Date.now(),
+            created_at: new Date().toISOString(),
+          };
+          local.unshift(newTravel);
+        }
+        saveLocalTravels(local);
+        return true;
       }
 
       async function renderTravels() {
-        const travels = getTravels();
+        const container = document.getElementById("travels-container");
+        if (container) {
+          container.innerHTML = `<div class="skeleton-grid">
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+          </div>`;
+        }
+
+        const travels = await getTravels();
+        allTravelsList = travels;
         const canManage = await Auth.canManageContent();
         // Stats
         const countries = new Set(travels.map((t) => t.country)).size;
@@ -536,8 +784,6 @@
         document.getElementById("ts-countries").textContent = countries;
         document.getElementById("ts-cities").textContent = cities;
         document.getElementById("ts-continents").textContent = continents;
-
-        const container = document.getElementById("travels-container");
 
         if (travels.length === 0) {
           container.innerHTML = `<div class="empty-state glass-card" style="padding:80px 20px;">
@@ -580,14 +826,13 @@
                   ? `${t.dateStart}${t.dateEnd ? " → " + t.dateEnd : ""}`
                   : "";
                 const actionsMarkup = canManage
-                  ? `<div class="travel-card-actions">
-                      <button class="icon-btn" onclick="editTravel('${t.id}')" title="Düzenle">✏️</button>
-                      <button class="icon-btn delete" onclick="deleteTravel('${t.id}')" title="Sil">🗑</button>
+                  ? `<div class="travel-card-footer">
+                      <button type="button" class="travel-admin-btn travel-edit-btn" data-id="${t.id}">✏️ Düzenle</button>
+                      <button type="button" class="travel-admin-btn danger travel-delete-btn" data-id="${t.id}">🗑 Sil</button>
                     </div>`
                   : "";
 
                 return `<div class="travel-card">
-          ${actionsMarkup}
           <div class="travel-card-banner" style="background: linear-gradient(135deg, ${t.color || "#6c63ff"}44, ${t.color || "#6c63ff"}11);">
             <span class="flag">${t.flag || "🌍"}</span>
           </div>
@@ -599,6 +844,7 @@
             ${t.note ? `<div class="travel-note">${t.note}</div>` : ""}
             ${tags ? `<div class="travel-tags">${tags}</div>` : ""}
           </div>
+          ${actionsMarkup}
         </div>`;
               })
               .join("");
@@ -615,7 +861,7 @@
           return;
         }
 
-        const t = getTravels().find((x) => x.id === id);
+        const t = allTravelsList.find((x) => String(x.id) === String(id));
         if (!t) return;
         document.getElementById("travel-modal-title").textContent =
           "✏️ Geziyi Düzenle";
@@ -642,10 +888,38 @@
           return;
         }
 
-        if (!confirm("Bu geziyi silmek istediğinizden emin misiniz?")) return;
-        saveTravels(getTravels().filter((t) => t.id !== id));
+        const t = allTravelsList.find((x) => String(x.id) === String(id));
+        const cityTitle = t ? `${t.city} (${t.country})` : "bu geziyi";
+
+        const confirmed = window.Confirm
+          ? await window.Confirm.show({
+              title: "Geziyi Sil",
+              message: `"${cityTitle}" kaydını kalıcı olarak silmek istediğinizden emin misiniz?`,
+              confirmText: "🗑 Evet, Sil",
+              cancelText: "İptal",
+              danger: true
+            })
+          : confirm("Bu geziyi silmek istediğinizden emin misiniz?");
+
+        if (!confirmed) return;
+
+        const user = await Auth.getUser();
+        if (user) {
+          try {
+            const { error } = await window.supabaseClient
+              .from("travels")
+              .delete()
+              .eq("id", id);
+            if (error) console.error("Supabase travel delete error:", error);
+          } catch (err) {
+            console.warn("Supabase travel delete error:", err);
+          }
+        }
+
+        const local = getLocalTravels().filter((t) => String(t.id) !== String(id));
+        saveLocalTravels(local);
         Toast.info("Gezi silindi.");
-        renderTravels();
+        await renderTravels();
       }
 
       document
@@ -674,9 +948,14 @@
           return;
         }
 
+        const btn = e.target.querySelector('[type="submit"]');
+        if (btn) {
+          btn.textContent = "Kaydediliyor...";
+          btn.disabled = true;
+        }
+
         const editId = document.getElementById("edit-travel-id").value;
-        const data = {
-          id: editId || Date.now().toString(),
+        const td = {
           city: document.getElementById("travel-city").value.trim(),
           country: document.getElementById("travel-country").value.trim(),
           continent: document.getElementById("travel-continent").value,
@@ -693,23 +972,36 @@
             .filter(Boolean),
         };
 
-        let travels = getTravels();
-        if (editId) {
-          travels = travels.map((t) =>
-            t.id === editId ? { ...t, ...data } : t,
-          );
-          Toast.success("Gezi güncellendi!");
-        } else {
-          travels.push(data);
-          Toast.success("Gezi eklendi!");
+        await saveTravel(td);
+
+        if (btn) {
+          btn.textContent = "✓ Kaydet";
+          btn.disabled = false;
         }
-        saveTravels(travels);
+
+        Toast.success(editId ? "Gezi güncellendi!" : "Gezi eklendi!");
         Modal.close("travel-modal");
-        renderTravels();
+        await renderTravels();
       });
 
       window.editTravel = editTravel;
       window.deleteTravel = deleteTravel;
+
+      document.getElementById("travels-container").addEventListener("click", (e) => {
+        const editBtn = e.target.closest(".travel-edit-btn");
+        const deleteBtn = e.target.closest(".travel-delete-btn");
+
+        if (editBtn) {
+          e.stopPropagation();
+          editTravel(editBtn.dataset.id);
+          return;
+        }
+        if (deleteBtn) {
+          e.stopPropagation();
+          deleteTravel(deleteBtn.dataset.id);
+          return;
+        }
+      });
       (async () => {
         await syncTravelAccess();
         await renderTravels();

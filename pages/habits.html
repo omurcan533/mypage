@@ -148,6 +148,27 @@
 
       <!-- Main -->
       <main class="main-content">
+        <!-- Global Hero Header -->
+        <div class="welcome-hero">
+          <div class="hero-greeting" id="greeting-text">İyi günler</div>
+          <h1 class="hero-name">
+            <span data-i18n="home_welcome_title">Hoş geldin,</span>
+            <span class="gradient-text">Ömür Can'ın dünyasına</span> 👋
+          </h1>
+          <p class="hero-desc" data-i18n="home_welcome_desc">
+            Kişisel panoya hoş geldin. Alışkanlıklarını takip et, projelerini yönet ve hayatını organize et.
+          </p>
+          <div class="hero-date" id="hero-date">📅 Bugün</div>
+          <div class="hero-quick-links">
+            <a href="home.html" class="quick-link">🏠 Ana Sayfa</a>
+            <a href="habits.html" class="quick-link active" data-i18n="home_quick_habits">✅ Alışkanlıklar</a>
+            <a href="projects.html" class="quick-link" data-i18n="home_quick_projects">🚀 Projelerim</a>
+            <a href="travels.html" class="quick-link" data-i18n="home_quick_travels">✈️ Gezilerim</a>
+            <a href="books.html" class="quick-link">📚 Kitaplar</a>
+            <a href="contact.html" class="quick-link">📬 İletişim</a>
+          </div>
+        </div>
+
         <div class="page-header">
           <h1 class="page-title">
             ✅ <span data-i18n="habits_title">Alışkanlıklar</span>
@@ -532,7 +553,9 @@
         }
       }
 
-      initializeHabitsAccess();
+      function initializeHabitsAccess() {
+        syncHabitsAccess();
+      }
       async function getCompletionsForDateRange(startDate, endDate) {
         const user = await Auth.getUser();
 
@@ -677,6 +700,15 @@
       // ─── Render View ───
       async function renderView() {
         updateCalTitle();
+
+        const calArea = document.getElementById("calendar-area");
+        if (calArea && !calArea.children.length) {
+          calArea.innerHTML = `<div class="skeleton-grid">
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+          </div>`;
+        }
 
         if (state.view === "monthly") {
           await renderMonthly();
@@ -995,31 +1027,54 @@
 
       // ─── Toggle Helpers ───
       async function toggleWeeklyCell(habitId, dateKey, el) {
-        const done = await HabitStore.toggle(habitId, dateKey);
-        el.className = `check-circle ${done ? "checked" : ""}`;
-        el.textContent = done ? "✓" : "";
-        await Promise.all([updateStats(), buildHeatmap(), buildSidebarHabits(), renderView()]);
+        const isChecked = el.classList.contains("checked");
+        const nextState = !isChecked;
+        el.className = `check-circle ${nextState ? "checked" : ""}`;
+        el.textContent = nextState ? "✓" : "";
+
+        try {
+          const actualDone = await HabitStore.toggle(habitId, dateKey);
+          if (actualDone !== nextState) {
+            el.className = `check-circle ${actualDone ? "checked" : ""}`;
+            el.textContent = actualDone ? "✓" : "";
+          }
+        } catch (e) {
+          el.className = `check-circle ${isChecked ? "checked" : ""}`;
+          el.textContent = isChecked ? "✓" : "";
+        }
+        refreshUI();
       }
 
       async function toggleDailyCell(habitId, dateKey, btn) {
-        const done = await HabitStore.toggle(habitId, dateKey);
-        btn.className = `daily-check-btn${done ? " checked" : ""}`;
-        btn.textContent = done ? "✓" : "";
+        const isChecked = btn.classList.contains("checked");
+        const nextState = !isChecked;
+
+        btn.className = `daily-check-btn${nextState ? " checked" : ""}`;
+        btn.textContent = nextState ? "✓" : "";
         const item = document.getElementById(`daily-item-${habitId}`);
-        if (item)
-          item.className = `daily-habit-item${done ? " completed" : ""}`;
-        await Promise.all([updateStats(), buildHeatmap(), buildSidebarHabits(), renderView()]);
+        if (item) item.className = `daily-habit-item${nextState ? " completed" : ""}`;
+
+        try {
+          const actualDone = await HabitStore.toggle(habitId, dateKey);
+          if (actualDone !== nextState) {
+            btn.className = `daily-check-btn${actualDone ? " checked" : ""}`;
+            btn.textContent = actualDone ? "✓" : "";
+            if (item) item.className = `daily-habit-item${actualDone ? " completed" : ""}`;
+          }
+        } catch (e) {
+          btn.className = `daily-check-btn${isChecked ? " checked" : ""}`;
+          btn.textContent = isChecked ? "✓" : "";
+          if (item) item.className = `daily-habit-item${isChecked ? " completed" : ""}`;
+        }
+        refreshUI();
       }
 
       // ─── Day Modal ───
-      async function openDayModal(dateKey) {
+      function openDayModal(dateKey) {
         const date = DateUtils.fromKey(dateKey);
 
-        const [allHabits, completions] = await Promise.all([
-          HabitStore.getAll(),
-          HabitStore.getCompletionsForDate(dateKey),
-        ]);
-        const habits = allHabits.filter((h) => HabitStore.isDueOnDate(h, dateKey));
+        // 1. Open modal instantly (< 10ms)
+        Modal.open("day-modal");
 
         document.getElementById("day-modal-title").textContent =
           DateUtils.format(date, false) + " " + date.getFullYear();
@@ -1028,101 +1083,72 @@
           DateUtils.DAYS_FULL[(date.getDay() + 6) % 7];
 
         const listEl = document.getElementById("day-modal-habits-list");
+        const localHabits = HabitStore.getHabits();
+        const habits = localHabits.filter((h) => HabitStore.isDueOnDate(h, dateKey));
+        const logs = HabitStore.getLogs();
+        const completions = logs[dateKey] || {};
 
         if (habits.length === 0) {
           listEl.innerHTML = `
-              <div
-                  class="empty-state"
-                  style="padding:20px 0;"
-              >
-                  <div
-                      class="empty-icon"
-                      style="font-size:28px;"
-                  >
-                      🌱
-                  </div>
-
-                  <div class="empty-title">
-                      Henüz alışkanlık yok
-                  </div>
-              </div>
+            <div class="empty-state" style="padding:20px 0;">
+              <div class="empty-icon" style="font-size:28px;">🌱</div>
+              <div class="empty-title">Henüz alışkanlık yok</div>
+            </div>
           `;
         } else {
           listEl.innerHTML = habits
             .map((h) => {
-              const done = !!completions[HabitStore._id(h.id)];
+              const done = Boolean(completions[HabitStore._id(h.id)]);
 
               return `
-                      <div class="day-modal-habit">
-
-                          <div
-                              class="day-modal-habit-icon"
-                              style="background: ${h.color}22;"
-                          >
-                              ${h.icon}
-                          </div>
-
-                          <span class="day-modal-habit-name">
-                              ${h.name}
-                          </span>
-
-                          <button
-                              type="button"
-                              class="day-modal-check${done ? " checked" : ""}"
-                              onclick="toggleDayModal('${h.id}', '${dateKey}', this)"
-                          >
-                              ${done ? "✓" : ""}
-                          </button>
-
-                      </div>
-                  `;
+                <div class="day-modal-habit">
+                  <div class="day-modal-habit-icon" style="background: ${h.color}22;">${h.icon}</div>
+                  <span class="day-modal-habit-name">${h.name}</span>
+                  <button
+                    type="button"
+                    class="day-modal-check${done ? " checked" : ""}"
+                    onclick="toggleDayModal('${h.id}', '${dateKey}', this)"
+                  >
+                    ${done ? "✓" : ""}
+                  </button>
+                </div>
+              `;
             })
             .join("");
         }
 
         const note = HabitStore.getNote(dateKey);
-
         document.getElementById("day-modal-note-input").value = note;
 
         document.getElementById("day-modal-save").onclick = () => {
-          const noteText = document.getElementById(
-            "day-modal-note-input",
-          ).value;
-
+          const noteText = document.getElementById("day-modal-note-input").value;
           HabitStore.saveNote(dateKey, noteText);
-
           Modal.close("day-modal");
-
           Toast.success("Kaydedildi!");
-
-          renderView();
-          updateStats();
-          buildHeatmap();
+          refreshUI();
         };
-
-        Modal.open("day-modal");
       }
 
       async function toggleDayModal(habitId, dateKey, btn) {
-        if (btn.dataset.loading === "true") {
-          return;
-        }
+        const isChecked = btn.classList.contains("checked");
+        const nextState = !isChecked;
 
-        btn.dataset.loading = "true";
-        btn.disabled = true;
+        // 1. Optimistic UI update (< 5ms)
+        btn.className = `day-modal-check${nextState ? " checked" : ""}`;
+        btn.textContent = nextState ? "✓" : "";
 
+        // 2. Background store toggle & async UI sync
         try {
-          const done = await HabitStore.toggle(habitId, dateKey);
-
-          btn.className = `day-modal-check${done ? " checked" : ""}`;
-
-          btn.textContent = done ? "✓" : "";
-
-          await Promise.all([updateStats(), buildHeatmap(), buildSidebarHabits(), renderView()]);
-        } finally {
-          btn.disabled = false;
-          btn.dataset.loading = "false";
+          const actualDone = await HabitStore.toggle(habitId, dateKey);
+          if (actualDone !== nextState) {
+            btn.className = `day-modal-check${actualDone ? " checked" : ""}`;
+            btn.textContent = actualDone ? "✓" : "";
+          }
+        } catch (e) {
+          btn.className = `day-modal-check${isChecked ? " checked" : ""}`;
+          btn.textContent = isChecked ? "✓" : "";
         }
+        refreshUI();
       }
 
       function attachSidebarActions() {

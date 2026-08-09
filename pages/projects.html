@@ -390,6 +390,27 @@
       </aside>
 
       <main class="main-content">
+        <!-- Global Hero Header -->
+        <div class="welcome-hero">
+          <div class="hero-greeting" id="greeting-text">İyi günler</div>
+          <h1 class="hero-name">
+            <span data-i18n="home_welcome_title">Hoş geldin,</span>
+            <span class="gradient-text">Ömür Can'ın dünyasına</span> 👋
+          </h1>
+          <p class="hero-desc" data-i18n="home_welcome_desc">
+            Kişisel panoya hoş geldin. Alışkanlıklarını takip et, projelerini yönet ve hayatını organize et.
+          </p>
+          <div class="hero-date" id="hero-date">📅 Bugün</div>
+          <div class="hero-quick-links">
+            <a href="home.html" class="quick-link">🏠 Ana Sayfa</a>
+            <a href="habits.html" class="quick-link" data-i18n="home_quick_habits">✅ Alışkanlıklar</a>
+            <a href="projects.html" class="quick-link active" data-i18n="home_quick_projects">🚀 Projelerim</a>
+            <a href="travels.html" class="quick-link" data-i18n="home_quick_travels">✈️ Gezilerim</a>
+            <a href="books.html" class="quick-link">📚 Kitaplar</a>
+            <a href="contact.html" class="quick-link">📬 İletişim</a>
+          </div>
+        </div>
+
         <div
           class="page-header"
           style="
@@ -609,6 +630,24 @@
         localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects));
       }
 
+      const DEFAULT_PROJECTS = [
+        {
+          id: "proj-1",
+          name: "Kişisel Web Sitesi",
+          icon: "🌐",
+          status: "active",
+          description: "Modern, responsive ve Supabase entegrasyonlu kişisel portfolyo ve yönetim paneli.",
+          desc: "Modern, responsive ve Supabase entegrasyonlu kişisel portfolyo ve yönetim paneli.",
+          github_url: "https://github.com",
+          github: "https://github.com",
+          demo_url: "https://omurcanyilmaz.com",
+          demo: "https://omurcanyilmaz.com",
+          tags: ["HTML", "CSS", "JavaScript", "Supabase"],
+          color: "#6c63ff",
+          created_at: new Date().toISOString()
+        }
+      ];
+
       async function getProjects() {
         let supabaseProjects = null;
         try {
@@ -619,7 +658,7 @@
               ascending: false,
             });
 
-          if (!error && data && data.length > 0) {
+          if (!error && data) {
             supabaseProjects = data.map((p) => ({
               ...p,
               desc: p.description || p.desc || "",
@@ -631,12 +670,153 @@
           console.warn("Supabase fetch projects exception:", e);
         }
 
+        const isUuid = (id) => typeof id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        const user = await Auth.getUser();
+        if (user && supabaseProjects) {
+          const local = getLocalProjects();
+          const unpushed = local.filter((p) => !isUuid(p.id));
+          if (unpushed.length > 0) {
+            for (const item of unpushed) {
+              const dbPayload = {
+                id: generateUUID(),
+                name: item.name,
+                icon: item.icon || "🚀",
+                status: item.status || "active",
+                description: item.description || item.desc || null,
+                github_url: item.github_url || item.github || null,
+                demo_url: item.demo_url || item.demo || null,
+                tags: item.tags || [],
+                color: item.color || "#6c63ff",
+                user_id: user.id
+              };
+              const { data: insData, error: insErr } = await window.supabaseClient
+                .from("projects")
+                .insert([dbPayload])
+                .select();
+              if (!insErr && insData && insData.length > 0) {
+                const synced = {
+                  ...insData[0],
+                  desc: insData[0].description || insData[0].desc || "",
+                  github: insData[0].github_url || insData[0].github || "",
+                  demo: insData[0].demo_url || insData[0].demo || "",
+                };
+                supabaseProjects.unshift(synced);
+              }
+            }
+            saveLocalProjects(supabaseProjects);
+          }
+        }
+
         if (supabaseProjects && supabaseProjects.length > 0) {
           saveLocalProjects(supabaseProjects);
           return supabaseProjects;
         }
 
-        return getLocalProjects();
+        const local = getLocalProjects();
+        if (local && local.length > 0) {
+          return local;
+        }
+
+        return [];
+      }
+
+      function generateUUID() {
+        if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+          return crypto.randomUUID();
+        }
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+          const r = (Math.random() * 16) | 0;
+          const v = c === "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        });
+      }
+
+      async function saveProject(pd) {
+        const id = document.getElementById("edit-project-id").value;
+        const user = await Auth.getUser();
+        let savedProject = null;
+
+        const dbPayload = {
+          name: pd.name,
+          icon: pd.icon || "🚀",
+          status: pd.status || "active",
+          description: pd.description || null,
+          github_url: pd.github_url || null,
+          demo_url: pd.demo_url || null,
+          tags: pd.tags || [],
+          color: pd.color || "#6c63ff",
+        };
+        if (user && user.id) {
+          dbPayload.user_id = user.id;
+        }
+
+        if (!id) {
+          dbPayload.id = generateUUID();
+        }
+
+        if (user) {
+          try {
+            if (id) {
+              const { data, error } = await window.supabaseClient
+                .from("projects")
+                .update(dbPayload)
+                .eq("id", id)
+                .select();
+
+              if (error) {
+                console.error("Project update error:", error);
+              } else if (data && data.length > 0) {
+                savedProject = data[0];
+              }
+            } else {
+              const { data, error } = await window.supabaseClient
+                .from("projects")
+                .insert([dbPayload])
+                .select();
+
+              if (error) {
+                console.error("Project insert error:", error);
+              } else if (data && data.length > 0) {
+                savedProject = data[0];
+              }
+            }
+          } catch (err) {
+            console.warn("Supabase project save error:", err);
+          }
+        } else {
+          if (window.Toast) {
+            window.Toast.warn("Supabase kullanıcı oturumu açık değil. Kayıt yerel hafızaya alındı.");
+          }
+        }
+
+        const local = getLocalProjects();
+        const formattedSaved = savedProject
+          ? {
+              ...savedProject,
+              desc: savedProject.description || savedProject.desc || "",
+              github: savedProject.github_url || savedProject.github || "",
+              demo: savedProject.demo_url || savedProject.demo || "",
+            }
+          : null;
+
+        if (id) {
+          const idx = local.findIndex((p) => String(p.id) === String(id));
+          const projectData = formattedSaved || { ...pd, id };
+          if (idx !== -1) {
+            local[idx] = { ...local[idx], ...projectData };
+          } else {
+            local.unshift(projectData);
+          }
+        } else {
+          const newProject = formattedSaved || {
+            ...pd,
+            id: "proj-" + Date.now(),
+            created_at: new Date().toISOString(),
+          };
+          local.unshift(newProject);
+        }
+        saveLocalProjects(local);
+        return true;
       }
 
       const statusMap = {
@@ -869,36 +1049,27 @@
             return;
           }
 
+          const btn = e.target.querySelector('[type="submit"]');
+          if (btn) {
+            btn.textContent = "Kaydediliyor...";
+            btn.disabled = true;
+          }
+
           const editId = document.getElementById("edit-project-id").value;
-
           const name = document.getElementById("proj-name").value.trim();
-
-          const icon =
-            document.getElementById("proj-icon").value.trim() || "🚀";
-
+          const icon = document.getElementById("proj-icon").value.trim() || "🚀";
           const status = document.getElementById("proj-status").value;
-
           const description = document.getElementById("proj-desc").value.trim();
-
-          const github_url = document
-            .getElementById("proj-github")
-            .value.trim();
-
+          const github_url = document.getElementById("proj-github").value.trim();
           const demo_url = document.getElementById("proj-demo").value.trim();
-
           const tags = document
             .getElementById("proj-tags")
             .value.split(",")
             .map((t) => t.trim())
             .filter(Boolean);
-
           const color = document.getElementById("proj-color").value;
 
-          const user = await Auth.getUser();
-
-          const projectObj = {
-            id: editId || String(Date.now()),
-            user_id: user ? user.id : "admin",
+          const pd = {
             name,
             icon,
             status,
@@ -910,62 +1081,14 @@
             demo: demo_url,
             tags,
             color,
-            created_at: new Date().toISOString(),
           };
 
-          if (user) {
-            if (editId) {
-              const { error } = await window.supabaseClient
-                .from("projects")
-                .update({
-                  name: name,
-                  icon: icon,
-                  status: status,
-                  description: description,
-                  github_url: github_url,
-                  demo_url: demo_url,
-                  tags: tags,
-                  color: color,
-                })
-                .eq("id", editId);
+          await saveProject(pd);
 
-              if (error) {
-                console.error("Project update error:", error);
-              }
-            } else {
-              const { error } = await window.supabaseClient
-                .from("projects")
-                .insert({
-                  user_id: user.id,
-                  name: name,
-                  icon: icon,
-                  status: status,
-                  description: description,
-                  github_url: github_url,
-                  demo_url: demo_url,
-                  tags: tags,
-                  color: color,
-                });
-
-              if (error) {
-                console.error("Project insert error:", error);
-              }
-            }
+          if (btn) {
+            btn.textContent = "✓ Kaydet";
+            btn.disabled = false;
           }
-
-          // Always update LocalStorage cache so all users can view created projects
-          const localList = getLocalProjects();
-          if (editId) {
-            const idx = localList.findIndex((p) => String(p.id) === String(editId));
-            if (idx !== -1) {
-              localList[idx] = { ...localList[idx], ...projectObj };
-            } else {
-              localList.unshift(projectObj);
-            }
-          } else {
-            localList.unshift(projectObj);
-          }
-          saveLocalProjects(localList);
 
           Toast.success(editId ? "Proje güncellendi!" : "Proje eklendi!");
           Modal.close("project-modal");

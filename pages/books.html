@@ -119,6 +119,27 @@
       </aside>
 
       <main class="main-content">
+        <!-- Global Hero Header -->
+        <div class="welcome-hero">
+          <div class="hero-greeting" id="greeting-text">İyi günler</div>
+          <h1 class="hero-name">
+            <span data-i18n="home_welcome_title">Hoş geldin,</span>
+            <span class="gradient-text">Ömür Can'ın dünyasına</span> 👋
+          </h1>
+          <p class="hero-desc" data-i18n="home_welcome_desc">
+            Kişisel panoya hoş geldin. Alışkanlıklarını takip et, projelerini yönet ve hayatını organize et.
+          </p>
+          <div class="hero-date" id="hero-date">📅 Bugün</div>
+          <div class="hero-quick-links">
+            <a href="home.html" class="quick-link">🏠 Ana Sayfa</a>
+            <a href="habits.html" class="quick-link" data-i18n="home_quick_habits">✅ Alışkanlıklar</a>
+            <a href="projects.html" class="quick-link" data-i18n="home_quick_projects">🚀 Projelerim</a>
+            <a href="travels.html" class="quick-link" data-i18n="home_quick_travels">✈️ Gezilerim</a>
+            <a href="books.html" class="quick-link active">📚 Kitaplar</a>
+            <a href="contact.html" class="quick-link">📬 İletişim</a>
+          </div>
+        </div>
+
         <div class="books-hero">
           <div>
             <h1>📚 Okuduklarim</h1>
@@ -348,11 +369,44 @@
             .from('books')
             .select('*')
             .order('created_at', { ascending: false });
-          if (!error && data && data.length > 0) {
+          if (!error && data) {
             sbBooks = data;
           }
         } catch (err) {
           console.warn('Supabase fetch error:', err);
+        }
+
+        const isUuid = (id) => typeof id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        const user = await Auth.getUser();
+        if (user && sbBooks) {
+          const local = getLocalBooks();
+          const unpushed = local.filter((b) => !isUuid(b.id));
+          if (unpushed.length > 0) {
+            for (const item of unpushed) {
+              const bd = {
+                id: generateUUID(),
+                title: item.title,
+                author: item.author,
+                genre: item.genre || null,
+                cover_url: item.cover_url || null,
+                status: item.status || 'completed',
+                is_favorite: !!item.is_favorite,
+                started_at: item.started_at || null,
+                finished_at: item.finished_at || null,
+                rating: item.rating || null,
+                review: item.review || null,
+                notes: item.notes || null,
+              };
+              const { data: insData, error: insErr } = await window.supabaseClient
+                .from('books')
+                .insert([bd])
+                .select();
+              if (!insErr && insData && insData.length > 0) {
+                sbBooks.unshift(insData[0]);
+              }
+            }
+            saveLocalBooks(sbBooks);
+          }
         }
 
         if (sbBooks && sbBooks.length > 0) {
@@ -365,24 +419,61 @@
           return local;
         }
 
-        saveLocalBooks(DEFAULT_BOOKS);
-        return DEFAULT_BOOKS;
+        return [];
+      }
+
+      function generateUUID() {
+        if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+          return crypto.randomUUID();
+        }
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+          const r = (Math.random() * 16) | 0;
+          const v = c === "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        });
       }
 
       async function saveBook(bd) {
         const id = document.getElementById('edit-book-id').value;
         const user = await Auth.getUser();
+        let savedBook = null;
+
+        const payload = { ...bd };
+        if (!id) {
+          payload.id = generateUUID();
+        }
 
         // 1. Try Supabase
         if (user) {
           try {
             if (id) {
-              await window.supabaseClient.from('books').update(bd).eq('id', id);
+              const { data, error } = await window.supabaseClient
+                .from('books')
+                .update(payload)
+                .eq('id', id)
+                .select();
+              if (error) {
+                console.error('Supabase update error:', error);
+              } else if (data && data.length > 0) {
+                savedBook = data[0];
+              }
             } else {
-              await window.supabaseClient.from('books').insert([{ ...bd, user_id: user.id }]);
+              const { data, error } = await window.supabaseClient
+                .from('books')
+                .insert([payload])
+                .select();
+              if (error) {
+                console.error('Supabase insert error:', error);
+              } else if (data && data.length > 0) {
+                savedBook = data[0];
+              }
             }
           } catch (err) {
             console.warn('Supabase save error:', err);
+          }
+        } else {
+          if (window.Toast) {
+            window.Toast.warn("Supabase kullanıcı oturumu açık değil. Kayıt yerel hafızaya alındı.");
           }
         }
 
@@ -390,13 +481,14 @@
         const local = getLocalBooks();
         if (id) {
           const idx = local.findIndex(b => String(b.id) === String(id));
+          const bookData = savedBook || { ...bd, id };
           if (idx !== -1) {
-            local[idx] = { ...local[idx], ...bd, id };
+            local[idx] = { ...local[idx], ...bookData };
           } else {
-            local.unshift({ ...bd, id });
+            local.unshift(bookData);
           }
         } else {
-          const newBook = { ...bd, id: 'book-' + Date.now(), created_at: new Date().toISOString() };
+          const newBook = savedBook || { ...bd, id: 'book-' + Date.now(), created_at: new Date().toISOString() };
           local.unshift(newBook);
         }
         saveLocalBooks(local);
@@ -404,17 +496,40 @@
       }
 
       async function deleteBook(id) {
+        if (!(await Auth.canManageContent())) {
+          if (window.Toast) window.Toast.error("Bu işlem için admin girişi gerekli.");
+          return false;
+        }
+
+        const local = getLocalBooks();
+        const book = local.find(b => String(b.id) === String(id));
+        const bookTitle = book?.title ? `“${book.title}”` : "bu kitabı";
+
+        const confirmed = window.Confirm
+          ? await window.Confirm.show({
+              title: "Kitabı Sil",
+              message: `${bookTitle} kütüphanenizden kalıcı olarak silmek istediğinizden emin misiniz?`,
+              confirmText: "🗑 Evet, Sil",
+              cancelText: "İptal",
+              danger: true
+            })
+          : confirm("Bu kitabı silmek istediğinizden emin misiniz?");
+
+        if (!confirmed) return false;
+
         const user = await Auth.getUser();
         if (user) {
           try {
-            await window.supabaseClient.from('books').delete().eq('id', id);
+            const { error } = await window.supabaseClient.from('books').delete().eq('id', id);
+            if (error) console.error('Supabase delete error:', error);
           } catch (err) {
             console.warn('Supabase delete error:', err);
           }
         }
 
-        const local = getLocalBooks().filter(b => String(b.id) !== String(id));
-        saveLocalBooks(local);
+        const updatedLocal = local.filter(b => String(b.id) !== String(id));
+        saveLocalBooks(updatedLocal);
+        if (window.Toast) window.Toast.info("Kitap silindi.");
         return true;
       }
 
@@ -474,6 +589,16 @@
       }
 
       async function loadBooks() {
+        const grid = document.getElementById('books-grid');
+        if (grid) {
+          grid.innerHTML = `<div class="skeleton-grid" style="grid-column:1/-1;">
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+          </div>`;
+        }
+
         allBooks = await fetchBooks();
         updateStats(allBooks);
         applyFilter();
@@ -552,6 +677,11 @@
 
       document.getElementById('book-form').addEventListener('submit', async e => {
         e.preventDefault();
+        if (!(await Auth.canManageContent())) {
+          if (window.Toast) window.Toast.error("Bu işlem için admin girişi gerekli.");
+          return;
+        }
+        const editId = document.getElementById('edit-book-id').value;
         const btn = e.target.querySelector('[type=submit]');
         btn.textContent = 'Kaydediliyor...'; btn.disabled = true;
         const bd = {
@@ -570,17 +700,23 @@
         await saveBook(bd);
         btn.textContent = '✓ Kaydet'; btn.disabled = false;
         closeModal('book-form-modal');
+        if (window.Toast) window.Toast.success(editId ? "Kitap güncellendi!" : "Kitap eklendi!");
         await loadBooks();
       });
 
       document.getElementById('confirm-delete-book-btn').addEventListener('click', async () => {
         if (!pendingDeleteId) return;
+        if (!(await Auth.canManageContent())) {
+          if (window.Toast) window.Toast.error("Bu işlem için admin girişi gerekli.");
+          return;
+        }
         const btn = document.getElementById('confirm-delete-book-btn');
         btn.textContent = 'Siliniyor...'; btn.disabled = true;
         await deleteBook(pendingDeleteId);
         btn.textContent = 'Evet, Sil'; btn.disabled = false;
         pendingDeleteId = null;
         closeModal('book-delete-modal');
+        if (window.Toast) window.Toast.info("Kitap silindi.");
         await loadBooks();
       });
 

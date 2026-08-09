@@ -381,24 +381,12 @@
           </p>
           <div class="hero-date" id="hero-date">📅 Bugün</div>
           <div class="hero-quick-links">
-            <a
-              href="habits.html"
-              class="quick-link"
-              data-i18n="home_quick_habits"
-              >✅ Alışkanlıklara Git</a
-            >
-            <a
-              href="projects.html"
-              class="quick-link"
-              data-i18n="home_quick_projects"
-              >🚀 Projelerim</a
-            >
-            <a
-              href="travels.html"
-              class="quick-link"
-              data-i18n="home_quick_travels"
-              >✈️ Gezilerim</a
-            >
+            <a href="home.html" class="quick-link active">🏠 Ana Sayfa</a>
+            <a href="habits.html" class="quick-link" data-i18n="home_quick_habits">✅ Alışkanlıklar</a>
+            <a href="projects.html" class="quick-link" data-i18n="home_quick_projects">🚀 Projelerim</a>
+            <a href="travels.html" class="quick-link" data-i18n="home_quick_travels">✈️ Gezilerim</a>
+            <a href="books.html" class="quick-link">📚 Kitaplar</a>
+            <a href="contact.html" class="quick-link">📬 İletişim</a>
           </div>
         </div>
 
@@ -577,6 +565,15 @@
           heroDesc.textContent =
             "Kişisel panoya hoş geldin. Alışkanlıklarını takip et, projelerini yönet ve hayatını organize et.";
 
+        const listEl = document.getElementById("today-habits-list");
+        if (listEl) {
+          listEl.innerHTML = `<div class="skeleton-card" style="min-height:120px; padding:16px;">
+            <div class="skeleton-line long"></div>
+            <div class="skeleton-line medium"></div>
+            <div class="skeleton-line short"></div>
+          </div>`;
+        }
+
         const habits = await HabitStore.getAll();
         const todayKey = DateUtils.today();
         const dueHabits = habits.filter((h) => HabitStore.isDueOnDate(h, todayKey));
@@ -613,7 +610,6 @@
         document.getElementById("ring-sub").textContent =
           `${todayStats.done}/${todayStats.total} alışkanlık`;
 
-        const listEl = document.getElementById("today-habits-list");
         if (dueHabits.length === 0) {
           listEl.innerHTML = `<div class="empty-state">
         <div class="empty-icon">🌱</div>

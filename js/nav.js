@@ -9,6 +9,7 @@ const Nav = {
     this._attachLogout();
     this._ensureAdminAccessButton();
     this._ensureMobileHeader();
+    this._updateGlobalGreeting();
     try {
       Auth.populateNav();
     } catch (err) {}
@@ -16,6 +17,25 @@ const Nav = {
       this.syncAccess();
     } catch (err) {}
     this._setActiveLink();
+  },
+
+  _updateGlobalGreeting() {
+    const greetingEl = document.getElementById('greeting-text');
+    const dateEl = document.getElementById('hero-date');
+
+    if (greetingEl) {
+      const hour = new Date().getHours();
+      let greeting = "İyi günler ☀️";
+      if (hour >= 6 && hour < 12) greeting = "Günaydın 🌅";
+      else if (hour >= 12 && hour < 18) greeting = "İyi günler ☀️";
+      else if (hour >= 18 && hour < 22) greeting = "İyi akşamlar 🌙";
+      else greeting = "İyi geceler 🌌";
+      greetingEl.textContent = greeting;
+    }
+
+    if (dateEl && window.DateUtils) {
+      dateEl.textContent = `📅 ${DateUtils.format(new Date(), true)}`;
+    }
   },
 
   _ensureMobileHeader() {
@@ -52,7 +72,6 @@ const Nav = {
       sidebar.classList.toggle('open', isOpen);
       backdrop.classList.toggle('open', isOpen);
       hamburgerBtn.classList.toggle('is-active', isOpen);
-      document.body.style.overflow = isOpen ? 'hidden' : '';
     };
 
     hamburgerBtn.addEventListener('click', (e) => {
@@ -70,12 +89,6 @@ const Nav = {
 
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape' && sidebar && sidebar.classList.contains('open')) {
-        toggleMenu(false);
-      }
-    });
-
-    window.addEventListener('resize', () => {
-      if (window.innerWidth > 768 && sidebar && sidebar.classList.contains('open')) {
         toggleMenu(false);
       }
     });
@@ -264,12 +277,7 @@ const Nav = {
         Modal.close('admin-access-modal');
         this.syncAccess();
 
-        const isHabitsPage = /(^|\/)habits\.html$/i.test(window.location.pathname);
-        if (isHabitsPage) {
-          window.location.reload();
-        } else {
-          window.location.href = 'habits.html';
-        }
+        window.location.reload();
       });
     }
 
@@ -404,8 +412,79 @@ const DateUtils = {
   }
 };
 
+// ===== CONFIRMATION MODAL HELPER =====
+const Confirm = {
+  show({ title = 'Emin misiniz?', message = 'Bu işlemi gerçekleştirmek istediğinize emin misiniz?', confirmText = 'Evet, Sil', cancelText = 'İptal', danger = true } = {}) {
+    return new Promise((resolve) => {
+      let modalOverlay = document.getElementById('custom-confirm-modal');
+      if (!modalOverlay) {
+        modalOverlay = document.createElement('div');
+        modalOverlay.id = 'custom-confirm-modal';
+        modalOverlay.className = 'modal-overlay';
+        modalOverlay.style.zIndex = '999999';
+        modalOverlay.innerHTML = `
+          <div class="modal-card" style="max-width: 400px; text-align: center; padding: 28px 24px; border: 1px solid var(--glass-border); background: var(--bg-card); backdrop-filter: blur(20px); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);">
+            <div id="confirm-modal-icon" style="font-size: 44px; margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(251, 113, 133, 0.4));">🗑️</div>
+            <h3 id="confirm-modal-title" class="modal-title" style="font-size: 19px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary);"></h3>
+            <p id="confirm-modal-message" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5;"></p>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+              <button type="button" id="confirm-modal-cancel" class="btn btn-ghost" style="flex: 1; padding: 10px 16px; font-weight: 600;">İptal</button>
+              <button type="button" id="confirm-modal-ok" class="btn btn-primary" style="flex: 1; padding: 10px 16px; font-weight: 600;"></button>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modalOverlay);
+      }
+
+      document.getElementById('confirm-modal-title').textContent = title;
+      document.getElementById('confirm-modal-message').textContent = message;
+
+      const okBtn = document.getElementById('confirm-modal-ok');
+      const cancelBtn = document.getElementById('confirm-modal-cancel');
+
+      okBtn.textContent = confirmText;
+      cancelBtn.textContent = cancelText;
+
+      if (danger) {
+        okBtn.style.background = 'linear-gradient(135deg, #ef4444, #be123c)';
+        okBtn.style.boxShadow = '0 4px 14px rgba(239, 68, 68, 0.4)';
+        okBtn.style.borderColor = 'transparent';
+      } else {
+        okBtn.style.background = '';
+        okBtn.style.boxShadow = '';
+        okBtn.style.borderColor = '';
+      }
+
+      const close = (result) => {
+        modalOverlay.classList.remove('open');
+        okBtn.onclick = null;
+        cancelBtn.onclick = null;
+        modalOverlay.onclick = null;
+        resolve(result);
+      };
+
+      okBtn.onclick = (e) => {
+        e.stopPropagation();
+        close(true);
+      };
+
+      cancelBtn.onclick = (e) => {
+        e.stopPropagation();
+        close(false);
+      };
+
+      modalOverlay.onclick = (e) => {
+        if (e.target === modalOverlay) close(false);
+      };
+
+      setTimeout(() => modalOverlay.classList.add('open'), 10);
+    });
+  }
+};
+
 window.Nav = Nav;
 window.Toast = Toast;
 window.Modal = Modal;
+window.Confirm = Confirm;
 window.DateUtils = DateUtils;
 window.openAdminAccessModal = () => Nav.openAdminAccessModal();
