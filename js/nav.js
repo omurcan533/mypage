@@ -4,6 +4,8 @@ const Nav = {
   /**
    * Initialize the sidebar: set active link, attach logout
    */
+  _initialized: false,
+
   init() {
     this._initTheme();
     this._setActiveLink();
@@ -17,18 +19,22 @@ const Nav = {
     this._ensureLiveScoreBanner();
     this.syncLiveScoreStateFromSupabase();
     this._attachThemeToggle();
-    window.addEventListener('fblive:changed', () => this._updateLiveScoreBanner());
-    window.addEventListener('auth:changed', () => {
-      this.syncLiveScoreStateFromSupabase();
-      this._updateLiveScoreBanner();
-    });
+
+    if (!this._listenersAttached) {
+      this._listenersAttached = true;
+      window.addEventListener('fblive:changed', () => this._updateLiveScoreBanner());
+      window.addEventListener('auth:changed', () => {
+        this.syncLiveScoreStateFromSupabase();
+        this._updateLiveScoreBanner();
+      });
+    }
+
     try {
       Auth.populateNav();
     } catch (err) {}
     try {
       this.syncAccess();
     } catch (err) {}
-    this._setActiveLink();
   },
 
   _initTheme() {

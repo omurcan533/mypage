@@ -5,10 +5,19 @@ const LiveFootballAPI = {
   ESPN_UCL_URL: "https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard",
   ESPN_UEL_URL: "https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.europa/scoreboard",
 
+  _cachedData: null,
+  _cacheTimestamp: 0,
+  CACHE_TTL_MS: 30000, // 30s TTL cache to avoid redundant parallel network calls
+
   /**
    * Fetches real-time live score for Fenerbahçe from official sports feeds
    */
-  async fetchLiveMatch() {
+  async fetchLiveMatch(forceRefresh = false) {
+    const now = Date.now();
+    if (!forceRefresh && this._cachedData && (now - this._cacheTimestamp < this.CACHE_TTL_MS)) {
+      return this._cachedData;
+    }
+
     try {
       const endpoints = [this.ESPN_SUPERLIG_URL, this.ESPN_UCL_URL, this.ESPN_UEL_URL];
 
@@ -43,7 +52,7 @@ const LiveFootballAPI = {
             const awayName = awayComp?.team?.shortDisplayName || awayComp?.team?.name || "Deplasman";
             const isFbHome = (homeName || "").toLowerCase().includes("fenerbahce");
 
-            return {
+            const result = {
               isLive: isLive,
               statusDescription: statusType.shortDetail || statusType.description || (isLive ? "CANLI" : "Maç Yok"),
               minute: comp.status?.displayClock || (isLive ? "1'" : "0'"),
@@ -60,6 +69,10 @@ const LiveFootballAPI = {
               goalsHome: (homeComp?.details || []).filter(d => (d.type?.text || "").includes("Goal")).map(g => `${g.athlete?.displayName || 'Gol'} (${g.clock?.displayValue || ''})`),
               goalsAway: (awayComp?.details || []).filter(d => (d.type?.text || "").includes("Goal")).map(g => `${g.athlete?.displayName || 'Gol'} (${g.clock?.displayValue || ''})`)
             };
+
+            this._cachedData = result;
+            this._cacheTimestamp = Date.now();
+            return result;
           }
         }
       }

@@ -9,6 +9,7 @@
       })();
     </script>
     <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="../sitemap.xml" />
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/media.css" />
     <link
@@ -153,16 +154,16 @@
           </button>
         </div>
 
-        <!-- Main Category Tabs -->
+        <!-- Main Category Tabs (Draggable & Reorderable) -->
         <div class="media-tab-bar" id="main-media-tabs">
-          <button type="button" class="media-tab-btn active" data-tab="movies_tv">🎬 Filmler & Diziler</button>
-          <button type="button" class="media-tab-btn" data-tab="games">🎮 Oyunlar</button>
-          <button type="button" class="media-tab-btn" data-tab="trivia">💡 Genel Kültür</button>
-          <button type="button" class="media-tab-btn" data-tab="news">📰 Haberler</button>
+          <button type="button" class="media-tab-btn" data-tab="movies_tv" draggable="true">🎬 Filmler & Diziler</button>
+          <button type="button" class="media-tab-btn" data-tab="games" draggable="true">🎮 Oyunlar</button>
+          <button type="button" class="media-tab-btn" data-tab="trivia" draggable="true">💡 Genel Kültür</button>
+          <button type="button" class="media-tab-btn active" data-tab="news" draggable="true">📰 Haberler</button>
         </div>
 
         <!-- Sub View Switcher (for Movies & TV Shows) -->
-        <div class="sub-view-bar" id="movies-sub-view-bar">
+        <div class="sub-view-bar" id="movies-sub-view-bar" style="display: none;">
           <button type="button" class="sub-view-btn active" data-sub="all">🎬 Tümü</button>
           <button type="button" class="sub-view-btn" data-sub="movies">🎥 Filmler</button>
           <button type="button" class="sub-view-btn" data-sub="tv">📺 Diziler</button>
@@ -171,9 +172,9 @@
         </div>
 
         <!-- Sub View Switcher (for News) -->
-        <div class="sub-view-bar" id="news-sub-view-bar" style="display: none;">
-          <button type="button" class="sub-view-btn active" data-news-sub="all">📰 Tüm Haberler</button>
-          <button type="button" class="sub-view-btn" data-news-sub="sports">⚽ Spor & Fenerbahçe</button>
+        <div class="sub-view-bar" id="news-sub-view-bar" style="display: flex;">
+          <button type="button" class="sub-view-btn" data-news-sub="all">📰 Tüm Haberler</button>
+          <button type="button" class="sub-view-btn active" data-news-sub="sports">⚽ Spor & Fenerbahçe</button>
           <button type="button" class="sub-view-btn" data-news-sub="tech">💻 Teknoloji & Bilim</button>
           <button type="button" class="sub-view-btn" data-news-sub="general">🌍 Gündem</button>
         </div>
@@ -251,6 +252,7 @@
     <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/live_api.js"></script>
+    <script src="../js/news_api.js"></script>
     <script src="../js/nav.js"></script>
     <script>
       Nav.init();
@@ -444,9 +446,9 @@
       ];
 
       let allMedia = [];
-      let activeMainTab = "movies_tv";
+      let activeMainTab = "news";
       let activeSubView = "all";
-      let activeNewsSubView = "all";
+      let activeNewsSubView = "sports";
 
       function getLocalMedia() {
         try {
@@ -466,6 +468,59 @@
         if (addBtn) addBtn.style.display = canManage ? "inline-flex" : "none";
       }
 
+      function parseTurkishDate(str) {
+        const months = {
+          "Ocak": 0, "Şubat": 1, "Mart": 2, "Nisan": 3, "Mayıs": 4, "Haziran": 5,
+          "Temmuz": 6, "Ağustos": 7, "Eylül": 8, "Ekim": 9, "Kasım": 10, "Aralık": 11
+        };
+        const parts = (str || "").trim().split(" ");
+        if (parts.length >= 3) {
+          const day = parseInt(parts[0], 10);
+          const month = months[parts[1]] !== undefined ? months[parts[1]] : 0;
+          const year = parseInt(parts[2], 10);
+          return new Date(year, month, day);
+        }
+        return new Date();
+      }
+
+      function getDynamicFixtures() {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        let nextFound = false;
+
+        return FENERBAHCE_FIXTURES.map(m => {
+          const matchDateObj = parseTurkishDate(m.date);
+          matchDateObj.setHours(0, 0, 0, 0);
+
+          const isPast = matchDateObj < today;
+          let isNext = false;
+          let calculatedStatus = m.statusText;
+
+          if (isPast) {
+            if (!m.scoreText || m.scoreText === 'vs') {
+              calculatedStatus = "✅ Oynandı";
+            }
+          } else if (!nextFound) {
+            nextFound = true;
+            isNext = true;
+            const diffTime = matchDateObj - today;
+            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+            if (diffDays <= 0) {
+              calculatedStatus = "🔥 Bugün Maç Var!";
+            } else {
+              calculatedStatus = `⏳ Sıradaki Maç (${diffDays} Gün)`;
+            }
+          }
+
+          return {
+            ...m,
+            isNext,
+            statusText: calculatedStatus
+          };
+        });
+      }
+
       function renderFenerbahceFixture() {
         const container = document.getElementById("fenerbahce-fixture-container");
         if (!container) return;
@@ -474,6 +529,8 @@
           container.style.display = "none";
           return;
         }
+
+        const dynamicFixtures = getDynamicFixtures();
 
         container.style.display = "block";
         container.innerHTML = `
@@ -491,7 +548,7 @@
               </span>
             </div>
             <div class="fb-match-grid">
-              ${FENERBAHCE_FIXTURES.map(m => `
+              ${dynamicFixtures.map(m => `
                 <div class="fb-match-item ${m.isNext ? 'next-up' : ''}">
                   <div class="fb-match-top">
                     <span class="fb-comp-tag ${m.compType}">${m.comp}</span>
@@ -576,11 +633,14 @@
             else if (item.subType === "news_general" || item.subType === "news") { badgeClass = "badge-news"; badgeLabel = "🌍 Gündem"; }
 
             return `<div class="media-card glass-card">
-              <span class="media-card-badge ${badgeClass}">${badgeLabel}</span>
+              <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:10px;">
+                <h3 style="font-size:16px; font-weight:700; color:var(--text-primary); margin:0; flex:1; line-height:1.4;">${item.title}</h3>
+                <span class="media-card-badge ${badgeClass}">${badgeLabel}</span>
+              </div>
               <div>
-                <h3 style="font-size:16px; font-weight:700; color:var(--text-primary); margin-bottom:8px; padding-right:70px;">${item.title}</h3>
                 <div style="font-size:12px; margin-bottom:10px;">${stars}</div>
                 ${item.note ? `<div class="${item.category === "trivia" ? "trivia-fact-box" : ""}" style="font-size:13px; color:var(--text-secondary); line-height:1.5;">${item.note}</div>` : ""}
+                ${item.link ? `<a href="${item.link}" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:6px; margin-top:12px; padding:6px 12px; border-radius:var(--radius-pill); background:rgba(243,178,0,0.15); border:1px solid rgba(243,178,0,0.4); color:#F3B200; font-size:12px; font-weight:700; text-decoration:none; transition:all 0.2s ease;">🗞️ Haberi Oku (${item.source || 'Kaynak'}) ↗</a>` : ""}
               </div>
             </div>`;
           })
@@ -647,9 +707,134 @@
         renderMedia();
       });
 
+      const TAB_ORDER_KEY = "oyp_media_tab_order";
+
+      function saveTabOrder() {
+        const order = Array.from(document.querySelectorAll("#main-media-tabs .media-tab-btn"))
+          .map(b => b.dataset.tab);
+        localStorage.setItem(TAB_ORDER_KEY, JSON.stringify(order));
+      }
+
+      function restoreTabOrder() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(TAB_ORDER_KEY));
+          if (Array.isArray(saved) && saved.length > 0) {
+            const container = document.getElementById("main-media-tabs");
+            const btnMap = {};
+            container.querySelectorAll(".media-tab-btn").forEach(btn => {
+              btnMap[btn.dataset.tab] = btn;
+            });
+            saved.forEach(tabKey => {
+              if (btnMap[tabKey]) {
+                container.appendChild(btnMap[tabKey]);
+              }
+            });
+          }
+        } catch (e) {}
+      }
+
+      function setupDragAndDrop() {
+        const container = document.getElementById("main-media-tabs");
+        let draggedBtn = null;
+
+        container.addEventListener("dragstart", (e) => {
+          const btn = e.target.closest(".media-tab-btn");
+          if (!btn) return;
+          draggedBtn = btn;
+          btn.classList.add("dragging");
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/plain", btn.dataset.tab);
+        });
+
+        container.addEventListener("dragend", (e) => {
+          const btn = e.target.closest(".media-tab-btn") || draggedBtn;
+          if (btn) btn.classList.remove("dragging");
+          container.querySelectorAll(".media-tab-btn").forEach(b => b.classList.remove("drag-over"));
+          draggedBtn = null;
+          saveTabOrder();
+        });
+
+        container.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          const targetBtn = e.target.closest(".media-tab-btn");
+          if (!targetBtn || targetBtn === draggedBtn) return;
+
+          container.querySelectorAll(".media-tab-btn").forEach(b => b.classList.remove("drag-over"));
+          targetBtn.classList.add("drag-over");
+        });
+
+        container.addEventListener("drop", (e) => {
+          e.preventDefault();
+          const targetBtn = e.target.closest(".media-tab-btn");
+          if (!targetBtn || !draggedBtn || targetBtn === draggedBtn) return;
+
+          const buttons = Array.from(container.querySelectorAll(".media-tab-btn"));
+          const draggedIdx = buttons.indexOf(draggedBtn);
+          const targetIdx = buttons.indexOf(targetBtn);
+
+          if (draggedIdx < targetIdx) {
+            targetBtn.after(draggedBtn);
+          } else {
+            targetBtn.before(draggedBtn);
+          }
+
+          container.querySelectorAll(".media-tab-btn").forEach(b => b.classList.remove("drag-over"));
+          saveTabOrder();
+        });
+
+        // Touch drag support for mobile
+        let touchItem = null;
+
+        container.addEventListener("touchstart", (e) => {
+          const btn = e.target.closest(".media-tab-btn");
+          if (!btn) return;
+          touchItem = btn;
+        }, { passive: true });
+
+        container.addEventListener("touchmove", (e) => {
+          if (!touchItem) return;
+          const touch = e.touches[0];
+          const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
+          const overBtn = targetEl ? targetEl.closest(".media-tab-btn") : null;
+
+          if (overBtn && overBtn !== touchItem && overBtn.parentElement === container) {
+            const buttons = Array.from(container.querySelectorAll(".media-tab-btn"));
+            const draggedIdx = buttons.indexOf(touchItem);
+            const targetIdx = buttons.indexOf(overBtn);
+
+            if (draggedIdx < targetIdx) {
+              overBtn.after(touchItem);
+            } else {
+              overBtn.before(touchItem);
+            }
+          }
+        }, { passive: true });
+
+        container.addEventListener("touchend", () => {
+          if (touchItem) {
+            touchItem = null;
+            saveTabOrder();
+          }
+        });
+      }
+
       (async () => {
+        restoreTabOrder();
+        setupDragAndDrop();
         await syncMediaAccess();
         allMedia = getLocalMedia();
+
+        if (window.FenerbahceNewsAPI) {
+          try {
+            const realNews = await window.FenerbahceNewsAPI.fetchLatestNews();
+            if (Array.isArray(realNews) && realNews.length > 0) {
+              const nonNews = allMedia.filter(x => x.category !== "news");
+              allMedia = [...realNews, ...nonNews];
+            }
+          } catch (err) {}
+        }
+
         renderMedia();
       })();
 
