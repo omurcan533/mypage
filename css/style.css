@@ -1156,7 +1156,7 @@ button.modal-close-btn {
 /* ===== TOP-RIGHT CONTROLS BAR ===== */
 .top-controls-bar {
   position: fixed;
-  top: 16px;
+  top: 8px;
   right: 24px;
   display: flex;
   align-items: center;
