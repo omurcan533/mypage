@@ -824,6 +824,7 @@
                     const pct =
                       total > 0 ? Math.round((done / total) * 100) : 0;
                     const isFullyCompleted = total > 0 && done === total;
+                    const hasNote = Boolean(HabitStore.getNote(key));
 
                     const dotsHtml = dayHabits
                       .slice(0, 3)
@@ -877,6 +878,7 @@
                                 </div>
 
                                 ${isFullyCompleted ? `<div class="day-complete-badge" title="Tüm alışkanlıklar tamamlandı">✓</div>` : ""}
+                                ${hasNote ? `<div class="day-note-badge" title="Günlük not var">📝</div>` : ""}
 
                                 <div class="day-habits">
                                     ${dotsHtml}
@@ -1117,12 +1119,20 @@
             .join("");
         }
 
+        const noteInput = document.getElementById("day-modal-note-input");
         const note = HabitStore.getNote(dateKey);
-        document.getElementById("day-modal-note-input").value = note;
+        noteInput.value = note;
+        noteInput.dataset.dateKey = dateKey;
 
-        document.getElementById("day-modal-save").onclick = () => {
+        HabitStore.fetchNoteFromSupabase(dateKey).then((fetchedNote) => {
+          if (fetchedNote !== undefined && noteInput.dataset.dateKey === dateKey) {
+            noteInput.value = fetchedNote;
+          }
+        });
+
+        document.getElementById("day-modal-save").onclick = async () => {
           const noteText = document.getElementById("day-modal-note-input").value;
-          HabitStore.saveNote(dateKey, noteText);
+          await HabitStore.saveNote(dateKey, noteText);
           Modal.close("day-modal");
           Toast.success("Kaydedildi!");
           refreshUI();

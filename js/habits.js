@@ -127,8 +127,9 @@ const HabitStore = {
         habitsList = dedupeHabits(habitsList);
         this.saveHabits(habitsList);
 
-        if (user && sbHabits && sbHabits.length > 0) {
+        if (user) {
           await this.syncLogsFromSupabase();
+          await this.syncNotesFromSupabase();
         }
 
         return habitsList;
@@ -399,11 +400,112 @@ const HabitStore = {
     return this.getNotes()[dateKey] || "";
   },
 
-  saveNote(dateKey, text) {
+  async syncNotesFromSupabase() {
+    try {
+      const user = window.Auth ? await window.Auth.getUser() : null;
+      if (!user || !window.supabaseClient) return;
+
+      const { data, error } = await window.supabaseClient
+        .from("day_notes")
+        .select("*")
+        .eq("user_id", user.id);
+
+      if (!error && data) {
+        const notesMap = this.getNotes();
+        data.forEach((row) => {
+          const d = row.note_date;
+          const content = row.content;
+          if (d) {
+            if (content && content.trim()) {
+              notesMap[d] = content.trim();
+            } else {
+              delete notesMap[d];
+            }
+          }
+        });
+        localStorage.setItem(NOTES_KEY, JSON.stringify(notesMap));
+      }
+    } catch (e) {
+      console.warn("Supabase fetch day_notes error:", e);
+    }
+  },
+
+  async fetchNoteFromSupabase(dateKey) {
+    try {
+      const user = window.Auth ? await window.Auth.getUser() : null;
+      if (!user || !window.supabaseClient) return this.getNote(dateKey);
+
+      const { data, error } = await window.supabaseClient
+        .from("day_notes")
+        .select("content")
+        .eq("user_id", user.id)
+        .eq("note_date", dateKey)
+        .maybeSingle();
+
+      if (!error && data) {
+        const content = data.content ? data.content.trim() : "";
+        const notes = this.getNotes();
+        if (content) notes[dateKey] = content;
+        else delete notes[dateKey];
+        localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+        return content;
+      }
+    } catch (e) {
+      console.warn("Supabase fetch single day_note error:", e);
+    }
+    return this.getNote(dateKey);
+  },
+
+  async saveNote(dateKey, text) {
+    const trimmed = text ? text.trim() : "";
     const notes = this.getNotes();
-    if (text.trim()) notes[dateKey] = text;
+    if (trimmed) notes[dateKey] = trimmed;
     else delete notes[dateKey];
     localStorage.setItem(NOTES_KEY, JSON.stringify(notes));
+
+    const user = window.Auth ? await window.Auth.getUser() : null;
+    if (user && window.supabaseClient) {
+      try {
+        if (trimmed) {
+          const { data: existing, error: selErr } = await window.supabaseClient
+            .from("day_notes")
+            .select("id")
+            .eq("user_id", user.id)
+            .eq("note_date", dateKey)
+            .maybeSingle();
+
+          if (!selErr && existing) {
+            const { error: updErr } = await window.supabaseClient
+              .from("day_notes")
+              .update({ content: trimmed, updated_at: new Date().toISOString() })
+              .eq("id", existing.id);
+            if (updErr) {
+              console.error("Supabase note update error:", updErr);
+              if (window.Toast) window.Toast.error("Supabase not güncelleme hatası: " + updErr.message);
+            }
+          } else {
+            const { error: insErr } = await window.supabaseClient
+              .from("day_notes")
+              .insert([{ user_id: user.id, note_date: dateKey, content: trimmed }]);
+            if (insErr) {
+              console.error("Supabase note insert error:", insErr);
+              if (window.Toast) window.Toast.error("Supabase not ekleme hatası: " + insErr.message);
+            }
+          }
+        } else {
+          const { error: delErr } = await window.supabaseClient
+            .from("day_notes")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("note_date", dateKey);
+          if (delErr) {
+            console.error("Supabase note delete error:", delErr);
+          }
+        }
+      } catch (err) {
+        console.warn("Supabase note save error:", err);
+      }
+    }
   },
 
   /* ─── Statistics ─── */
