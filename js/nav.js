@@ -341,7 +341,7 @@ const Modal = {
     });
 
     // Close buttons
-    overlay.querySelectorAll('.modal-close').forEach(btn => {
+    overlay.querySelectorAll('.modal-close, .modal-close-btn').forEach(btn => {
       btn.addEventListener('click', () => this.close(id));
     });
   }
