@@ -482,9 +482,30 @@ const Confirm = {
   }
 };
 
+function setButtonLoading(btn, isLoading, loadingText = '') {
+  if (!btn) return;
+  if (isLoading) {
+    if (!btn.dataset.originalHtml) {
+      btn.dataset.originalHtml = btn.innerHTML;
+    }
+    btn.disabled = true;
+    btn.classList.add('is-loading');
+    const label = loadingText || btn.textContent.trim() || 'İşleniyor...';
+    btn.innerHTML = `<span class="btn-spinner"></span> <span>${label}</span>`;
+  } else {
+    btn.disabled = false;
+    btn.classList.remove('is-loading');
+    if (btn.dataset.originalHtml) {
+      btn.innerHTML = btn.dataset.originalHtml;
+      delete btn.dataset.originalHtml;
+    }
+  }
+}
+
 window.Nav = Nav;
 window.Toast = Toast;
 window.Modal = Modal;
 window.Confirm = Confirm;
 window.DateUtils = DateUtils;
+window.setButtonLoading = setButtonLoading;
 window.openAdminAccessModal = () => Nav.openAdminAccessModal();

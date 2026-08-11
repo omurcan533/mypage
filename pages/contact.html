@@ -598,45 +598,41 @@
     <script>
       Nav.init();
 
-      document
-        .getElementById("contact-form")
-        .addEventListener("submit", async function (e) {
-          e.preventDefault();
-          const name = document.getElementById("cf-name").value.trim();
-          const email = document.getElementById("cf-email").value.trim();
-          const subject = document.getElementById("cf-subject").value.trim();
-          const message = document.getElementById("cf-message").value.trim();
+        document
+          .getElementById("contact-form")
+          .addEventListener("submit", async function (e) {
+            e.preventDefault();
+            const submitBtn = document.querySelector("#contact-form button[type='submit']");
+            setButtonLoading(submitBtn, true, "Gönderiliyor...");
 
-          const btnText = document.getElementById("send-btn-text");
-          if (btnText) btnText.textContent = "Gönderiliyor...";
+            const name = document.getElementById("cf-name").value.trim();
+            const email = document.getElementById("cf-email").value.trim();
+            const subject = document.getElementById("cf-subject").value.trim();
+            const message = document.getElementById("cf-message").value.trim();
 
-          // 1. Try Supabase insert
-          try {
-            const { error } = await window.supabaseClient
-              .from("contact_messages")
-              .insert([{ name, email, subject, message }]);
-            if (error) {
-              console.warn("Supabase contact_messages save note:", error.message);
-            } else {
-              console.log("Contact message saved to Supabase successfully.");
+            try {
+              const { error } = await window.supabaseClient
+                .from("contact_messages")
+                .insert([{ name, email, subject, message }]);
+              if (error) {
+                console.warn("Supabase contact_messages save note:", error.message);
+              } else {
+                console.log("Contact message saved to Supabase successfully.");
+              }
+            } catch (err) {
+              console.warn("Supabase contact form submission exception:", err);
             }
-          } catch (err) {
-            console.warn("Supabase contact form submission exception:", err);
-          }
 
-          // 2. Open mailto fallback
-          const mailtoLink = `mailto:info@omurcanyilmaz.com?subject=${encodeURIComponent(subject + " - " + name)}&body=${encodeURIComponent("Gönderen: " + name + "\nE-posta: " + email + "\n\n" + message)}`;
-          window.location.href = mailtoLink;
+            const mailtoLink = `mailto:info@omurcanyilmaz.com?subject=${encodeURIComponent(subject + " - " + name)}&body=${encodeURIComponent("Gönderen: " + name + "\nE-posta: " + email + "\n\n" + message)}`;
+            window.location.href = mailtoLink;
 
-          // 3. Show success feedback
-          document.getElementById("form-success").style.display = "block";
-          if (btnText) btnText.textContent = "✅ Gönderildi!";
-          setTimeout(() => {
-            document.getElementById("form-success").style.display = "none";
-            if (btnText) btnText.textContent = "📨 Mesaj Gönder";
-            document.getElementById("contact-form").reset();
-          }, 4000);
-        });
+            document.getElementById("form-success").style.display = "block";
+            setTimeout(() => {
+              document.getElementById("form-success").style.display = "none";
+              setButtonLoading(submitBtn, false);
+              document.getElementById("contact-form").reset();
+            }, 3000);
+          });
       window.addEventListener("languageChanged", () => {
         if (typeof render === "function") render();
         else if (typeof init === "function") init();

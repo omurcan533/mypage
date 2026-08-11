@@ -528,18 +528,18 @@
 
       // ─── Init ───
       let eventsAttached = false;
+      let isInitialized = false;
 
       async function refreshUI() {
         await updateStats();
-
         await renderView();
-
         await buildHeatmap();
-
         await buildSidebarHabits();
       }
 
       function init() {
+        if (isInitialized) return;
+        isInitialized = true;
         buildEmojiPicker();
         buildColorPicker();
         refreshUI();
@@ -555,36 +555,6 @@
 
       function initializeHabitsAccess() {
         syncHabitsAccess();
-      }
-      async function getCompletionsForDateRange(startDate, endDate) {
-        const user = await Auth.getUser();
-
-        if (!user) return {};
-
-        const { data, error } = await window.supabaseClient
-          .from("habit_logs")
-          .select("habit_id, completed_date")
-          .eq("user_id", user.id)
-          .gte("completed_date", startDate)
-          .lte("completed_date", endDate);
-
-        if (error) {
-          console.error("Habit logs range fetch error:", error);
-
-          return {};
-        }
-
-        const result = {};
-
-        (data || []).forEach((log) => {
-          if (!result[log.completed_date]) {
-            result[log.completed_date] = {};
-          }
-
-          result[log.completed_date][this._id(log.habit_id)] = true;
-        });
-
-        return result;
       }
 
       // ─── Stats ───
@@ -702,11 +672,12 @@
         updateCalTitle();
 
         const calArea = document.getElementById("calendar-area");
-        if (calArea && !calArea.children.length) {
-          calArea.innerHTML = `<div class="skeleton-grid">
-            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
-            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
-            <div class="skeleton-card"><div class="skeleton-circle"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+        if (calArea) {
+          calArea.innerHTML = `<div class="skeleton-grid" style="min-height:320px; display:flex; align-items:center; justify-content:center; width:100%; grid-column:1/-1;">
+            <div style="text-align:center; padding: 40px; color: var(--text-secondary);">
+              <span class="btn-spinner" style="width:28px; height:28px; border-width:3px; margin-bottom:12px; border-color: var(--accent); border-right-color: transparent;"></span>
+              <div style="font-size:13px; font-weight:600; color: var(--text-secondary);">Görünüm Yükleniyor...</div>
+            </div>
           </div>`;
         }
 
@@ -1132,12 +1103,18 @@
           });
         }
 
-        document.getElementById("day-modal-save").onclick = async () => {
+        const saveBtn = document.getElementById("day-modal-save");
+        saveBtn.onclick = async () => {
           const noteText = document.getElementById("day-modal-note-input").value;
-          await HabitStore.saveNote(dateKey, noteText);
-          Modal.close("day-modal");
-          Toast.success("Kaydedildi!");
-          refreshUI();
+          setButtonLoading(saveBtn, true, "Kaydediliyor...");
+          try {
+            await HabitStore.saveNote(dateKey, noteText);
+            refreshUI();
+            Modal.close("day-modal");
+            Toast.success("Kaydedildi!");
+          } finally {
+            setButtonLoading(saveBtn, false);
+          }
         };
       }
 
@@ -1293,33 +1270,33 @@
               .value.trim();
             if (!name) return;
 
-            const editId = document.getElementById("edit-habit-id").value;
-            const habitData = {
-              name,
-              icon: state.selectedEmoji,
-              color: state.selectedColor,
-              frequency: state.selectedFreq,
-            };
+            const saveBtn = document.getElementById("save-habit-btn");
+            setButtonLoading(saveBtn, true, "Kaydediliyor...");
 
-            if (editId) {
-              const result = await HabitStore.update(editId, habitData);
+            try {
+              const editId = document.getElementById("edit-habit-id").value;
+              const habitData = {
+                name,
+                icon: state.selectedEmoji,
+                color: state.selectedColor,
+                frequency: state.selectedFreq,
+              };
 
-              if (!result) return;
+              if (editId) {
+                const result = await HabitStore.update(editId, habitData);
+                if (!result) return;
+                Toast.success("Alışkanlık güncellendi!");
+              } else {
+                const result = await HabitStore.add(habitData);
+                if (!result) return;
+                Toast.success("Alışkanlık eklendi!");
+              }
 
-              Toast.success("Alışkanlık güncellendi!");
-            } else {
-              const result = await HabitStore.add(habitData);
-
-              if (!result) return;
-
-              Toast.success("Alışkanlık eklendi!");
+              Modal.close("add-modal");
+              refreshUI();
+            } finally {
+              setButtonLoading(saveBtn, false);
             }
-
-            Modal.close("add-modal");
-            renderView();
-            updateStats();
-            buildHeatmap();
-            buildSidebarHabits();
           });
       }
 
@@ -1371,20 +1348,20 @@
         if (!state.pendingDeleteId) return;
 
         const id = state.pendingDeleteId;
+        const confirmBtn = document.getElementById("confirm-delete-btn");
+        setButtonLoading(confirmBtn, true, "Siliniyor...");
 
-        const success = await HabitStore.delete(id);
+        try {
+          const success = await HabitStore.delete(id);
+          if (!success) return;
 
-        if (!success) {
-          return;
+          state.pendingDeleteId = null;
+          Modal.close("delete-modal");
+          Toast.info("Alışkanlık silindi.");
+          await refreshUI();
+        } finally {
+          setButtonLoading(confirmBtn, false);
         }
-
-        state.pendingDeleteId = null;
-
-        Modal.close("delete-modal");
-
-        Toast.info("Alışkanlık silindi.");
-
-        await refreshUI();
       }
 
       // ─── Sidebar Habits ───

@@ -967,38 +967,43 @@
       }
 
       async function deleteProject() {
+        if (!pendingDeleteProjectId) return;
+
         if (!(await Auth.canManageContent())) {
           Toast.error("Bu işlem için admin girişi gerekli.");
           return;
         }
 
-        if (!pendingDeleteProjectId) {
-          return;
-        }
+        const confirmBtn = document.getElementById("confirm-delete-btn");
+        setButtonLoading(confirmBtn, true, "Siliniyor...");
 
-        const user = await Auth.getUser();
+        try {
+          const user = await Auth.getUser();
 
-        if (user) {
-          const { error } = await window.supabaseClient
-            .from("projects")
-            .delete()
-            .eq("id", pendingDeleteProjectId);
+          if (user) {
+            const { error } = await window.supabaseClient
+              .from("projects")
+              .delete()
+              .eq("id", pendingDeleteProjectId);
 
-          if (error) {
-            console.error("Project delete error:", error);
+            if (error) {
+              console.error("Project delete error:", error);
+            }
           }
+
+          const localList = getLocalProjects().filter(
+            (p) => String(p.id) !== String(pendingDeleteProjectId)
+          );
+          saveLocalProjects(localList);
+
+          Toast.success("Proje silindi.");
+          closeDeleteModal();
+
+          await renderProjects({ loading: true });
+          await renderProjects();
+        } finally {
+          setButtonLoading(confirmBtn, false);
         }
-
-        const localList = getLocalProjects().filter(
-          (p) => String(p.id) !== String(pendingDeleteProjectId)
-        );
-        saveLocalProjects(localList);
-
-        Toast.success("Proje silindi.");
-        closeDeleteModal();
-
-        await renderProjects({ loading: true });
-        await renderProjects();
       }
 
       document
@@ -1050,51 +1055,47 @@
           }
 
           const btn = e.target.querySelector('[type="submit"]');
-          if (btn) {
-            btn.textContent = "Kaydediliyor...";
-            btn.disabled = true;
+          setButtonLoading(btn, true, "Kaydediliyor...");
+
+          try {
+            const editId = document.getElementById("edit-project-id").value;
+            const name = document.getElementById("proj-name").value.trim();
+            const icon = document.getElementById("proj-icon").value.trim() || "🚀";
+            const status = document.getElementById("proj-status").value;
+            const description = document.getElementById("proj-desc").value.trim();
+            const github_url = document.getElementById("proj-github").value.trim();
+            const demo_url = document.getElementById("proj-demo").value.trim();
+            const tags = document
+              .getElementById("proj-tags")
+              .value.split(",")
+              .map((t) => t.trim())
+              .filter(Boolean);
+            const color = document.getElementById("proj-color").value;
+
+            const pd = {
+              name,
+              icon,
+              status,
+              description,
+              desc: description,
+              github_url,
+              github: github_url,
+              demo_url,
+              demo: demo_url,
+              tags,
+              color,
+            };
+
+            await saveProject(pd);
+
+            Toast.success(editId ? "Proje güncellendi!" : "Proje eklendi!");
+            Modal.close("project-modal");
+
+            await renderProjects({ loading: true });
+            await renderProjects();
+          } finally {
+            setButtonLoading(btn, false);
           }
-
-          const editId = document.getElementById("edit-project-id").value;
-          const name = document.getElementById("proj-name").value.trim();
-          const icon = document.getElementById("proj-icon").value.trim() || "🚀";
-          const status = document.getElementById("proj-status").value;
-          const description = document.getElementById("proj-desc").value.trim();
-          const github_url = document.getElementById("proj-github").value.trim();
-          const demo_url = document.getElementById("proj-demo").value.trim();
-          const tags = document
-            .getElementById("proj-tags")
-            .value.split(",")
-            .map((t) => t.trim())
-            .filter(Boolean);
-          const color = document.getElementById("proj-color").value;
-
-          const pd = {
-            name,
-            icon,
-            status,
-            description,
-            desc: description,
-            github_url,
-            github: github_url,
-            demo_url,
-            demo: demo_url,
-            tags,
-            color,
-          };
-
-          await saveProject(pd);
-
-          if (btn) {
-            btn.textContent = "✓ Kaydet";
-            btn.disabled = false;
-          }
-
-          Toast.success(editId ? "Proje güncellendi!" : "Proje eklendi!");
-          Modal.close("project-modal");
-
-          await renderProjects({ loading: true });
-          await renderProjects();
         });
 
       document.getElementById("filter-bar").addEventListener("click", async (e) => {

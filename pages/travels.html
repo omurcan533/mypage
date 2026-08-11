@@ -949,39 +949,35 @@
         }
 
         const btn = e.target.querySelector('[type="submit"]');
-        if (btn) {
-          btn.textContent = "Kaydediliyor...";
-          btn.disabled = true;
+        setButtonLoading(btn, true, "Kaydediliyor...");
+
+        try {
+          const editId = document.getElementById("edit-travel-id").value;
+          const td = {
+            city: document.getElementById("travel-city").value.trim(),
+            country: document.getElementById("travel-country").value.trim(),
+            continent: document.getElementById("travel-continent").value,
+            flag: document.getElementById("travel-flag").value.trim(),
+            dateStart: document.getElementById("travel-date-start").value,
+            dateEnd: document.getElementById("travel-date-end").value,
+            rating: parseInt(document.getElementById("travel-rating").value),
+            color: document.getElementById("travel-color").value,
+            note: document.getElementById("travel-note").value.trim(),
+            tags: document
+              .getElementById("travel-tags")
+              .value.split(",")
+              .map((t) => t.trim())
+              .filter(Boolean),
+          };
+
+          await saveTravel(td);
+
+          Toast.success(editId ? "Gezi güncellendi!" : "Gezi eklendi!");
+          Modal.close("travel-modal");
+          await renderTravels();
+        } finally {
+          setButtonLoading(btn, false);
         }
-
-        const editId = document.getElementById("edit-travel-id").value;
-        const td = {
-          city: document.getElementById("travel-city").value.trim(),
-          country: document.getElementById("travel-country").value.trim(),
-          continent: document.getElementById("travel-continent").value,
-          flag: document.getElementById("travel-flag").value.trim(),
-          dateStart: document.getElementById("travel-date-start").value,
-          dateEnd: document.getElementById("travel-date-end").value,
-          rating: parseInt(document.getElementById("travel-rating").value),
-          color: document.getElementById("travel-color").value,
-          note: document.getElementById("travel-note").value.trim(),
-          tags: document
-            .getElementById("travel-tags")
-            .value.split(",")
-            .map((t) => t.trim())
-            .filter(Boolean),
-        };
-
-        await saveTravel(td);
-
-        if (btn) {
-          btn.textContent = "✓ Kaydet";
-          btn.disabled = false;
-        }
-
-        Toast.success(editId ? "Gezi güncellendi!" : "Gezi eklendi!");
-        Modal.close("travel-modal");
-        await renderTravels();
       });
 
       window.editTravel = editTravel;

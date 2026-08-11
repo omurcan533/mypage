@@ -683,25 +683,28 @@
         }
         const editId = document.getElementById('edit-book-id').value;
         const btn = e.target.querySelector('[type=submit]');
-        btn.textContent = 'Kaydediliyor...'; btn.disabled = true;
-        const bd = {
-          title: document.getElementById('book-title').value.trim(),
-          author: document.getElementById('book-author').value.trim(),
-          genre: document.getElementById('book-genre').value.trim() || null,
-          cover_url: document.getElementById('book-cover-url').value.trim() || null,
-          status: document.getElementById('book-status').value,
-          is_favorite: document.getElementById('book-is-favorite').checked,
-          started_at: document.getElementById('book-started-at').value || null,
-          finished_at: document.getElementById('book-finished-at').value || null,
-          rating: parseInt(document.getElementById('book-rating').value) || null,
-          review: document.getElementById('book-review').value.trim() || null,
-          notes: document.getElementById('book-notes').value.trim() || null,
-        };
-        await saveBook(bd);
-        btn.textContent = '✓ Kaydet'; btn.disabled = false;
-        closeModal('book-form-modal');
-        if (window.Toast) window.Toast.success(editId ? "Kitap güncellendi!" : "Kitap eklendi!");
-        await loadBooks();
+        setButtonLoading(btn, true, 'Kaydediliyor...');
+        try {
+          const bd = {
+            title: document.getElementById('book-title').value.trim(),
+            author: document.getElementById('book-author').value.trim(),
+            genre: document.getElementById('book-genre').value.trim() || null,
+            cover_url: document.getElementById('book-cover-url').value.trim() || null,
+            status: document.getElementById('book-status').value,
+            is_favorite: document.getElementById('book-is-favorite').checked,
+            started_at: document.getElementById('book-started-at').value || null,
+            finished_at: document.getElementById('book-finished-at').value || null,
+            rating: parseInt(document.getElementById('book-rating').value) || null,
+            review: document.getElementById('book-review').value.trim() || null,
+            notes: document.getElementById('book-notes').value.trim() || null,
+          };
+          await saveBook(bd);
+          closeModal('book-form-modal');
+          if (window.Toast) window.Toast.success(editId ? "Kitap güncellendi!" : "Kitap eklendi!");
+          await loadBooks();
+        } finally {
+          setButtonLoading(btn, false);
+        }
       });
 
       document.getElementById('confirm-delete-book-btn').addEventListener('click', async () => {
@@ -711,13 +714,16 @@
           return;
         }
         const btn = document.getElementById('confirm-delete-book-btn');
-        btn.textContent = 'Siliniyor...'; btn.disabled = true;
-        await deleteBook(pendingDeleteId);
-        btn.textContent = 'Evet, Sil'; btn.disabled = false;
-        pendingDeleteId = null;
-        closeModal('book-delete-modal');
-        if (window.Toast) window.Toast.info("Kitap silindi.");
-        await loadBooks();
+        setButtonLoading(btn, true, 'Siliniyor...');
+        try {
+          await deleteBook(pendingDeleteId);
+          pendingDeleteId = null;
+          closeModal('book-delete-modal');
+          if (window.Toast) window.Toast.info("Kitap silindi.");
+          await loadBooks();
+        } finally {
+          setButtonLoading(btn, false);
+        }
       });
 
       // Event delegation for book cards, edit, delete buttons

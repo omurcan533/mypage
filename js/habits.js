@@ -33,6 +33,7 @@ function dedupeHabits(habits) {
 }
 
 let _getAllPromise = null;
+let _hasSyncedInitialData = false;
 
 const HabitStore = {
   _id(v) {
@@ -67,72 +68,105 @@ const HabitStore = {
 
   /* ─── Habits CRUD ─── */
 
-  async getAll() {
+  async getAll(forceRefresh = false) {
     if (_getAllPromise) return _getAllPromise;
+
+    if (_hasSyncedInitialData && !forceRefresh) {
+      return this.getHabits();
+    }
 
     _getAllPromise = (async () => {
       try {
-        let sbHabits = null;
-        try {
-          if (window.supabaseClient) {
-            const { data, error } = await window.supabaseClient
-              .from("habits")
-              .select("*")
-              .order("created_at", { ascending: true });
-            if (!error && data) {
-              sbHabits = dedupeHabits(data);
-            }
-          }
-        } catch (e) {
-          console.warn("Supabase fetch habits error:", e);
-        }
-
         const user = window.Auth ? await window.Auth.getUser() : null;
 
-        if (user && sbHabits) {
-          const local = this.getHabits();
-          const unpushed = local.filter((h) => !isUuid(h.id));
-          if (unpushed.length > 0) {
-            for (const item of unpushed) {
-              const existing = sbHabits.find((sb) => sb.name && sb.name.trim().toLowerCase() === (item.name || "").trim().toLowerCase());
-              if (existing) {
-                this._migrateLogs(item.id, existing.id);
-                continue;
-              }
+        if (user && window.supabaseClient) {
+          const [habitsRes, logsRes, notesRes] = await Promise.all([
+            window.supabaseClient
+              .from("habits")
+              .select("*")
+              .order("created_at", { ascending: true }),
+            window.supabaseClient
+              .from("habit_logs")
+              .select("*")
+              .eq("user_id", user.id),
+            window.supabaseClient
+              .from("day_notes")
+              .select("*")
+              .eq("user_id", user.id)
+          ]);
 
-              const newId = generateUUID();
-              const dbPayload = {
-                id: newId,
-                name: item.name,
-                icon: item.icon || "⭐",
-                color: item.color || "#6c63ff",
-                frequency: item.frequency || "daily",
-                user_id: user.id
-              };
-              const { data: insData, error: insErr } = await window.supabaseClient
-                .from("habits")
-                .insert([dbPayload])
-                .select();
-              if (!insErr && insData && insData.length > 0) {
-                sbHabits.push(insData[0]);
-                this._migrateLogs(item.id, newId);
+          if (!habitsRes.error && habitsRes.data) {
+            let sbHabits = dedupeHabits(habitsRes.data);
+
+            const local = this.getHabits();
+            const unpushed = local.filter((h) => !isUuid(h.id));
+            if (unpushed.length > 0) {
+              for (const item of unpushed) {
+                const existing = sbHabits.find((sb) => sb.name && sb.name.trim().toLowerCase() === (item.name || "").trim().toLowerCase());
+                if (existing) {
+                  this._migrateLogs(item.id, existing.id);
+                  continue;
+                }
+
+                const newId = generateUUID();
+                const dbPayload = {
+                  id: newId,
+                  name: item.name,
+                  icon: item.icon || "⭐",
+                  color: item.color || "#6c63ff",
+                  frequency: item.frequency || "daily",
+                  user_id: user.id
+                };
+                const { data: insData, error: insErr } = await window.supabaseClient
+                  .from("habits")
+                  .insert([dbPayload])
+                  .select();
+                if (!insErr && insData && insData.length > 0) {
+                  sbHabits.push(insData[0]);
+                  this._migrateLogs(item.id, newId);
+                }
               }
+              sbHabits = dedupeHabits(sbHabits);
             }
-            sbHabits = dedupeHabits(sbHabits);
             this.saveHabits(sbHabits);
           }
+
+          if (!logsRes.error && logsRes.data) {
+            const logsMap = this.getLogs();
+            logsRes.data.forEach((row) => {
+              const d = row.completed_date;
+              const hid = String(row.habit_id);
+              if (d && hid) {
+                if (!logsMap[d]) logsMap[d] = {};
+                logsMap[d][hid] = true;
+              }
+            });
+            this.saveLogs(logsMap);
+          }
+
+          if (!notesRes.error && notesRes.data) {
+            const notesMap = this.getNotes();
+            notesRes.data.forEach((row) => {
+              const d = row.note_date;
+              const content = row.content;
+              if (d) {
+                if (content && content.trim()) {
+                  notesMap[d] = content.trim();
+                } else {
+                  delete notesMap[d];
+                }
+              }
+            });
+            localStorage.setItem(NOTES_KEY, JSON.stringify(notesMap));
+          }
+
+          _hasSyncedInitialData = true;
         }
 
-        let habitsList = sbHabits && sbHabits.length > 0 ? sbHabits : this.getHabits();
-        habitsList = dedupeHabits(habitsList);
-        this.saveHabits(habitsList);
-
-        if (user) {
-          await this.syncLogsFromSupabase();
-          await this.syncNotesFromSupabase();
-        }
-
-        return habitsList;
+        return this.getHabits();
+      } catch (e) {
+        console.warn("Supabase fetch all data error:", e);
+        return this.getHabits();
       } finally {
         _getAllPromise = null;
       }

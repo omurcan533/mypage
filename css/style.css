@@ -458,6 +458,34 @@ img {
   background: rgba(251, 113, 133, 0.2);
 }
 
+.btn:disabled,
+button:disabled,
+.btn.is-loading {
+  opacity: 0.7;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: btnSpinnerRotate 0.6s linear infinite;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+@keyframes btnSpinnerRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ===== INPUTS ===== */
 .input-group {
   display: flex;
