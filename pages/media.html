@@ -8,7 +8,7 @@
         document.documentElement.setAttribute('data-theme', t);
       })();
     </script>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/media.css" />
     <link
@@ -22,7 +22,7 @@
       <!-- Sidebar -->
       <aside class="sidebar">
         <div class="sidebar-logo">
-          <div class="logo-icon">Ö</div>
+          <div class="logo-icon"><img src="../favicon.svg" alt="Ö" class="logo-icon-img" /></div>
           <div>
             <div class="logo-text">Ömür Can</div>
             <div class="logo-sub" data-i18n="nav_personal_space">Kişisel Alan</div>
@@ -138,6 +138,7 @@
             <a href="books.html" class="quick-link">📚 Kitaplar</a>
             <a href="media.html" class="quick-link active">🎮 Medya & Eğlence</a>
             <a href="contact.html" class="quick-link">📬 İletişim</a>
+            <a href="../assets/omurcan_yilmaz_CV.pdf" download="Omur_Can_Yilmaz_CV.pdf" target="_blank" class="quick-link cv-download-btn" data-i18n="home_quick_cv">📄 CV'mi İndir</a>
           </div>
         </div>
 
@@ -168,6 +169,17 @@
           <button type="button" class="sub-view-btn" data-sub="watchlist">📌 İzlenecekler</button>
           <button type="button" class="sub-view-btn" data-sub="completed">✅ Tamamlananlar</button>
         </div>
+
+        <!-- Sub View Switcher (for News) -->
+        <div class="sub-view-bar" id="news-sub-view-bar" style="display: none;">
+          <button type="button" class="sub-view-btn active" data-news-sub="all">📰 Tüm Haberler</button>
+          <button type="button" class="sub-view-btn" data-news-sub="sports">⚽ Spor & Fenerbahçe</button>
+          <button type="button" class="sub-view-btn" data-news-sub="tech">💻 Teknoloji & Bilim</button>
+          <button type="button" class="sub-view-btn" data-news-sub="general">🌍 Gündem</button>
+        </div>
+
+        <!-- Fenerbahçe Fixture Widget Container -->
+        <div id="fenerbahce-fixture-container" style="display: none;"></div>
 
         <!-- Media Grid Container -->
         <div class="media-grid" id="media-cards-grid">
@@ -206,7 +218,9 @@
                 <option value="tv">📺 Dizi</option>
                 <option value="game">🎮 Oyun</option>
                 <option value="trivia">💡 Bilgi</option>
-                <option value="news">📰 Haber</option>
+                <option value="news_sports">⚽ Spor & Fenerbahçe</option>
+                <option value="news_tech">💻 Teknoloji & Bilim</option>
+                <option value="news_general">🌍 Gündem</option>
               </select>
             </div>
             <div class="input-group">
@@ -236,6 +250,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
+    <script src="../js/live_api.js"></script>
     <script src="../js/nav.js"></script>
     <script>
       Nav.init();
@@ -308,19 +323,130 @@
           note: "Voyager 1, 6 milyar km öteden Dünya'nın fotoğrafını çekerek insanlığın kozmostaki yerini hatırlattı.",
         },
         {
-          id: "n-1",
+          id: "n-fb1",
+          title: "Fenerbahçe Şampiyonlar Ligi Yolunda Kritik Virajda",
+          category: "news",
+          subType: "news_sports",
+          status: "completed",
+          rating: 5,
+          note: "UEFA Şampiyonlar Ligi 3. Ön Eleme turunda Kadıköy'de Benfica'yı ağırlayacak olan Sarı-Lacivertlilerde hazırlıklar tüm hızıyla sürüyor.",
+        },
+        {
+          id: "n-tech1",
           title: "Kuantum Bilgisayarlar ve Yapay Zeka Devrimi",
           category: "news",
-          subType: "news",
+          subType: "news_tech",
           status: "completed",
           rating: 5,
           note: "Yeni nesil kuantum çipler, kompleks optimizasyon problemlerini saniyeler içinde çözüyor.",
         },
       ];
 
+      const FENERBAHCE_FIXTURES = [
+        {
+          date: "11 Ağustos 2026",
+          day: "Salı 21:30",
+          comp: "UEFA Şampiyonlar Ligi 3. Ön Eleme",
+          compType: "uefa",
+          home: "Sturm Graz",
+          homeIcon: "⚪⚫",
+          away: "Fenerbahçe",
+          awayIcon: "💛💙",
+          scoreText: "0 - 1",
+          venue: "Merkur Arena (Deplasman)",
+          isNext: false,
+          statusText: "✅ Tur Atladı (Talisca Pen.)"
+        },
+        {
+          date: "15 Ağustos 2026",
+          day: "Cumartesi 21:30",
+          comp: "Trendyol Süper Lig 1. Hafta",
+          compType: "superlig",
+          home: "Gençlerbirliği",
+          homeIcon: "🔴⚫",
+          away: "Fenerbahçe",
+          awayIcon: "💛💙",
+          scoreText: "vs",
+          venue: "Eryaman Stadyumu, Ankara (Deplasman)",
+          isNext: true,
+          statusText: "⏳ Sıradaki Maç (3 Gün)"
+        },
+        {
+          date: "19 Ağustos 2026",
+          day: "Çarşamba 22:00",
+          comp: "UEFA Şampiyonlar Ligi Play-Off 1. Maç",
+          compType: "uefa",
+          home: "Fenerbahçe",
+          homeIcon: "💛💙",
+          away: "Lyon / Sparta Prag",
+          awayIcon: "🔵🔴",
+          scoreText: "vs",
+          venue: "Ülker Stadyumu Kadıköy (İç Saha)",
+          isNext: false,
+          statusText: "🏆 Şampiyonlar Ligi"
+        },
+        {
+          date: "22 Ağustos 2026",
+          day: "Cumartesi 21:30",
+          comp: "Trendyol Süper Lig 2. Hafta",
+          compType: "superlig",
+          home: "Fenerbahçe",
+          homeIcon: "💛💙",
+          away: "Tümosan Konyaspor",
+          awayIcon: "🟢⚪",
+          scoreText: "vs",
+          venue: "Ülker Stadyumu Kadıköy (İç Saha)",
+          isNext: false,
+          statusText: "📅 2. Hafta"
+        },
+        {
+          date: "26 Ağustos 2026",
+          day: "Çarşamba 22:00",
+          comp: "UEFA Şampiyonlar Ligi Play-Off Rövanş",
+          compType: "uefa",
+          home: "Lyon / Sparta Prag",
+          homeIcon: "🔵🔴",
+          away: "Fenerbahçe",
+          awayIcon: "💛💙",
+          scoreText: "vs",
+          venue: "Deplasman",
+          isNext: false,
+          statusText: "✈️ Deplasman"
+        },
+        {
+          date: "30 Ağustos 2026",
+          day: "Pazar 21:30",
+          comp: "Trendyol Süper Lig 3. Hafta",
+          compType: "superlig",
+          home: "Samsunspor",
+          homeIcon: "🔴⚪",
+          away: "Fenerbahçe",
+          awayIcon: "💛💙",
+          scoreText: "vs",
+          venue: "Samsun Yeni 19 Mayıs Stadyumu (Deplasman)",
+          isNext: false,
+          statusText: "✈️ Deplasman"
+        },
+        {
+          date: "13 Eylül 2026",
+          day: "Pazar 20:00",
+          comp: "Trendyol Süper Lig 4. Hafta",
+          compType: "superlig",
+          home: "Fenerbahçe",
+          homeIcon: "💛💙",
+          away: "Trabzonspor",
+          awayIcon: "🔴🔵",
+          scoreText: "vs",
+          venue: "Ülker Stadyumu Kadıköy (İç Saha)",
+          isNext: false,
+          statusText: "🔥 Derbi Maçı"
+        }
+      ];
+
       let allMedia = [];
       let activeMainTab = "movies_tv";
       let activeSubView = "all";
+      let activeNewsSubView = "all";
 
       function getLocalMedia() {
         try {
@@ -340,15 +466,76 @@
         if (addBtn) addBtn.style.display = canManage ? "inline-flex" : "none";
       }
 
+      function renderFenerbahceFixture() {
+        const container = document.getElementById("fenerbahce-fixture-container");
+        if (!container) return;
+
+        if (activeMainTab !== "news" || (activeNewsSubView !== "all" && activeNewsSubView !== "sports")) {
+          container.style.display = "none";
+          return;
+        }
+
+        container.style.display = "block";
+        container.innerHTML = `
+          <div class="fb-fixture-card">
+            <div class="fb-fixture-header">
+              <div class="fb-fixture-title-group">
+                <div class="fb-logo-badge">⚽</div>
+                <div>
+                  <div class="fb-fixture-title">Fenerbahçe SK — 1 Aylık Maç Fikstürü</div>
+                  <div class="fb-fixture-sub">Ağustos & Eylül 2026 · Süper Lig & Avrupa Kupası Takvimi</div>
+                </div>
+              </div>
+              <span class="badge" style="background: rgba(243, 178, 0, 0.2); color: #F3B200; border: 1px solid rgba(243, 178, 0, 0.4); font-size: 12px; padding: 6px 14px;">
+                💛💙 12 Ağustos - 13 Eylül 2026
+              </span>
+            </div>
+            <div class="fb-match-grid">
+              ${FENERBAHCE_FIXTURES.map(m => `
+                <div class="fb-match-item ${m.isNext ? 'next-up' : ''}">
+                  <div class="fb-match-top">
+                    <span class="fb-comp-tag ${m.compType}">${m.comp}</span>
+                    <span>${m.date} · ${m.day}</span>
+                  </div>
+                  <div class="fb-match-body">
+                    <div class="fb-team-box">
+                      <span>${m.homeIcon}</span>
+                      <span style="${m.home === 'Fenerbahçe' ? 'color:#F3B200; font-weight:800;' : ''}">${m.home}</span>
+                    </div>
+                    <div style="font-size:12px; font-weight:800; color:${m.scoreText && m.scoreText !== 'vs' ? '#F3B200' : 'var(--text-muted)'}; white-space:nowrap; padding:2px 6px;">${m.scoreText || 'vs'}</div>
+                    <div class="fb-team-box">
+                      <span style="${m.away === 'Fenerbahçe' ? 'color:#F3B200; font-weight:800;' : ''}">${m.away}</span>
+                      <span>${m.awayIcon}</span>
+                    </div>
+                  </div>
+                  <div class="fb-match-top" style="margin-top:4px;">
+                    <span class="fb-match-venue">🏟️ ${m.venue}</span>
+                    <span style="font-weight:700; color:${m.isNext ? '#F3B200' : 'var(--text-secondary)'}">${m.statusText}</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
       function renderMedia() {
         const grid = document.getElementById("media-cards-grid");
-        const subBar = document.getElementById("movies-sub-view-bar");
+        const moviesSubBar = document.getElementById("movies-sub-view-bar");
+        const newsSubBar = document.getElementById("news-sub-view-bar");
 
         if (activeMainTab === "movies_tv") {
-          subBar.style.display = "flex";
+          moviesSubBar.style.display = "flex";
+          newsSubBar.style.display = "none";
+        } else if (activeMainTab === "news") {
+          moviesSubBar.style.display = "none";
+          newsSubBar.style.display = "flex";
         } else {
-          subBar.style.display = "none";
+          moviesSubBar.style.display = "none";
+          newsSubBar.style.display = "none";
         }
+
+        renderFenerbahceFixture();
 
         let items = allMedia.filter((x) => x.category === activeMainTab);
 
@@ -357,9 +544,13 @@
           else if (activeSubView === "tv") items = items.filter((x) => x.subType === "tv");
           else if (activeSubView === "watchlist") items = items.filter((x) => x.status === "watchlist");
           else if (activeSubView === "completed") items = items.filter((x) => x.status === "completed");
+        } else if (activeMainTab === "news") {
+          if (activeNewsSubView === "sports") items = items.filter((x) => x.subType === "news_sports");
+          else if (activeNewsSubView === "tech") items = items.filter((x) => x.subType === "news_tech");
+          else if (activeNewsSubView === "general") items = items.filter((x) => x.subType === "news_general" || x.subType === "news");
         }
 
-        if (items.length === 0) {
+        if (items.length === 0 && (activeMainTab !== "news" || (activeNewsSubView !== "sports" && activeNewsSubView !== "all"))) {
           grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1; padding:60px 20px;">
             <div class="empty-icon">🍿</div>
             <div class="empty-title">İçerik Bulunamadı</div>
@@ -380,7 +571,9 @@
             if (item.subType === "tv") { badgeClass = "badge-tv"; badgeLabel = "Dizi"; }
             else if (item.subType === "game") { badgeClass = "badge-game"; badgeLabel = "Oyun"; }
             else if (item.subType === "trivia") { badgeClass = "badge-trivia"; badgeLabel = "Genel Kültür"; }
-            else if (item.subType === "news") { badgeClass = "badge-news"; badgeLabel = "Haber"; }
+            else if (item.subType === "news_sports") { badgeClass = "badge-sports"; badgeLabel = "⚽ Spor & FB"; }
+            else if (item.subType === "news_tech") { badgeClass = "badge-tech"; badgeLabel = "💻 Teknoloji"; }
+            else if (item.subType === "news_general" || item.subType === "news") { badgeClass = "badge-news"; badgeLabel = "🌍 Gündem"; }
 
             return `<div class="media-card glass-card">
               <span class="media-card-badge ${badgeClass}">${badgeLabel}</span>
@@ -407,9 +600,18 @@
       document.getElementById("movies-sub-view-bar").addEventListener("click", (e) => {
         const btn = e.target.closest(".sub-view-btn");
         if (!btn) return;
-        document.querySelectorAll(".sub-view-btn").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll("#movies-sub-view-bar .sub-view-btn").forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
         activeSubView = btn.dataset.sub;
+        renderMedia();
+      });
+
+      document.getElementById("news-sub-view-bar").addEventListener("click", (e) => {
+        const btn = e.target.closest(".sub-view-btn");
+        if (!btn) return;
+        document.querySelectorAll("#news-sub-view-bar .sub-view-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeNewsSubView = btn.dataset.newsSub;
         renderMedia();
       });
 

@@ -143,6 +143,18 @@
   border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
+.badge-sports {
+  background: rgba(245, 158, 11, 0.18);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.badge-tech {
+  background: rgba(59, 130, 246, 0.18);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
 .trivia-fact-box {
   background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02));
   border: 1px dashed rgba(245, 158, 11, 0.3);
@@ -161,4 +173,145 @@
   align-items: center;
   gap: 6px;
   margin-top: 8px;
+}
+
+/* ===== LIGHT THEME OVERRIDES ===== */
+[data-theme="light"] .media-tab-bar,
+html[data-theme="light"] .media-tab-bar,
+body.light-theme .media-tab-bar,
+html.light-theme .media-tab-bar {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.media-tab-btn.active,
+[data-theme="light"] .media-tab-btn.active,
+html[data-theme="light"] .media-tab-btn.active,
+body.light-theme .media-tab-btn.active,
+html.light-theme .media-tab-btn.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark)) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 18px var(--accent-glow) !important;
+}
+
+[data-theme="light"] .sub-view-bar,
+html[data-theme="light"] .sub-view-bar,
+body.light-theme .sub-view-bar,
+html.light-theme .sub-view-bar {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .sub-view-btn,
+html[data-theme="light"] .sub-view-btn,
+body.light-theme .sub-view-btn,
+html.light-theme .sub-view-btn {
+  color: #475569;
+}
+
+[data-theme="light"] .sub-view-btn:hover,
+html[data-theme="light"] .sub-view-btn:hover,
+body.light-theme .sub-view-btn:hover,
+html.light-theme .sub-view-btn:hover {
+  color: #0f172a;
+}
+
+.sub-view-btn.active,
+[data-theme="light"] .sub-view-btn.active,
+html[data-theme="light"] .sub-view-btn.active,
+body.light-theme .sub-view-btn.active,
+html.light-theme .sub-view-btn.active {
+  background: var(--accent) !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px var(--accent-glow) !important;
+}
+
+[data-theme="light"] .media-card,
+html[data-theme="light"] .media-card,
+body.light-theme .media-card,
+html.light-theme .media-card {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+[data-theme="light"] .media-card:hover,
+html[data-theme="light"] .media-card:hover,
+body.light-theme .media-card:hover,
+html.light-theme .media-card:hover {
+  border-color: rgba(108, 99, 255, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .badge-movie,
+html[data-theme="light"] .badge-movie,
+body.light-theme .badge-movie,
+html.light-theme .badge-movie {
+  background: rgba(236, 72, 153, 0.15);
+  color: #be185d;
+  border-color: rgba(236, 72, 153, 0.35);
+}
+
+[data-theme="light"] .badge-tv,
+html[data-theme="light"] .badge-tv,
+body.light-theme .badge-tv,
+html.light-theme .badge-tv {
+  background: rgba(168, 85, 247, 0.15);
+  color: #6b21a8;
+  border-color: rgba(168, 85, 247, 0.35);
+}
+
+[data-theme="light"] .badge-game,
+html[data-theme="light"] .badge-game,
+body.light-theme .badge-game,
+html.light-theme .badge-game {
+  background: rgba(59, 130, 246, 0.15);
+  color: #1d4ed8;
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+[data-theme="light"] .badge-trivia,
+html[data-theme="light"] .badge-trivia,
+body.light-theme .badge-trivia,
+html.light-theme .badge-trivia {
+  background: rgba(245, 158, 11, 0.15);
+  color: #92400e;
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+[data-theme="light"] .badge-news,
+html[data-theme="light"] .badge-news,
+body.light-theme .badge-news,
+html.light-theme .badge-news {
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+[data-theme="light"] .badge-sports,
+html[data-theme="light"] .badge-sports,
+body.light-theme .badge-sports,
+html.light-theme .badge-sports {
+  background: rgba(243, 178, 0, 0.18);
+  color: #92400e;
+  border-color: rgba(243, 178, 0, 0.4);
+}
+
+[data-theme="light"] .badge-tech,
+html[data-theme="light"] .badge-tech,
+body.light-theme .badge-tech,
+html.light-theme .badge-tech {
+  background: rgba(59, 130, 246, 0.15);
+  color: #1d4ed8;
+  border-color: rgba(59, 130, 246, 0.35);
+}
+
+[data-theme="light"] .trivia-fact-box,
+html[data-theme="light"] .trivia-fact-box,
+body.light-theme .trivia-fact-box,
+html.light-theme .trivia-fact-box {
+  background: rgba(245, 158, 11, 0.06);
+  border-color: rgba(245, 158, 11, 0.3);
+  color: #1e293b;
 }

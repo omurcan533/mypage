@@ -14,7 +14,14 @@ const Nav = {
     this._ensureMobileHeader();
     this._updateGlobalGreeting();
     this._ensureFooter();
+    this._ensureLiveScoreBanner();
+    this.syncLiveScoreStateFromSupabase();
     this._attachThemeToggle();
+    window.addEventListener('fblive:changed', () => this._updateLiveScoreBanner());
+    window.addEventListener('auth:changed', () => {
+      this.syncLiveScoreStateFromSupabase();
+      this._updateLiveScoreBanner();
+    });
     try {
       Auth.populateNav();
     } catch (err) {}
@@ -106,14 +113,16 @@ const Nav = {
     mobileHeader.id = 'mobile-header';
     mobileHeader.className = 'mobile-header';
     mobileHeader.innerHTML = `
-      <button id="mobile-hamburger-btn" class="hamburger-btn" type="button" aria-label="Menüyü Aç">
-        <span class="hamburger-bar"></span>
-        <span class="hamburger-bar"></span>
-        <span class="hamburger-bar"></span>
-      </button>
-      <div class="mobile-header-title">
-        <span class="mobile-logo-icon">Ö</span>
-        <span class="mobile-logo-text">Ömür Can</span>
+      <div class="mobile-header-left">
+        <button id="mobile-hamburger-btn" class="hamburger-btn" type="button" aria-label="Menüyü Aç">
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+        </button>
+        <div class="mobile-header-title">
+          <span class="mobile-logo-icon"><img src="${window.location.pathname.includes('/pages/') ? '../' : ''}favicon.svg" alt="Ö" class="logo-icon-img" /></span>
+          <span class="mobile-logo-text">Ömür Can</span>
+        </div>
       </div>
     `;
 
@@ -286,7 +295,14 @@ const Nav = {
     const lang = (window.i18n && window.i18n.lang) || localStorage.getItem('lang') || 'tr';
     const isAdmin = window.Auth && window.Auth.canAccessHabits();
 
+    const isLiveActive = localStorage.getItem('oyp_fb_live_active') === 'true';
+
     bar.innerHTML = `
+      ${isAdmin ? `
+        <button type="button" class="top-control-btn ${isLiveActive ? 'live-active' : ''}" id="top-live-toggle-btn" title="Fenerbahçe Canlı Skor Gösterimini Yönet (Sadece Admin)">
+          ⚽ <span>Skor: ${isLiveActive ? 'AÇIK' : 'KAPALI'}</span>
+        </button>
+      ` : ''}
       <button type="button" class="top-control-btn" id="top-theme-btn" title="Tema Değiştir">
         <span id="top-theme-icon">${isLight ? '🌙' : '☀️'}</span>
       </button>
@@ -333,6 +349,183 @@ const Nav = {
         }
       });
     }
+
+    const liveBtn = document.getElementById('top-live-toggle-btn');
+    if (liveBtn) {
+      liveBtn.addEventListener('click', () => {
+        const cur = localStorage.getItem('oyp_fb_live_active') === 'true';
+        const nextVal = cur ? 'false' : 'true';
+        localStorage.setItem('oyp_fb_live_active', nextVal);
+        window.dispatchEvent(new Event('fblive:changed'));
+        this._updateLiveScoreBanner();
+        this.saveLiveScoreStateToSupabase(nextVal);
+      });
+    }
+  },
+
+  async syncLiveScoreStateFromSupabase() {
+    try {
+      if (window.supabaseClient) {
+        const { data, error } = await window.supabaseClient
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'oyp_fb_live_active')
+          .maybeSingle();
+
+        if (!error && data && data.value !== null && data.value !== undefined) {
+          localStorage.setItem('oyp_fb_live_active', String(data.value));
+          this._updateLiveScoreBanner();
+        }
+      }
+    } catch (err) {}
+  },
+
+  async saveLiveScoreStateToSupabase(valStr) {
+    try {
+      if (window.supabaseClient) {
+        await window.supabaseClient
+          .from('site_settings')
+          .upsert({ key: 'oyp_fb_live_active', value: valStr }, { onConflict: 'key' });
+      }
+    } catch (err) {}
+  },
+
+  _getLiveScoreData() {
+    try {
+      return JSON.parse(localStorage.getItem('oyp_fb_live_match_data')) || null;
+    } catch {
+      return null;
+    }
+  },
+
+  _ensureLiveScoreBanner() {
+    if (document.getElementById('fb-dynamic-island')) return;
+
+    if (localStorage.getItem('oyp_fb_live_active') === null) {
+      localStorage.setItem('oyp_fb_live_active', 'false');
+    }
+
+    const liveData = this._getLiveScoreData();
+    const isMatchLive = liveData && liveData.isLive;
+
+    const island = document.createElement('div');
+    island.id = 'fb-dynamic-island';
+    island.className = 'fb-dynamic-island';
+
+    if (isMatchLive) {
+      island.innerHTML = `
+        <div class="island-pill-wrapper">
+          <div class="island-collapsed">
+            <span class="island-pulse-dot"></span>
+            <span style="font-size:11px; opacity:0.85;">CANLI</span>
+            <span class="island-score-text">${liveData.homeShort || 'FB'} ${liveData.scoreHome || 0} - ${liveData.scoreAway || 0} ${liveData.awayShort || 'RAKİP'}</span>
+            <span style="font-size:11px; opacity:0.85;">${liveData.minute || "1'"}</span>
+          </div>
+          <div class="island-expanded-popover">
+            <div class="island-pop-header">
+              <div class="island-pop-badge"><span class="island-pulse-dot"></span> CANLI MAÇ</div>
+              <div class="island-pop-league">${liveData.league || '🏆 Trendyol Süper Lig'}</div>
+            </div>
+            <div class="island-pop-scoreboard">
+              <div class="island-pop-team">
+                <span style="white-space:nowrap;">${liveData.homeIcon || '💛💙'}</span>
+                <span style="color:#F3B200; white-space:nowrap;">${liveData.home || 'Fenerbahçe'}</span>
+              </div>
+              <div class="island-pop-score">${liveData.scoreHome || 0} - ${liveData.scoreAway || 0}</div>
+              <div class="island-pop-team">
+                <span style="white-space:nowrap;">${liveData.away || 'Rakip Takım'}</span>
+                <span style="white-space:nowrap;">${liveData.awayIcon || '⚽'}</span>
+              </div>
+            </div>
+            <div class="island-pop-info">
+              <span>⏱️ ${liveData.minute || "1'"}</span>
+              <span>🏟️ ${liveData.stadium || 'Kadıköy'}</span>
+            </div>
+            <div class="island-pop-goals-split">
+              <div class="home-goals">
+                ${(liveData.goalsHome || []).map(g => `<div>⚽ ${g}</div>`).join('') || '<div style="opacity:0.5;">-</div>'}
+              </div>
+              <div class="away-goals">
+                ${(liveData.goalsAway || []).map(g => `<div>${g} ⚽</div>`).join('') || '<div style="opacity:0.5;">-</div>'}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    } else {
+      island.innerHTML = `
+        <div class="island-pill-wrapper">
+          <div class="island-collapsed" style="border-color: rgba(243, 178, 0, 0.4);">
+            <span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
+            <span style="font-size:12px; font-weight:700; color:#F3B200;">Fenerbahçe</span>
+            <span style="font-size:11px; opacity:0.85;">Maç Yok</span>
+          </div>
+          <div class="island-expanded-popover">
+            <div class="island-pop-header">
+              <div class="island-pop-badge" style="background:rgba(16, 185, 129, 0.15); border-color:rgba(16, 185, 129, 0.4); color:#34d399;">
+                <span style="width:7px; height:7px; border-radius:50%; background:#34d399; display:inline-block;"></span> BİLGİ
+              </div>
+              <div class="island-pop-league">🏆 Trendyol Süper Lig 1. Hafta</div>
+            </div>
+            <div style="font-size:13px; font-weight:700; color:#F3B200; margin-bottom:10px;">
+              Şu anda devam eden canlı maç bulunmuyor.
+            </div>
+            <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px; font-size:12px; line-height:1.6;">
+              <div style="font-size:11px; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Sıradaki Karşılaşma</div>
+              <div style="font-size:14px; font-weight:800; color:white; display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                <span>🔴⚫ Gençlerbirliği</span>
+                <span style="color:#F3B200; font-size:12px;">vs</span>
+                <span>Fenerbahçe 💛💙</span>
+              </div>
+              <div style="color:rgba(255,255,255,0.85); display:flex; justify-content:space-between; font-size:11px;">
+                <span>📅 15 Ağustos 2026, Cumartesi 21:30</span>
+                <span>🏟️ Eryaman Stadyumu</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    const hero = document.querySelector('.welcome-hero');
+    if (hero) {
+      hero.prepend(island);
+    } else {
+      const mainApp = document.querySelector('.app-layout') || document.body;
+      if (mainApp) mainApp.prepend(island);
+    }
+
+    this._updateLiveScoreBanner();
+  },
+
+  async _updateLiveScoreBanner() {
+    let saved = localStorage.getItem('oyp_fb_live_active');
+    if (saved === null) {
+      saved = 'false';
+      localStorage.setItem('oyp_fb_live_active', 'false');
+    }
+    const isLiveActive = saved === 'true';
+
+    const island = document.getElementById('fb-dynamic-island');
+    if (island) {
+      island.classList.toggle('active', isLiveActive);
+    }
+
+    const liveBtn = document.getElementById('top-live-toggle-btn');
+    if (liveBtn) {
+      liveBtn.classList.toggle('live-active', isLiveActive);
+      const span = liveBtn.querySelector('span');
+      if (span) span.textContent = `Skor: ${isLiveActive ? 'AÇIK' : 'KAPALI'}`;
+    }
+
+    if (isLiveActive && window.LiveFootballAPI) {
+      try {
+        const realData = await window.LiveFootballAPI.fetchLiveMatch();
+        if (realData) {
+          localStorage.setItem('oyp_fb_live_match_data', JSON.stringify(realData));
+        }
+      } catch (err) {}
+    }
   },
 
   _ensureFooter() {
@@ -347,7 +540,7 @@ const Nav = {
     footer.innerHTML = `
       <div class="footer-content">
         <a href="home.html" class="footer-brand">
-          <div class="logo-icon">Ö</div>
+          <div class="logo-icon"><img src="${window.location.pathname.includes('/pages/') ? '../' : ''}favicon.svg" alt="Ö" class="logo-icon-img" /></div>
           <div>
             <div class="footer-brand-title">Ömür Can Yılmaz</div>
             <div class="footer-brand-sub">Kişisel Web Portalı & Panosu</div>

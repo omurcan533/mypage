@@ -10,7 +10,7 @@
         document.documentElement.setAttribute('data-theme', t);
       })();
     </script>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
     <link rel="stylesheet" href="../css/style.css" />
     <style>
       .welcome-hero {
@@ -253,7 +253,7 @@
       <!-- Sidebar -->
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
-          <div class="logo-icon">Ö</div>
+          <div class="logo-icon"><img src="../favicon.svg" alt="Ö" class="logo-icon-img" /></div>
           <div>
             <div class="logo-text">Ömür Can</div>
             <div class="logo-sub" data-i18n="nav_personal_space">
@@ -397,6 +397,7 @@
             <a href="books.html" class="quick-link">📚 Kitaplar</a>
             <a href="media.html" class="quick-link">🎮 Medya & Eğlence</a>
             <a href="contact.html" class="quick-link">📬 İletişim</a>
+            <a href="../assets/omurcan_yilmaz_CV.pdf" download="Omur_Can_Yilmaz_CV.pdf" target="_blank" class="quick-link cv-download-btn" data-i18n="home_quick_cv">📄 CV'mi İndir</a>
           </div>
         </div>
 
@@ -515,6 +516,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
+    <script src="../js/live_api.js"></script>
     <script src="../js/nav.js"></script>
     <script src="../js/habits.js"></script>
     <script>
@@ -563,7 +565,7 @@
           if (habitsDiv) habitsDiv.style.display = "none";
           if (heroDesc)
             heroDesc.textContent =
-              "Kişisel panoya hoş geldin. Projelerini yönet ve hayatını organize et.";
+              "Sayfama hoş geldin. Geliştirmelerim devam ediyor, takipte kalın!";
           return;
         }
 
@@ -573,7 +575,7 @@
         if (habitsDiv) habitsDiv.style.display = "";
         if (heroDesc)
           heroDesc.textContent =
-            "Kişisel panoya hoş geldin. Alışkanlıklarını takip et, projelerini yönet ve hayatını organize et.";
+            "Sayfama hoş geldin. Geliştirmelerim devam ediyor, takipte kalın!";
 
         const listEl = document.getElementById("today-habits-list");
         if (listEl) {
