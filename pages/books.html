@@ -98,8 +98,9 @@
           <li><a href="habits.html"><span class="nav-icon">✅</span><span data-i18n="nav_habits">Alışkanlıklar</span></a></li>
           <li><a href="projects.html"><span class="nav-icon">🚀</span><span data-i18n="nav_projects">Projeler</span></a></li>
           <li><a href="travels.html"><span class="nav-icon">✈️</span><span data-i18n="nav_travels">Geziler</span></a></li>
-          <li><a href="contact.html"><span class="nav-icon">📬</span><span data-i18n="nav_contact">İletişim</span></a></li>
           <li><a href="books.html" class="active"><span class="nav-icon">📚</span><span>Kitaplar</span></a></li>
+          <li><a href="media.html"><span class="nav-icon">🎮</span><span>Medya & Eğlence</span></a></li>
+          <li><a href="contact.html"><span class="nav-icon">📬</span><span data-i18n="nav_contact">İletişim</span></a></li>
         </ul>
         <div class="sidebar-bottom">
           <div style="display:flex;gap:4px;margin-bottom:16px;justify-content:center;">
@@ -136,6 +137,7 @@
             <a href="projects.html" class="quick-link" data-i18n="home_quick_projects">🚀 Projelerim</a>
             <a href="travels.html" class="quick-link" data-i18n="home_quick_travels">✈️ Gezilerim</a>
             <a href="books.html" class="quick-link active">📚 Kitaplar</a>
+            <a href="media.html" class="quick-link">🎮 Medya & Eğlence</a>
             <a href="contact.html" class="quick-link">📬 İletişim</a>
           </div>
         </div>
@@ -145,7 +147,13 @@
             <h1>📚 Okuduklarım</h1>
             <p>Kitaplar, yorumlar ve notlarım &mdash; zihnimi besleyen yapıtlar</p>
           </div>
-          <button class="btn btn-primary" id="add-book-btn" style="display:none;">+ Kitap Ekle</button>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="view-mode-toggle" id="book-view-toggle">
+              <button type="button" class="view-mode-btn active" data-mode="grid">🎴 Kart</button>
+              <button type="button" class="view-mode-btn" data-mode="compact">📋 Sıkışık</button>
+            </div>
+            <button class="btn btn-primary" id="add-book-btn" style="display:none;">+ Kitap Ekle</button>
+          </div>
         </div>
         <div class="books-stats">
           <div class="books-stat-card"><div class="books-stat-icon">📖</div><div><div class="books-stat-value" id="stat-total">0</div><div class="books-stat-label">Toplam Kitap</div></div></div>
@@ -235,16 +243,24 @@
               <input type="hidden" id="book-rating" value="0" />
             </div>
             <div class="input-group" style="grid-column:1/-1;">
-              <label class="input-label">İnceleme / Yorum</label>
-              <textarea class="input-field" id="book-review" rows="4" placeholder="Bu kitap hakkında düşünceleriniz..." style="resize:vertical;"></textarea>
+              <label class="input-label">✍️ Altını Çizdiğim & Beğendiğim Cümleler</label>
+              <textarea class="input-field" id="book-quotes" rows="3" placeholder="Kitaptan unutulmaz alıntılar ve beğendiğiniz cümleler..." style="resize:vertical;"></textarea>
+            </div>
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">📌 Önemli Yerler & Notlar</label>
+              <textarea class="input-field" id="book-key-takeaways" rows="3" placeholder="Kitabın kilit noktaları, önemli yerler..." style="resize:vertical;"></textarea>
+            </div>
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">İnceleme / Genel Yorum</label>
+              <textarea class="input-field" id="book-review" rows="3" placeholder="Bu kitap hakkındaki genel düşünceleriniz..." style="resize:vertical;"></textarea>
             </div>
             <div class="input-group" style="grid-column:1/-1;">
               <label class="input-label">Kişisel Notlar</label>
-              <textarea class="input-field" id="book-notes" rows="3" placeholder="Hatırlatmak istediğiniz alıntılar, notlar..." style="resize:vertical;"></textarea>
+              <textarea class="input-field" id="book-notes" rows="2" placeholder="Ek hatırlatmalar..." style="resize:vertical;"></textarea>
             </div>
           </div>
           <div style="display:flex;gap:10px;justify-content:flex-end;">
-            <button type="button" class="btn btn-ghost modal-close">İptal</button>
+            <button type="button" class="btn btn-ghost modal-close modal-close-btn">İptal</button>
             <button type="submit" class="btn btn-primary">✓ Kaydet</button>
           </div>
         </form>
@@ -446,30 +462,43 @@
         // 1. Try Supabase
         if (user) {
           try {
+            let res;
             if (id) {
-              const { data, error } = await window.supabaseClient
+              res = await window.supabaseClient
                 .from('books')
                 .update(payload)
                 .eq('id', id)
                 .select();
-              if (error) {
-                console.error('Supabase update error:', error);
-              } else if (data && data.length > 0) {
-                savedBook = data[0];
-              }
             } else {
-              const { data, error } = await window.supabaseClient
+              res = await window.supabaseClient
                 .from('books')
                 .insert([payload])
                 .select();
-              if (error) {
-                console.error('Supabase insert error:', error);
-              } else if (data && data.length > 0) {
-                savedBook = data[0];
+            }
+
+            if (res.error && (res.error.code === 'PGRST204' || (res.error.message && res.error.message.includes('column')))) {
+              const safePayload = { ...payload };
+              delete safePayload.key_takeaways;
+              delete safePayload.quotes;
+              if (payload.quotes || payload.key_takeaways) {
+                safePayload.notes = [
+                  payload.quotes ? `✍️ Alıntılar: ${payload.quotes}` : '',
+                  payload.key_takeaways ? `📌 Önemli Yerler: ${payload.key_takeaways}` : '',
+                  payload.notes || ''
+                ].filter(Boolean).join('\n\n');
+              }
+              if (id) {
+                res = await window.supabaseClient.from('books').update(safePayload).eq('id', id).select();
+              } else {
+                res = await window.supabaseClient.from('books').insert([safePayload]).select();
               }
             }
+
+            if (res.data && res.data.length > 0) {
+              savedBook = res.data[0];
+            }
           } catch (err) {
-            console.warn('Supabase save error:', err);
+            console.warn('Supabase save fallback:', err);
           }
         } else {
           if (window.Toast) {
@@ -544,12 +573,17 @@
         return '<div class="book-stars">' + [1,2,3,4,5].map(i => '<span class="star ' + (i<=r?'filled':'empty') + '">' + (i<=r?'★':'☆') + '</span>').join('') + '</div>';
       }
 
+      let currentBookViewMode = 'grid';
+
       function renderBooks(books) {
         const grid = document.getElementById('books-grid');
         if (!books.length) {
           grid.innerHTML = '<div class="books-empty"><div class="books-empty-icon">📚</div><div class="books-empty-title">Henüz kitap yok</div><div class="books-empty-sub">' + (isAdmin ? 'İlk kitabını ekle!' : 'Yakında kitaplar eklenecek.') + '</div></div>';
           return;
         }
+
+        grid.className = currentBookViewMode === 'compact' ? 'books-grid compact-grid' : 'books-grid';
+
         grid.innerHTML = books.map((b, i) => {
           const [sc, st] = STATUS_MAP[b.status] || STATUS_MAP.completed;
           const gc = GRADS[i % 6];
@@ -560,6 +594,21 @@
           const af = isAdmin
             ? '<div class="book-card-footer"><button class="book-admin-btn book-edit-btn" data-id="' + b.id + '">✏️ Düzenle</button><button class="book-admin-btn danger book-delete-btn" data-id="' + b.id + '" data-title="' + safeTitle + '">🗑 Sil</button></div>'
             : '';
+
+          if (currentBookViewMode === 'compact') {
+            return '<div class="book-card compact-card book-card-clickable" data-id="' + b.id + '">'
+              + '<div style="display:flex;align-items:center;gap:12px;flex:1;">'
+              + '<div class="book-cover" style="width:36px;height:36px;font-size:18px;display:flex;align-items:center;justify-content:center;">📚</div>'
+              + '<div><div style="font-weight:700;font-size:15px;color:var(--text-primary);">' + b.title + (b.is_favorite ? ' ❤️' : '') + '</div>'
+              + '<div style="font-size:12px;color:var(--text-secondary);">&mdash; ' + b.author + (b.genre ? ' • ' + b.genre : '') + '</div></div>'
+              + '</div>'
+              + '<div style="display:flex;align-items:center;gap:14px;">'
+              + '<span class="book-status-badge ' + sc + '" style="position:static;">' + st + '</span>'
+              + (b.rating ? starsHtml(b.rating) : '')
+              + af
+              + '</div></div>';
+          }
+
           return '<div class="book-card book-card-clickable" data-id="' + b.id + '">'
             + '<div class="book-cover-wrap">' + cov
             + '<div class="book-status-badge ' + sc + '">' + st + '</div>'
@@ -621,8 +670,10 @@
           + '<div class="book-detail-author">&mdash; ' + b.author + '</div></div>'
           + (b.rating ? '<div>' + starsHtml(b.rating) + '</div>' : '')
           + (dates ? '<div style="font-size:12px;color:var(--text-muted);">' + dates + '</div>' : '')
-          + (b.review ? '<div><div class="book-detail-section-lbl">📝 İnceleme</div><div class="book-detail-text">' + b.review + '</div></div>' : '')
-          + (b.notes ? '<div class="book-detail-notes-box"><div class="book-detail-section-lbl">💡 Kişisel Notlar</div><div class="book-detail-text">' + b.notes + '</div></div>' : '')
+          + (b.quotes ? '<div><div class="book-detail-section-lbl">✍️ Altını Çizdiğim & Beğendiğim Cümleler</div><div class="book-detail-text" style="font-style:italic;border-left:3px solid var(--accent);padding-left:12px;">' + b.quotes + '</div></div>' : '')
+          + (b.key_takeaways ? '<div><div class="book-detail-section-lbl">📌 Önemli Yerler & Notlar</div><div class="book-detail-text">' + b.key_takeaways + '</div></div>' : '')
+          + (b.review ? '<div><div class="book-detail-section-lbl">📝 İnceleme / Genel Yorum</div><div class="book-detail-text">' + b.review + '</div></div>' : '')
+          + (b.notes ? '<div class="book-detail-notes-box"><div class="book-detail-section-lbl">💡 Ek Notlar</div><div class="book-detail-text">' + b.notes + '</div></div>' : '')
           + '</div>';
         openModal('book-detail-modal');
       }
@@ -663,6 +714,8 @@
         document.getElementById('book-is-favorite').checked = !!b.is_favorite;
         document.getElementById('book-started-at').value = b.started_at || '';
         document.getElementById('book-finished-at').value = b.finished_at || '';
+        document.getElementById('book-quotes').value = b.quotes || '';
+        document.getElementById('book-key-takeaways').value = b.key_takeaways || '';
         document.getElementById('book-review').value = b.review || '';
         document.getElementById('book-notes').value = b.notes || '';
         setStarInput(b.rating || 0);
@@ -695,6 +748,8 @@
             started_at: document.getElementById('book-started-at').value || null,
             finished_at: document.getElementById('book-finished-at').value || null,
             rating: parseInt(document.getElementById('book-rating').value) || null,
+            quotes: document.getElementById('book-quotes').value.trim() || null,
+            key_takeaways: document.getElementById('book-key-takeaways').value.trim() || null,
             review: document.getElementById('book-review').value.trim() || null,
             notes: document.getElementById('book-notes').value.trim() || null,
           };
@@ -746,6 +801,18 @@
           openBookDetail(card.dataset.id);
         }
       });
+
+      const bookViewToggle = document.getElementById('book-view-toggle');
+      if (bookViewToggle) {
+        bookViewToggle.addEventListener('click', e => {
+          const btn = e.target.closest('.view-mode-btn');
+          if (!btn) return;
+          bookViewToggle.querySelectorAll('.view-mode-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentBookViewMode = btn.dataset.mode || 'grid';
+          applyFilter();
+        });
+      }
 
       document.querySelectorAll('.book-filter-btn').forEach(btn => {
         btn.addEventListener('click', () => {

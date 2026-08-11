@@ -274,6 +274,18 @@
               <span>Kitaplar</span></a
             >
           </li>
+          <li>
+            <a href="media.html"
+              ><span class="nav-icon">🎮</span>
+              <span>Medya & Eğlence</span></a
+            >
+          </li>
+          <li>
+            <a href="contact.html"
+              ><span class="nav-icon">📬</span>
+              <span data-i18n="nav_contact">İletişim</span></a
+            >
+          </li>
         </ul>
 
         <div class="sidebar-bottom">
@@ -359,6 +371,7 @@
             <a href="projects.html" class="quick-link" data-i18n="home_quick_projects">🚀 Projelerim</a>
             <a href="travels.html" class="quick-link active" data-i18n="home_quick_travels">✈️ Gezilerim</a>
             <a href="books.html" class="quick-link">📚 Kitaplar</a>
+            <a href="media.html" class="quick-link">🎮 Medya & Eğlence</a>
             <a href="contact.html" class="quick-link">📬 İletişim</a>
           </div>
         </div>
@@ -372,9 +385,15 @@
               Gittiğim yerler, anılar ve keşifler
             </p>
           </div>
-          <button class="btn btn-primary" id="add-travel-btn">
-            ＋ Gezi Ekle
-          </button>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="view-mode-toggle" id="travel-view-toggle">
+              <button type="button" class="view-mode-btn active" data-mode="grid">🎴 Kart</button>
+              <button type="button" class="view-mode-btn" data-mode="compact">📋 Sıkışık</button>
+            </div>
+            <button class="btn btn-primary" id="add-travel-btn">
+              ＋ Gezi Ekle
+            </button>
+          </div>
         </div>
 
         <!-- Stats bar -->
@@ -786,7 +805,7 @@
         document.getElementById("ts-continents").textContent = continents;
 
         if (travels.length === 0) {
-          container.innerHTML = `<div class="empty-state glass-card" style="padding:80px 20px;">
+          container.innerHTML = `<div class="empty-state" style="padding:40px 0;">
         <div class="empty-icon">✈️</div>
         <div class="empty-title">Henüz gezi yok</div>
         <div class="empty-sub">${canManage ? "İlk gezini ekle ve anılarını kaydet!" : "Şu anda görüntülenecek gezi bulunmuyor."}</div>
@@ -794,7 +813,6 @@
           return;
         }
 
-        // Group by continent
         const byContinent = {};
         travels.forEach((t) => {
           const k = t.continent || "Diğer";
@@ -822,9 +840,7 @@
                 const tags = (t.tags || [])
                   .map((tg) => `<span class="travel-tag">${tg}</span>`)
                   .join("");
-                const dateStr = t.dateStart
-                  ? `${t.dateStart}${t.dateEnd ? " → " + t.dateEnd : ""}`
-                  : "";
+                const monthStr = formatTravelMonth(t.dateStart, t.dateEnd);
                 const actionsMarkup = canManage
                   ? `<div class="travel-card-footer">
                       <button type="button" class="travel-admin-btn travel-edit-btn" data-id="${t.id}">✏️ Düzenle</button>
@@ -832,15 +848,31 @@
                     </div>`
                   : "";
 
+                if (currentTravelViewMode === "compact") {
+                  return `<div class="travel-card compact-card" style="border-left: 4px solid ${t.color || "#6c63ff"};">
+                    <div style="display:flex; align-items:center; gap:12px; flex:1;">
+                      <span style="font-size:22px;">${t.flag || "🌍"}</span>
+                      <div>
+                        <div style="font-weight:700; font-size:15px; color:var(--text-primary);">${t.city} ${t.flag || ""}</div>
+                        <div style="font-size:12px; color:var(--text-secondary);">${t.country} • ${monthStr || "Ziyaret tarihi yok"}</div>
+                      </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:16px;">
+                      <div class="travel-rating">${stars}</div>
+                      ${actionsMarkup}
+                    </div>
+                  </div>`;
+                }
+
                 return `<div class="travel-card">
           <div class="travel-card-banner" style="background: linear-gradient(135deg, ${t.color || "#6c63ff"}44, ${t.color || "#6c63ff"}11);">
             <span class="flag">${t.flag || "🌍"}</span>
           </div>
           <div class="travel-card-body">
-            <div class="travel-city">${t.city}</div>
+            <div class="travel-city">${t.city} ${t.flag || "🌍"}</div>
             <div class="travel-country">${t.country}</div>
             <div class="travel-rating">${stars}</div>
-            ${dateStr ? `<div class="travel-date">📅 ${dateStr}</div>` : ""}
+            ${monthStr ? `<div class="travel-date">📅 Ziyaret: ${monthStr}</div>` : ""}
             ${t.note ? `<div class="travel-note">${t.note}</div>` : ""}
             ${tags ? `<div class="travel-tags">${tags}</div>` : ""}
           </div>
@@ -850,7 +882,7 @@
               .join("");
 
             return `<div class="continent-header">${continentEmoji[continent] || "🌐"} ${continent}</div>
-        <div class="travels-grid">${cards}</div>`;
+        <div class="${currentTravelViewMode === "compact" ? "compact-grid" : "travels-grid"}">${cards}</div>`;
           })
           .join("");
       }
@@ -982,6 +1014,18 @@
 
       window.editTravel = editTravel;
       window.deleteTravel = deleteTravel;
+
+      const viewToggle = document.getElementById("travel-view-toggle");
+      if (viewToggle) {
+        viewToggle.addEventListener("click", (e) => {
+          const btn = e.target.closest(".view-mode-btn");
+          if (!btn) return;
+          viewToggle.querySelectorAll(".view-mode-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentTravelViewMode = btn.dataset.mode || "grid";
+          renderTravels();
+        });
+      }
 
       document.getElementById("travels-container").addEventListener("click", (e) => {
         const editBtn = e.target.closest(".travel-edit-btn");

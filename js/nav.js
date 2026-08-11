@@ -7,9 +7,12 @@ const Nav = {
   init() {
     this._setActiveLink();
     this._attachLogout();
+    this._attachLogoClick();
     this._ensureAdminAccessButton();
+    this._ensureTopHeaderControls();
     this._ensureMobileHeader();
     this._updateGlobalGreeting();
+    this._ensureFooter();
     try {
       Auth.populateNav();
     } catch (err) {}
@@ -201,13 +204,132 @@ const Nav = {
     this._updateAdminAccessButton();
   },
 
+  _attachLogoClick() {
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.sidebar-logo') || e.target.closest('.mobile-header-title')) {
+        window.location.href = 'home.html';
+      }
+    });
+
+    const sidebarLogo = document.querySelector('.sidebar-logo');
+    if (sidebarLogo) sidebarLogo.style.cursor = 'pointer';
+    const mobileLogo = document.querySelector('.mobile-header-title');
+    if (mobileLogo) mobileLogo.style.cursor = 'pointer';
+  },
+
+  _ensureTopHeaderControls() {
+    if (document.getElementById('top-controls-bar')) return;
+
+    const bar = document.createElement('div');
+    bar.id = 'top-controls-bar';
+    bar.className = 'top-controls-bar';
+
+    const isLight = document.body.classList.contains('light-theme') || localStorage.getItem('theme') === 'light';
+    const lang = (window.i18n && window.i18n.lang) || localStorage.getItem('lang') || 'tr';
+    const isAdmin = window.Auth && window.Auth.canAccessHabits();
+
+    bar.innerHTML = `
+      <button type="button" class="top-control-btn" id="top-theme-btn" title="Tema Değiştir">
+        <span id="top-theme-icon">${isLight ? '🌙' : '☀️'}</span>
+      </button>
+      <button type="button" class="top-control-btn" id="top-lang-btn" title="Dil / Language">
+        🌐 <span>${lang.toUpperCase()}</span>
+      </button>
+      <button type="button" class="top-control-btn ${isAdmin ? 'admin-active' : ''}" id="top-admin-btn" title="Admin Girişi">
+        ${isAdmin ? '✅ Admin' : '🔐 Giriş'}
+      </button>
+      ${isAdmin ? `<button type="button" class="top-control-btn top-logout-btn" id="top-logout-btn" title="Çıkış Yap">🚪 Çıkış</button>` : ''}
+    `;
+
+    document.body.appendChild(bar);
+
+    document.getElementById('top-theme-btn').addEventListener('click', () => {
+      const currentlyLight = document.body.classList.toggle('light-theme');
+      document.documentElement.classList.toggle('light-theme', currentlyLight);
+      localStorage.setItem('theme', currentlyLight ? 'light' : 'dark');
+      document.getElementById('top-theme-icon').textContent = currentlyLight ? '🌙' : '☀️';
+    });
+
+    document.getElementById('top-lang-btn').addEventListener('click', () => {
+      const curLang = (window.i18n && window.i18n.lang) || localStorage.getItem('lang') || 'tr';
+      const nextLang = curLang === 'tr' ? 'en' : 'tr';
+      if (window.i18n && typeof window.i18n.setLang === 'function') {
+        window.i18n.setLang(nextLang);
+      } else {
+        localStorage.setItem('lang', nextLang);
+        window.location.reload();
+      }
+      const label = document.querySelector('#top-lang-btn span');
+      if (label) label.textContent = nextLang.toUpperCase();
+    });
+
+    document.getElementById('top-admin-btn').addEventListener('click', () => {
+      this.openAdminAccessModal();
+    });
+
+    const logoutBtn = document.getElementById('top-logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        if (window.Auth && typeof window.Auth.logout === 'function') {
+          window.Auth.logout();
+        }
+      });
+    }
+  },
+
+  _ensureFooter() {
+    const mainContent = document.querySelector('.main-content') || document.querySelector('.app-layout') || document.body;
+    if (!mainContent || document.getElementById('site-footer')) return;
+
+    const footer = document.createElement('footer');
+    footer.id = 'site-footer';
+    footer.className = 'site-footer';
+    const year = new Date().getFullYear();
+
+    footer.innerHTML = `
+      <div class="footer-content">
+        <a href="home.html" class="footer-brand">
+          <div class="logo-icon">Ö</div>
+          <div>
+            <div class="footer-brand-title">Ömür Can Yılmaz</div>
+            <div class="footer-brand-sub">Kişisel Web Portalı & Panosu</div>
+          </div>
+        </a>
+        <ul class="footer-links">
+          <li><a href="home.html">🏠 Ana Sayfa</a></li>
+          <li><a href="habits.html">✅ Alışkanlıklar</a></li>
+          <li><a href="projects.html">🚀 Projelerim</a></li>
+          <li><a href="travels.html">✈️ Gezilerim</a></li>
+          <li><a href="books.html">📚 Kitaplar</a></li>
+          <li><a href="media.html">🎮 Medya & Eğlence</a></li>
+          <li><a href="contact.html">📬 İletişim</a></li>
+        </ul>
+      </div>
+      <div class="footer-bottom">
+        <div>© ${year} Ömür Can Yılmaz. Tüm hakları saklıdır.</div>
+        <div style="display:flex; gap:16px;">
+          <a href="https://github.com/omurcan533" target="_blank" rel="noopener" style="color:var(--text-muted); text-decoration:none;">GitHub</a>
+          <a href="https://omurcanyilmaz.com" target="_blank" rel="noopener" style="color:var(--text-muted); text-decoration:none;">omurcanyilmaz.com</a>
+        </div>
+      </div>
+    `;
+
+    mainContent.appendChild(footer);
+  },
+
   _updateAdminAccessButton() {
     const btn = document.getElementById('admin-access-btn');
-    if (!btn) return;
-
+    const topAdminBtn = document.getElementById('top-admin-btn');
     const active = Auth.canAccessHabits();
-    btn.textContent = active ? '✅ Admin Erişimi' : '🔐 Admin Girişi';
-    btn.classList.toggle('is-active', active);
+
+    if (btn) {
+      btn.textContent = active ? '✅ Admin Erişimi' : '🔐 Admin Girişi';
+      btn.classList.toggle('is-active', active);
+    }
+    if (topAdminBtn) {
+      topAdminBtn.innerHTML = active ? '✅ Admin' : '🔐 Giriş';
+      topAdminBtn.classList.toggle('admin-active', active);
+    }
   },
 
   closeMobileMenu() {

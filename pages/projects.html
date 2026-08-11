@@ -311,15 +311,21 @@
             >
           </li>
           <li>
-            <a href="contact.html"
-              ><span class="nav-icon">📬</span>
-              <span data-i18n="nav_contact">İletişim</span></a
-            >
-          </li>
-          <li>
             <a href="books.html"
               ><span class="nav-icon">📚</span>
               <span>Kitaplar</span></a
+            >
+          </li>
+          <li>
+            <a href="media.html"
+              ><span class="nav-icon">🎮</span>
+              <span>Medya & Eğlence</span></a
+            >
+          </li>
+          <li>
+            <a href="contact.html"
+              ><span class="nav-icon">📬</span>
+              <span data-i18n="nav_contact">İletişim</span></a
             >
           </li>
         </ul>
@@ -407,6 +413,7 @@
             <a href="projects.html" class="quick-link active" data-i18n="home_quick_projects">🚀 Projelerim</a>
             <a href="travels.html" class="quick-link" data-i18n="home_quick_travels">✈️ Gezilerim</a>
             <a href="books.html" class="quick-link">📚 Kitaplar</a>
+            <a href="media.html" class="quick-link">🎮 Medya & Eğlence</a>
             <a href="contact.html" class="quick-link">📬 İletişim</a>
           </div>
         </div>
@@ -427,9 +434,15 @@
               Geliştirdiğim ve üzerinde çalıştığım projeler
             </p>
           </div>
-          <button class="btn btn-primary" id="add-project-btn">
-            ＋ Proje Ekle
-          </button>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="view-mode-toggle" id="project-view-toggle">
+              <button type="button" class="view-mode-btn active" data-mode="grid">🎴 Kart</button>
+              <button type="button" class="view-mode-btn" data-mode="compact">📋 Sıkışık</button>
+            </div>
+            <button class="btn btn-primary" id="add-project-btn">
+              ＋ Proje Ekle
+            </button>
+          </div>
         </div>
 
         <div class="filter-bar" id="filter-bar">
@@ -825,6 +838,8 @@
         paused: { label: "Beklemede", color: "#fbbf24", dot: "#fbbf24" },
       };
 
+      let currentProjectViewMode = "grid";
+
       async function renderProjects({ loading = false } = {}) {
         const grid = document.getElementById("projects-grid");
 
@@ -855,6 +870,8 @@
           return;
         }
 
+        grid.className = currentProjectViewMode === "compact" ? "projects-grid compact-grid" : "projects-grid";
+
         const canManage = await Auth.canManageContent();
         const all = await getProjects();
         const filtered =
@@ -879,12 +896,12 @@
               .join("");
             const actionsMarkup = canManage
               ? `<div class="project-actions">
-                  <button class="icon-btn" onclick="editProject('${p.id}')" title="Düzenle">✏️</button>
-                  <button class="icon-btn delete" onclick="requestDeleteProject('${p.id}')" title="Sil">🗑</button>
+                  <button class="project-btn proj-edit-btn" data-id="${p.id}">✏️ Düzenle</button>
+                  <button class="project-btn danger proj-delete-btn" data-id="${p.id}">🗑 Sil</button>
                 </div>`
               : "";
 
-            const descText = p.desc || p.description || "";
+            const descText = p.description || p.desc || "";
             const githubUrl = p.github || p.github_url || "";
             const demoUrl = p.demo || p.demo_url || "";
 
@@ -1108,6 +1125,18 @@
         await renderProjects({ loading: true });
         await renderProjects();
       });
+
+      const projViewToggle = document.getElementById("project-view-toggle");
+      if (projViewToggle) {
+        projViewToggle.addEventListener("click", (e) => {
+          const btn = e.target.closest(".view-mode-btn");
+          if (!btn) return;
+          projViewToggle.querySelectorAll(".view-mode-btn").forEach((b) => b.classList.remove("active"));
+          btn.classList.add("active");
+          currentProjectViewMode = btn.dataset.mode || "grid";
+          renderProjects();
+        });
+      }
 
       window.editProject = editProject;
       window.deleteProject = deleteProject;

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medya & Eğlence — Ömür Can Yılmaz</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/media.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="bg-orbs"></div>
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon">Ö</div>
+          <div>
+            <div class="logo-text">Ömür Can</div>
+            <div class="logo-sub" data-i18n="nav_personal_space">Kişisel Alan</div>
+          </div>
+        </div>
+        <span class="nav-group-label" data-i18n="nav_navigation">Navigasyon</span>
+        <ul class="nav-links">
+          <li>
+            <a href="home.html"><span class="nav-icon">🏠</span> <span>Ana Sayfa</span></a>
+          </li>
+          <li>
+            <a href="habits.html"><span class="nav-icon">✅</span> <span>Alışkanlıklar</span></a>
+          </li>
+          <li>
+            <a href="projects.html"><span class="nav-icon">🚀</span> <span>Projeler</span></a>
+          </li>
+          <li>
+            <a href="travels.html"><span class="nav-icon">✈️</span> <span>Gezilerim</span></a>
+          </li>
+          <li>
+            <a href="books.html"><span class="nav-icon">📚</span> <span>Kitaplar</span></a>
+          </li>
+          <li>
+            <a href="media.html" class="active"><span class="nav-icon">🎮</span> <span>Medya & Eğlence</span></a>
+          </li>
+          <li>
+            <a href="contact.html"><span class="nav-icon">📬</span> <span>İletişim</span></a>
+          </li>
+        </ul>
+
+        <div class="sidebar-footer">
+          <div class="user-info">
+            <div class="user-avatar" id="nav-user-avatar">Ö</div>
+            <div>
+              <div class="user-name" id="nav-user-name">Ömür Can</div>
+              <div class="user-role" id="nav-user-role">User</div>
+            </div>
+          </div>
+          <button class="logout-btn" id="logout-btn">
+            <span>🚪</span> <span>Çıkış Yap</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Hero Header -->
+        <div class="welcome-hero">
+          <div class="hero-greeting" id="greeting-text">İyi günler</div>
+          <h1 class="hero-name">
+            <span>Medya, Kültür &</span> <span class="gradient-text">Eğlence Dünyam</span> 🍿
+          </h1>
+          <p class="hero-desc">
+            Oynadığım oyunlar, zihin açıcı genel kültür notları, takip ettiğim haberler ve favori film/dizilerim.
+          </p>
+          <div class="hero-date" id="hero-date">📅 Bugün</div>
+          <div class="hero-quick-links">
+            <a href="home.html" class="quick-link">🏠 Ana Sayfa</a>
+            <a href="habits.html" class="quick-link">✅ Alışkanlıklar</a>
+            <a href="projects.html" class="quick-link">🚀 Projelerim</a>
+            <a href="travels.html" class="quick-link">✈️ Gezilerim</a>
+            <a href="books.html" class="quick-link">📚 Kitaplar</a>
+            <a href="media.html" class="quick-link active">🎮 Medya & Eğlence</a>
+            <a href="contact.html" class="quick-link">📬 İletişim</a>
+          </div>
+        </div>
+
+        <!-- Main Section Header -->
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+          <div>
+            <h2 class="page-title" style="font-size: 24px; margin-bottom: 4px;">🎮 Eğlence & Kültür Panosu</h2>
+            <p class="page-subtitle">Sekmeler arasında geçiş yaparak farklı kategorileri keşfedin</p>
+          </div>
+          <button type="button" class="btn btn-primary" id="add-media-btn" style="display: none;">
+            ＋ İçerik Ekle
+          </button>
+        </div>
+
+        <!-- Main Category Tabs -->
+        <div class="media-tab-bar" id="main-media-tabs">
+          <button type="button" class="media-tab-btn active" data-tab="movies_tv">🎬 Filmler & Diziler</button>
+          <button type="button" class="media-tab-btn" data-tab="games">🎮 Oyunlar</button>
+          <button type="button" class="media-tab-btn" data-tab="trivia">💡 Genel Kültür</button>
+          <button type="button" class="media-tab-btn" data-tab="news">📰 Haberler</button>
+        </div>
+
+        <!-- Sub View Switcher (for Movies & TV Shows) -->
+        <div class="sub-view-bar" id="movies-sub-view-bar">
+          <button type="button" class="sub-view-btn active" data-sub="all">🎬 Tümü</button>
+          <button type="button" class="sub-view-btn" data-sub="movies">🎥 Filmler</button>
+          <button type="button" class="sub-view-btn" data-sub="tv">📺 Diziler</button>
+          <button type="button" class="sub-view-btn" data-sub="watchlist">📌 İzlenecekler</button>
+          <button type="button" class="sub-view-btn" data-sub="completed">✅ Tamamlananlar</button>
+        </div>
+
+        <!-- Media Grid Container -->
+        <div class="media-grid" id="media-cards-grid">
+          <!-- Dynamic cards injected via JS -->
+        </div>
+      </main>
+    </div>
+
+    <!-- Media Add / Edit Modal -->
+    <div class="modal-overlay" id="media-modal">
+      <div class="modal" style="max-width: 520px;">
+        <div class="modal-header">
+          <div class="modal-title" id="media-modal-title">🎬 Yeni İçerik Ekle</div>
+          <button class="modal-close" type="button">✕</button>
+        </div>
+        <form id="media-form">
+          <input type="hidden" id="edit-media-id" />
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+            <div class="input-group" style="grid-column: 1/-1;">
+              <label class="input-label">Başlık *</label>
+              <input type="text" class="input-field" id="media-title" placeholder="İçerik başlığı..." required />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Kategori</label>
+              <select class="input-field" id="media-category">
+                <option value="movies_tv">🎬 Film / Dizi</option>
+                <option value="games">🎮 Oyun</option>
+                <option value="trivia">💡 Genel Kültür</option>
+                <option value="news">📰 Haber</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Alt Tür / Tip</label>
+              <select class="input-field" id="media-sub-type">
+                <option value="movie">🎥 Film</option>
+                <option value="tv">📺 Dizi</option>
+                <option value="game">🎮 Oyun</option>
+                <option value="trivia">💡 Bilgi</option>
+                <option value="news">📰 Haber</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Durum</label>
+              <select class="input-field" id="media-status">
+                <option value="completed">✅ Tamamlandı / İzlendi</option>
+                <option value="watchlist">📌 İzlenecek / Oynanacak</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Puan (1-5)</label>
+              <input type="number" class="input-field" id="media-rating" min="1" max="5" value="5" />
+            </div>
+            <div class="input-group" style="grid-column: 1/-1;">
+              <label class="input-label">Açıklama / Not</label>
+              <textarea class="input-field" id="media-note" rows="3" placeholder="Görüş ve notlarınız..." style="resize: vertical;"></textarea>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="btn btn-ghost modal-close modal-close-btn">İptal</button>
+            <button type="submit" class="btn btn-primary">✓ Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/nav.js"></script>
+    <script>
+      Nav.init();
+      Modal.setup("media-modal");
+
+      const MEDIA_KEY = "oyp_media_items";
+
+      const DEFAULT_MEDIA = [
+        {
+          id: "m-1",
+          title: "Inception (Başlangıç)",
+          category: "movies_tv",
+          subType: "movie",
+          status: "completed",
+          rating: 5,
+          note: "Rüyalar içinde rüyalar ve zihin hırsızlığı üzerine yapılmış zamansız bir Christopher Nolan başyapıtı.",
+        },
+        {
+          id: "m-2",
+          title: "Breaking Bad",
+          category: "movies_tv",
+          subType: "tv",
+          status: "completed",
+          rating: 5,
+          note: "Karakter dönüşümünün ve senaryo disiplininin sinema tarihindeki zirve dizisi.",
+        },
+        {
+          id: "m-3",
+          title: "Dune: Part Two",
+          category: "movies_tv",
+          subType: "movie",
+          status: "watchlist",
+          rating: 5,
+          note: "Arrakis gezegenindeki epik mücadele ve görsel şölen.",
+        },
+        {
+          id: "g-1",
+          title: "The Witcher 3: Wild Hunt",
+          category: "games",
+          subType: "game",
+          status: "completed",
+          rating: 5,
+          note: "Geralt of Rivia ile büyüleyici bir açık dünya, aksiyon ve hikaye anlatımı.",
+        },
+        {
+          id: "g-2",
+          title: "Cyberpunk 2077: Phantom Liberty",
+          category: "games",
+          subType: "game",
+          status: "completed",
+          rating: 5,
+          note: "Night City atmosferi ve harika casusluk gerilimi DLC genişlemesi.",
+        },
+        {
+          id: "t-1",
+          title: "Nöronlar Arasındaki İletişim Hızı",
+          category: "trivia",
+          subType: "trivia",
+          status: "completed",
+          rating: 5,
+          note: "İnsan beynindeki sinir sinyalleri saatte yaklaşık 430 km hızla seyahat edebilir!",
+        },
+        {
+          id: "t-2",
+          title: "Voyager 1 Probu ve Soluk Mavi Nokta",
+          category: "trivia",
+          subType: "trivia",
+          status: "completed",
+          rating: 5,
+          note: "Voyager 1, 6 milyar km öteden Dünya'nın fotoğrafını çekerek insanlığın kozmostaki yerini hatırlattı.",
+        },
+        {
+          id: "n-1",
+          title: "Kuantum Bilgisayarlar ve Yapay Zeka Devrimi",
+          category: "news",
+          subType: "news",
+          status: "completed",
+          rating: 5,
+          note: "Yeni nesil kuantum çipler, kompleks optimizasyon problemlerini saniyeler içinde çözüyor.",
+        },
+      ];
+
+      let allMedia = [];
+      let activeMainTab = "movies_tv";
+      let activeSubView = "all";
+
+      function getLocalMedia() {
+        try {
+          return JSON.parse(localStorage.getItem(MEDIA_KEY)) || DEFAULT_MEDIA;
+        } catch {
+          return DEFAULT_MEDIA;
+        }
+      }
+
+      function saveLocalMedia(items) {
+        localStorage.setItem(MEDIA_KEY, JSON.stringify(items));
+      }
+
+      async function syncMediaAccess() {
+        const canManage = await Auth.canManageContent();
+        const addBtn = document.getElementById("add-media-btn");
+        if (addBtn) addBtn.style.display = canManage ? "inline-flex" : "none";
+      }
+
+      function renderMedia() {
+        const grid = document.getElementById("media-cards-grid");
+        const subBar = document.getElementById("movies-sub-view-bar");
+
+        if (activeMainTab === "movies_tv") {
+          subBar.style.display = "flex";
+        } else {
+          subBar.style.display = "none";
+        }
+
+        let items = allMedia.filter((x) => x.category === activeMainTab);
+
+        if (activeMainTab === "movies_tv") {
+          if (activeSubView === "movies") items = items.filter((x) => x.subType === "movie");
+          else if (activeSubView === "tv") items = items.filter((x) => x.subType === "tv");
+          else if (activeSubView === "watchlist") items = items.filter((x) => x.status === "watchlist");
+          else if (activeSubView === "completed") items = items.filter((x) => x.status === "completed");
+        }
+
+        if (items.length === 0) {
+          grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1; padding:60px 20px;">
+            <div class="empty-icon">🍿</div>
+            <div class="empty-title">İçerik Bulunamadı</div>
+            <div class="empty-sub">Bu filtrede henüz kayıtlı içerik yok.</div>
+          </div>`;
+          return;
+        }
+
+        grid.innerHTML = items
+          .map((item) => {
+            const stars = Array.from(
+              { length: 5 },
+              (_, i) => `<span style="color:${i < (item.rating || 5) ? "#fbbf24" : "rgba(255,255,255,0.2)"}">★</span>`
+            ).join("");
+
+            let badgeClass = "badge-movie";
+            let badgeLabel = "Film";
+            if (item.subType === "tv") { badgeClass = "badge-tv"; badgeLabel = "Dizi"; }
+            else if (item.subType === "game") { badgeClass = "badge-game"; badgeLabel = "Oyun"; }
+            else if (item.subType === "trivia") { badgeClass = "badge-trivia"; badgeLabel = "Genel Kültür"; }
+            else if (item.subType === "news") { badgeClass = "badge-news"; badgeLabel = "Haber"; }
+
+            return `<div class="media-card glass-card">
+              <span class="media-card-badge ${badgeClass}">${badgeLabel}</span>
+              <div>
+                <h3 style="font-size:16px; font-weight:700; color:var(--text-primary); margin-bottom:8px; padding-right:70px;">${item.title}</h3>
+                <div style="font-size:12px; margin-bottom:10px;">${stars}</div>
+                ${item.note ? `<div class="${item.category === "trivia" ? "trivia-fact-box" : ""}" style="font-size:13px; color:var(--text-secondary); line-height:1.5;">${item.note}</div>` : ""}
+              </div>
+            </div>`;
+          })
+          .join("");
+      }
+
+      // Event Listeners
+      document.getElementById("main-media-tabs").addEventListener("click", (e) => {
+        const btn = e.target.closest(".media-tab-btn");
+        if (!btn) return;
+        document.querySelectorAll(".media-tab-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeMainTab = btn.dataset.tab;
+        renderMedia();
+      });
+
+      document.getElementById("movies-sub-view-bar").addEventListener("click", (e) => {
+        const btn = e.target.closest(".sub-view-btn");
+        if (!btn) return;
+        document.querySelectorAll(".sub-view-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeSubView = btn.dataset.sub;
+        renderMedia();
+      });
+
+      document.getElementById("add-media-btn").addEventListener("click", () => {
+        document.getElementById("media-modal-title").textContent = "🎬 Yeni İçerik Ekle";
+        document.getElementById("media-form").reset();
+        document.getElementById("edit-media-id").value = "";
+        Modal.open("media-modal");
+      });
+
+      document.getElementById("media-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const title = document.getElementById("media-title").value.trim();
+        const category = document.getElementById("media-category").value;
+        const subType = document.getElementById("media-sub-type").value;
+        const status = document.getElementById("media-status").value;
+        const rating = parseInt(document.getElementById("media-rating").value) || 5;
+        const note = document.getElementById("media-note").value.trim();
+
+        const newItem = {
+          id: "m-" + Date.now(),
+          title,
+          category,
+          subType,
+          status,
+          rating,
+          note,
+        };
+
+        allMedia.unshift(newItem);
+        saveLocalMedia(allMedia);
+        Modal.close("media-modal");
+        renderMedia();
+      });
+
+      (async () => {
+        await syncMediaAccess();
+        allMedia = getLocalMedia();
+        renderMedia();
+      })();
+
+      window.addEventListener("auth:changed", syncMediaAccess);
+    </script>
+  </body>
+</html>

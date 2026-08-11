@@ -55,15 +55,21 @@
             >
           </li>
           <li>
-            <a href="contact.html"
-              ><span class="nav-icon">📬</span>
-              <span data-i18n="nav_contact">İletişim</span></a
-            >
-          </li>
-          <li>
             <a href="books.html"
               ><span class="nav-icon">📚</span>
               <span>Kitaplar</span></a
+            >
+          </li>
+          <li>
+            <a href="media.html"
+              ><span class="nav-icon">🎮</span>
+              <span>Medya & Eğlence</span></a
+            >
+          </li>
+          <li>
+            <a href="contact.html"
+              ><span class="nav-icon">📬</span>
+              <span data-i18n="nav_contact">İletişim</span></a
             >
           </li>
         </ul>
@@ -152,6 +158,7 @@
             <a href="projects.html" class="quick-link" data-i18n="home_quick_projects">🚀 Projelerim</a>
             <a href="travels.html" class="quick-link" data-i18n="home_quick_travels">✈️ Gezilerim</a>
             <a href="books.html" class="quick-link">📚 Kitaplar</a>
+            <a href="media.html" class="quick-link">🎮 Medya & Eğlence</a>
             <a href="contact.html" class="quick-link">📬 İletişim</a>
           </div>
         </div>
@@ -495,7 +502,19 @@
       })();
 
       // ─── Init ───
+      function showLoadingSkeleton() {
+        const calArea = document.getElementById("calendar-area");
+        if (calArea) {
+          calArea.innerHTML = `<div class="skeleton-grid" style="min-height:360px; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; grid-column:1/-1; background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-xl);">
+            <span class="btn-spinner" style="width:34px; height:34px; border-width:3px; margin-bottom:14px; border-color: var(--accent); border-right-color: transparent;"></span>
+            <div style="font-size:14px; font-weight:600; color: var(--text-primary); margin-bottom:4px;">Alışkanlıklar & Takvim Yükleniyor...</div>
+            <div style="font-size:12px; color: var(--text-muted);">Verileriniz eşleniyor, lütfen bekleyin</div>
+          </div>`;
+        }
+      }
+
       async function refreshUI(forceSync = false) {
+        showLoadingSkeleton();
         if (forceSync) {
           await HabitStore.getAll(true);
         }
@@ -508,6 +527,7 @@
       function init() {
         if (isInitialized) return;
         isInitialized = true;
+        showLoadingSkeleton();
         buildEmojiPicker();
         buildColorPicker();
         refreshUI(true);
