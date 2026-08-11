@@ -420,7 +420,7 @@
     <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/nav.js"></script>
-    <script src="../js/habits.js"></script>
+    <script src="../js/habits.js?v=20260811_1"></script>
     <script>
       Nav.init();
       Modal.setup("day-modal");
@@ -1124,11 +1124,13 @@
         noteInput.value = note;
         noteInput.dataset.dateKey = dateKey;
 
-        HabitStore.fetchNoteFromSupabase(dateKey).then((fetchedNote) => {
-          if (fetchedNote !== undefined && noteInput.dataset.dateKey === dateKey) {
-            noteInput.value = fetchedNote;
-          }
-        });
+        if (typeof HabitStore.fetchNoteFromSupabase === "function") {
+          HabitStore.fetchNoteFromSupabase(dateKey).then((fetchedNote) => {
+            if (fetchedNote !== undefined && noteInput.dataset.dateKey === dateKey) {
+              noteInput.value = fetchedNote;
+            }
+          });
+        }
 
         document.getElementById("day-modal-save").onclick = async () => {
           const noteText = document.getElementById("day-modal-note-input").value;
