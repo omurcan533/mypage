@@ -306,26 +306,33 @@ const i18n = {
 };
 
 const ThemeManager = {
-  theme: localStorage.getItem(THEME_KEY) || 'dark',
+  get theme() {
+    return localStorage.getItem(THEME_KEY) || localStorage.getItem('theme') || 'dark';
+  },
+  set theme(val) {
+    localStorage.setItem(THEME_KEY, val);
+    localStorage.setItem('theme', val);
+  },
   
   init() {
-    // Apply theme immediately to HTML element
     this.applyTheme();
-    // Add listener for toggle button
-    const btn = document.getElementById('theme-toggle');
-    if (btn) {
-      btn.addEventListener('click', () => this.toggleTheme());
-    }
   },
   
   applyTheme() {
-    document.documentElement.setAttribute('data-theme', this.theme);
-    localStorage.setItem(THEME_KEY, this.theme);
+    const t = this.theme;
+    document.documentElement.setAttribute('data-theme', t);
+    document.body.setAttribute('data-theme', t);
+    localStorage.setItem(THEME_KEY, t);
+    localStorage.setItem('theme', t);
     this.updateButtonText();
+    if (window.Nav && typeof window.Nav._updateThemeUI === 'function') {
+      window.Nav._updateThemeUI(t);
+    }
   },
   
   toggleTheme() {
-    this.theme = this.theme === 'light' ? 'dark' : 'light';
+    const next = this.theme === 'light' ? 'dark' : 'light';
+    this.theme = next;
     this.applyTheme();
   },
 

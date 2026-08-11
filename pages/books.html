@@ -4,7 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kitaplar — Ömür Can Yılmaz</title>
-    <meta name="description" content="Okuduğum kitaplar, yorumlarım ve notlarım" />
+    <script>
+      (function() {
+        var t = localStorage.getItem('oyp_theme') || localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
     <link rel="stylesheet" href="../css/style.css" />
     <style>
       /* ===== BOOKS PAGE ===== */
@@ -279,9 +285,41 @@
           <div class="confirm-delete-title">Bu kitabı silmek istediğinizden emin misiniz?</div>
           <div class="confirm-delete-subtitle" id="delete-book-label">Bu işlem geri alınamaz.</div>
           <div class="confirm-delete-actions">
-            <button type="button" class="btn btn-ghost" id="cancel-delete-book-btn">İptal</button>
+            <button type="button" class="btn btn-ghost modal-close-btn" id="cancel-delete-book-btn">İptal</button>
             <button type="button" class="btn btn-danger" id="confirm-delete-book-btn">Evet, Sil</button>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dedicated Expanded Quotes Modal -->
+    <div class="modal-overlay" id="book-quotes-modal">
+      <div class="modal" style="max-width:720px;">
+        <div class="modal-header">
+          <div class="modal-title" id="expanded-quotes-title">✍️ Altını Çizdiğim & Beğendiğim Cümleler</div>
+          <button class="modal-close" type="button">✕</button>
+        </div>
+        <div class="modal-body" style="padding:20px 0;">
+          <div id="expanded-quotes-content" style="font-size:16px; line-height:1.8; color:var(--text-primary); font-style:italic; border-left:4px solid var(--accent); padding:16px 20px; background:rgba(108,99,255,0.06); border-radius:var(--radius-md); max-height:60vh; overflow-y:auto; white-space:pre-wrap;"></div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:14px;">
+          <button type="button" class="btn btn-ghost modal-close modal-close-btn">Kapat</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dedicated Expanded Key Takeaways Modal -->
+    <div class="modal-overlay" id="book-takeaways-modal">
+      <div class="modal" style="max-width:720px;">
+        <div class="modal-header">
+          <div class="modal-title" id="expanded-takeaways-title">📌 Önemli Yerler & Notlar</div>
+          <button class="modal-close" type="button">✕</button>
+        </div>
+        <div class="modal-body" style="padding:20px 0;">
+          <div id="expanded-takeaways-content" style="font-size:15px; line-height:1.75; color:var(--text-primary); padding:18px; background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); border-radius:var(--radius-md); max-height:60vh; overflow-y:auto; white-space:pre-wrap;"></div>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:14px;">
+          <button type="button" class="btn btn-ghost modal-close modal-close-btn">Kapat</button>
         </div>
       </div>
     </div>
@@ -462,43 +500,36 @@
         // 1. Try Supabase
         if (user) {
           try {
+            const supabasePayload = { ...payload };
+            delete supabasePayload.key_takeaways;
+            delete supabasePayload.quotes;
+            if (payload.quotes || payload.key_takeaways) {
+              supabasePayload.notes = [
+                payload.quotes ? `✍️ Alıntılar:\n${payload.quotes}` : '',
+                payload.key_takeaways ? `📌 Önemli Yerler:\n${payload.key_takeaways}` : '',
+                payload.notes || ''
+              ].filter(Boolean).join('\n\n---\n\n');
+            }
+
             let res;
             if (id) {
               res = await window.supabaseClient
                 .from('books')
-                .update(payload)
+                .update(supabasePayload)
                 .eq('id', id)
                 .select();
             } else {
               res = await window.supabaseClient
                 .from('books')
-                .insert([payload])
+                .insert([supabasePayload])
                 .select();
-            }
-
-            if (res.error && (res.error.code === 'PGRST204' || (res.error.message && res.error.message.includes('column')))) {
-              const safePayload = { ...payload };
-              delete safePayload.key_takeaways;
-              delete safePayload.quotes;
-              if (payload.quotes || payload.key_takeaways) {
-                safePayload.notes = [
-                  payload.quotes ? `✍️ Alıntılar: ${payload.quotes}` : '',
-                  payload.key_takeaways ? `📌 Önemli Yerler: ${payload.key_takeaways}` : '',
-                  payload.notes || ''
-                ].filter(Boolean).join('\n\n');
-              }
-              if (id) {
-                res = await window.supabaseClient.from('books').update(safePayload).eq('id', id).select();
-              } else {
-                res = await window.supabaseClient.from('books').insert([safePayload]).select();
-              }
             }
 
             if (res.data && res.data.length > 0) {
               savedBook = res.data[0];
             }
           } catch (err) {
-            console.warn('Supabase save fallback:', err);
+            console.warn('Supabase save error:', err);
           }
         } else {
           if (window.Toast) {
@@ -653,6 +684,40 @@
         applyFilter();
       }
 
+      function extractBookDetails(b) {
+        let quotes = (b.quotes || "").trim();
+        let takeaways = (b.key_takeaways || "").trim();
+        let rawNotes = (b.notes || "").trim();
+
+        if (!quotes && rawNotes) {
+          const qMatches = [];
+          const qRegex = /✍️\s*Alıntılar:\s*([\s\S]*?)(?=(?:\n\s*---\s*|\n\s*📌|\n\s*✍️|$))/gi;
+          let m;
+          while ((m = qRegex.exec(rawNotes)) !== null) {
+            if (m[1] && m[1].trim()) qMatches.push(m[1].trim());
+          }
+          if (qMatches.length > 0) quotes = qMatches.join("\n\n---\n\n");
+        }
+
+        if (!takeaways && rawNotes) {
+          const tMatches = [];
+          const tRegex = /📌\s*Önemli Yerler:\s*([\s\S]*?)(?=(?:\n\s*---\s*|\n\s*📌|\n\s*✍️|$))/gi;
+          let m;
+          while ((m = tRegex.exec(rawNotes)) !== null) {
+            if (m[1] && m[1].trim()) tMatches.push(m[1].trim());
+          }
+          if (tMatches.length > 0) takeaways = tMatches.join("\n\n---\n\n");
+        }
+
+        let cleanNotes = rawNotes
+          .replace(/✍️\s*Alıntılar:\s*[\s\S]*?(?=(?:\n\s*---\s*|\n\s*📌|\n\s*✍️|$))/gi, "")
+          .replace(/📌\s*Önemli Yerler:\s*[\s\S]*?(?=(?:\n\s*---\s*|\n\s*📌|\n\s*✍️|$))/gi, "")
+          .replace(/---\s*/g, "")
+          .trim();
+
+        return { quotes, takeaways, cleanNotes };
+      }
+
       function openBookDetail(id) {
         const b = allBooks.find(x => String(x.id) === String(id));
         if (!b) return;
@@ -662,6 +727,43 @@
           ? '<img src="' + b.cover_url + '" style="width:100%;height:100%;object-fit:cover;" onerror="bookImgError(this)"><div class="book-detail-cover-ph ' + gc + '" style="display:none">📚<div style="font-size:14px;font-weight:700;text-align:center;padding:0 16px;">' + b.title + '</div></div>'
           : '<div class="book-detail-cover-ph ' + gc + '">📚<div style="font-size:14px;font-weight:700;text-align:center;padding:0 16px;">' + b.title + '</div></div>';
         const dates = [b.started_at ? 'Başladı: ' + b.started_at : '', b.finished_at ? 'Bitti: ' + b.finished_at : ''].filter(Boolean).join(' &nbsp;&middot;&nbsp; ');
+
+        const ext = extractBookDetails(b);
+        const rawQuotes = ext.quotes;
+        const rawTakeaways = ext.takeaways;
+        const cleanNotes = ext.cleanNotes;
+
+        const quotesSnippet = rawQuotes
+          ? (rawQuotes.length > 40 ? rawQuotes.substring(0, 40) + '...' : rawQuotes)
+          : '';
+        const takeawaysSnippet = rawTakeaways
+          ? (rawTakeaways.length > 40 ? rawTakeaways.substring(0, 40) + '...' : rawTakeaways)
+          : '';
+
+        const quotesBox = rawQuotes ? `<div style="margin-top:12px; background:rgba(108,99,255,0.06); border:1px solid rgba(108,99,255,0.22); padding:10px 14px; border-radius:var(--radius-md);">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <div style="font-size:12px; font-weight:700; color:var(--accent-light);">✍️ Altını Çizdiğim Cümleler</div>
+            <button type="button" class="btn btn-ghost" id="btn-open-quotes-modal" style="padding:3px 10px !important; font-size:11px !important; min-height:26px !important; cursor:pointer; display:inline-flex; align-items:center; gap:4px; border-radius:var(--radius-pill);">
+              🔍 <span>Tümünü Gör</span>
+            </button>
+          </div>
+          <div style="font-size:13px; font-style:italic; color:var(--text-secondary); margin-top:4px; border-left:3px solid var(--accent); padding-left:8px; cursor:pointer;" id="quotes-text-click">
+            "${quotesSnippet}"
+          </div>
+        </div>` : '';
+
+        const takeawaysBox = rawTakeaways ? `<div style="margin-top:12px; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); padding:10px 14px; border-radius:var(--radius-md);">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+            <div style="font-size:12px; font-weight:700; color:var(--text-primary);">📌 Önemli Yerler & Notlar</div>
+            <button type="button" class="btn btn-ghost" id="btn-open-takeaways-modal" style="padding:3px 10px !important; font-size:11px !important; min-height:26px !important; cursor:pointer; display:inline-flex; align-items:center; gap:4px; border-radius:var(--radius-pill);">
+              📌 <span>Tümünü Gör</span>
+            </button>
+          </div>
+          <div style="font-size:13px; color:var(--text-secondary); margin-top:4px; cursor:pointer;" id="takeaways-text-click">
+            "${takeawaysSnippet}"
+          </div>
+        </div>` : '';
+
         document.getElementById('book-detail-content').innerHTML =
           '<div class="book-detail-cover-col ' + gc + '" style="min-height:300px;">' + cov + '</div>'
           + '<div class="book-detail-body">'
@@ -670,12 +772,33 @@
           + '<div class="book-detail-author">&mdash; ' + b.author + '</div></div>'
           + (b.rating ? '<div>' + starsHtml(b.rating) + '</div>' : '')
           + (dates ? '<div style="font-size:12px;color:var(--text-muted);">' + dates + '</div>' : '')
-          + (b.quotes ? '<div><div class="book-detail-section-lbl">✍️ Altını Çizdiğim & Beğendiğim Cümleler</div><div class="book-detail-text" style="font-style:italic;border-left:3px solid var(--accent);padding-left:12px;">' + b.quotes + '</div></div>' : '')
-          + (b.key_takeaways ? '<div><div class="book-detail-section-lbl">📌 Önemli Yerler & Notlar</div><div class="book-detail-text">' + b.key_takeaways + '</div></div>' : '')
-          + (b.review ? '<div><div class="book-detail-section-lbl">📝 İnceleme / Genel Yorum</div><div class="book-detail-text">' + b.review + '</div></div>' : '')
-          + (b.notes ? '<div class="book-detail-notes-box"><div class="book-detail-section-lbl">💡 Ek Notlar</div><div class="book-detail-text">' + b.notes + '</div></div>' : '')
+          + quotesBox
+          + takeawaysBox
+          + (b.review ? '<div style="margin-top:12px;"><div class="book-detail-section-lbl">📝 İnceleme / Genel Yorum</div><div class="book-detail-text">' + b.review + '</div></div>' : '')
+          + (cleanNotes ? '<div class="book-detail-notes-box" style="margin-top:12px;"><div class="book-detail-section-lbl">💡 Ek Notlar</div><div class="book-detail-text">' + cleanNotes + '</div></div>' : '')
           + '</div>';
         openModal('book-detail-modal');
+
+        const openQuotes = () => {
+          document.getElementById('expanded-quotes-title').textContent = '✍️ ' + b.title + ' — Alıntılar & Cümleler';
+          document.getElementById('expanded-quotes-content').textContent = rawQuotes;
+          openModal('book-quotes-modal');
+        };
+        const openTakeaways = () => {
+          document.getElementById('expanded-takeaways-title').textContent = '📌 ' + b.title + ' — Önemli Yerler & Notlar';
+          document.getElementById('expanded-takeaways-content').textContent = rawTakeaways;
+          openModal('book-takeaways-modal');
+        };
+
+        const btnQ = document.getElementById('btn-open-quotes-modal');
+        const txtQ = document.getElementById('quotes-text-click');
+        if (btnQ) btnQ.onclick = openQuotes;
+        if (txtQ) txtQ.onclick = openQuotes;
+
+        const btnT = document.getElementById('btn-open-takeaways-modal');
+        const txtT = document.getElementById('takeaways-text-click');
+        if (btnT) btnT.onclick = openTakeaways;
+        if (txtT) txtT.onclick = openTakeaways;
       }
 
       function initStarInput() {
@@ -704,6 +827,7 @@
       function editBook(id) {
         const b = allBooks.find(x => String(x.id) === String(id));
         if (!b) return;
+        const ext = extractBookDetails(b);
         document.getElementById('book-form-title').textContent = '✏️ Kitabı Düzenle';
         document.getElementById('edit-book-id').value = b.id;
         document.getElementById('book-title').value = b.title || '';
@@ -714,10 +838,10 @@
         document.getElementById('book-is-favorite').checked = !!b.is_favorite;
         document.getElementById('book-started-at').value = b.started_at || '';
         document.getElementById('book-finished-at').value = b.finished_at || '';
-        document.getElementById('book-quotes').value = b.quotes || '';
-        document.getElementById('book-key-takeaways').value = b.key_takeaways || '';
+        document.getElementById('book-quotes').value = ext.quotes || '';
+        document.getElementById('book-key-takeaways').value = ext.takeaways || '';
         document.getElementById('book-review').value = b.review || '';
-        document.getElementById('book-notes').value = b.notes || '';
+        document.getElementById('book-notes').value = ext.cleanNotes || '';
         setStarInput(b.rating || 0);
         openModal('book-form-modal');
       }

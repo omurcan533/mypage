@@ -2,8 +2,13 @@
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Medya & Eğlence — Ömür Can Yılmaz</title>
+    <script>
+      (function() {
+        var t = localStorage.getItem('oyp_theme') || localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/media.css" />
     <link
@@ -48,7 +53,58 @@
           </li>
         </ul>
 
-        <div class="sidebar-footer">
+        <div class="sidebar-bottom">
+          <div
+            style="
+              display: flex;
+              gap: 4px;
+              margin-bottom: 16px;
+              justify-content: center;
+            "
+          >
+            <button
+              id="lang-tr"
+              onclick="i18n.setLang('tr')"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+              "
+            >
+              TR
+            </button>
+            <button
+              id="lang-en"
+              onclick="i18n.setLang('en')"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+              "
+            >
+              EN
+            </button>
+            <button
+              id="theme-toggle"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+                flex: 1;
+              "
+            >
+              ☀️ Açık Tema
+            </button>
+          </div>
           <div class="user-info">
             <div class="user-avatar" id="nav-user-avatar">Ö</div>
             <div>

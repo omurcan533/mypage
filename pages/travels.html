@@ -4,10 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Geziler — Ömür Can Yılmaz</title>
-    <meta
-      name="description"
-      content="Ömür Can Yılmaz'ın gezileri ve seyahatleri"
-    />
+    <script>
+      (function() {
+        var t = localStorage.getItem('oyp_theme') || localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✨</text></svg>">
     <link rel="stylesheet" href="../css/style.css" />
     <style>
       .travel-header-row {
@@ -558,6 +561,23 @@
     <script>
       Nav.init();
       Modal.setup("travel-modal");
+
+      let currentTravelViewMode = "grid";
+
+      function formatTravelMonth(start, end) {
+        if (!start) return "";
+        try {
+          const MONTHS = ["Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran", "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"];
+          const d1 = new Date(start);
+          const m1 = MONTHS[d1.getMonth()] + " " + d1.getFullYear();
+          if (!end) return m1;
+          const d2 = new Date(end);
+          const m2 = MONTHS[d2.getMonth()] + " " + d2.getFullYear();
+          return m1 === m2 ? m1 : `${m1} - ${m2}`;
+        } catch {
+          return start;
+        }
+      }
 
       const TRAVEL_KEY = "oyp_travels";
 

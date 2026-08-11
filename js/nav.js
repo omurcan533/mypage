@@ -5,6 +5,7 @@ const Nav = {
    * Initialize the sidebar: set active link, attach logout
    */
   init() {
+    this._initTheme();
     this._setActiveLink();
     this._attachLogout();
     this._attachLogoClick();
@@ -13,6 +14,7 @@ const Nav = {
     this._ensureMobileHeader();
     this._updateGlobalGreeting();
     this._ensureFooter();
+    this._attachThemeToggle();
     try {
       Auth.populateNav();
     } catch (err) {}
@@ -20,6 +22,62 @@ const Nav = {
       this.syncAccess();
     } catch (err) {}
     this._setActiveLink();
+  },
+
+  _initTheme() {
+    const savedTheme = localStorage.getItem('oyp_theme') || localStorage.getItem('theme') || 'dark';
+    const isLight = savedTheme === 'light';
+    if (isLight) {
+      document.documentElement.setAttribute('data-theme', 'light');
+      document.body.setAttribute('data-theme', 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.body.setAttribute('data-theme', 'dark');
+    }
+    localStorage.setItem('oyp_theme', isLight ? 'light' : 'dark');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    this._updateThemeUI(isLight ? 'light' : 'dark');
+  },
+
+  _updateThemeUI(theme) {
+    const isLight = theme === 'light';
+    const topIcon = document.getElementById('top-theme-icon');
+    if (topIcon) topIcon.textContent = isLight ? '🌙' : '☀️';
+
+    const pageThemeBtn = document.getElementById('theme-toggle');
+    if (pageThemeBtn) {
+      if (window.i18n && window.i18n.lang === 'en') {
+        pageThemeBtn.textContent = isLight ? '🌙 Dark Mode' : '☀️ Light Mode';
+      } else {
+        pageThemeBtn.textContent = isLight ? '🌙 Koyu Tema' : '☀️ Açık Tema';
+      }
+    }
+  },
+
+  toggleTheme() {
+    const cur = document.documentElement.getAttribute('data-theme') || localStorage.getItem('oyp_theme') || 'dark';
+    const next = cur === 'light' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next);
+    document.body.setAttribute('data-theme', next);
+    localStorage.setItem('oyp_theme', next);
+    localStorage.setItem('theme', next);
+    if (window.ThemeManager) {
+      window.ThemeManager.theme = next;
+    }
+    this._updateThemeUI(next);
+  },
+
+  _attachThemeToggle() {
+    document.addEventListener('click', (e) => {
+      const btn = e.target && (e.target.id === 'theme-toggle' || e.target.closest('#theme-toggle'));
+      if (btn) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e._themeHandled) return;
+        e._themeHandled = true;
+        this.toggleTheme();
+      }
+    });
   },
 
   _updateGlobalGreeting() {
@@ -235,7 +293,7 @@ const Nav = {
       <button type="button" class="top-control-btn" id="top-lang-btn" title="Dil / Language">
         🌐 <span>${lang.toUpperCase()}</span>
       </button>
-      <button type="button" class="top-control-btn ${isAdmin ? 'admin-active' : ''}" id="top-admin-btn" title="Admin Girişi">
+      <button type="button" class="top-control-btn ${isAdmin ? 'admin-active' : ''}" id="top-admin-btn" title="${isAdmin ? 'Admin Erişimi Açık' : 'Admin Girişi'}" style="${isAdmin ? 'pointer-events: none; opacity: 0.9;' : ''}">
         ${isAdmin ? '✅ Admin' : '🔐 Giriş'}
       </button>
       ${isAdmin ? `<button type="button" class="top-control-btn top-logout-btn" id="top-logout-btn" title="Çıkış Yap">🚪 Çıkış</button>` : ''}
@@ -244,10 +302,7 @@ const Nav = {
     document.body.appendChild(bar);
 
     document.getElementById('top-theme-btn').addEventListener('click', () => {
-      const currentlyLight = document.body.classList.toggle('light-theme');
-      document.documentElement.classList.toggle('light-theme', currentlyLight);
-      localStorage.setItem('theme', currentlyLight ? 'light' : 'dark');
-      document.getElementById('top-theme-icon').textContent = currentlyLight ? '🌙' : '☀️';
+      this.toggleTheme();
     });
 
     document.getElementById('top-lang-btn').addEventListener('click', () => {
@@ -263,9 +318,12 @@ const Nav = {
       if (label) label.textContent = nextLang.toUpperCase();
     });
 
-    document.getElementById('top-admin-btn').addEventListener('click', () => {
-      this.openAdminAccessModal();
-    });
+    const adminBtn = document.getElementById('top-admin-btn');
+    if (adminBtn && !isAdmin) {
+      adminBtn.addEventListener('click', () => {
+        this.openAdminAccessModal();
+      });
+    }
 
     const logoutBtn = document.getElementById('top-logout-btn');
     if (logoutBtn) {

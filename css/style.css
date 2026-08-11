@@ -1139,6 +1139,20 @@ button.modal-close-btn {
   transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease !important;
 }
 
+/* ===== LOGO & CONTROL POINTER CURSOR ===== */
+.sidebar-logo,
+.sidebar-logo *,
+.mobile-header-title,
+.mobile-header-title *,
+#theme-toggle,
+#top-theme-btn,
+#top-lang-btn,
+#lang-tr,
+#lang-en {
+  cursor: pointer !important;
+  user-select: none;
+}
+
 /* ===== TOP-RIGHT CONTROLS BAR ===== */
 .top-controls-bar {
   position: fixed;
@@ -1158,9 +1172,19 @@ button.modal-close-btn {
   transition: var(--transition);
 }
 
+@media (max-width: 768px) {
+  .top-controls-bar {
+    display: none !important;
+  }
+}
+
+[data-theme="light"] .top-controls-bar,
+html[data-theme="light"] .top-controls-bar,
 body.light-theme .top-controls-bar,
 html.light-theme .top-controls-bar {
   background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
 .top-control-btn {
@@ -1184,6 +1208,8 @@ html.light-theme .top-controls-bar {
   color: var(--text-primary);
 }
 
+[data-theme="light"] .top-control-btn:hover,
+html[data-theme="light"] .top-control-btn:hover,
 body.light-theme .top-control-btn:hover,
 html.light-theme .top-control-btn:hover {
   background: rgba(0, 0, 0, 0.08);
@@ -1210,9 +1236,19 @@ html.light-theme .top-control-btn:hover {
   margin-top: 60px;
   padding: 40px 24px 28px;
   border-top: 1px solid var(--glass-border);
-  background: rgba(15, 23, 42, 0.4);
+  background: var(--bg-card);
   backdrop-filter: blur(10px);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  transition: var(--transition);
+}
+
+[data-theme="light"] .site-footer,
+html[data-theme="light"] .site-footer,
+body.light-theme .site-footer,
+html.light-theme .site-footer {
+  background: rgba(255, 255, 255, 0.85);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.03);
 }
 
 .footer-content {
@@ -1280,7 +1316,7 @@ html.light-theme .top-control-btn:hover {
   max-width: 1200px;
   margin: 0 auto;
   padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid var(--glass-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -1288,6 +1324,13 @@ html.light-theme .top-control-btn:hover {
   color: var(--text-muted);
   flex-wrap: wrap;
   gap: 12px;
+}
+
+[data-theme="light"] .footer-bottom,
+html[data-theme="light"] .footer-bottom,
+body.light-theme .footer-bottom,
+html.light-theme .footer-bottom {
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 /* ===== COMPACT MULTI-COLUMN DENSE GRID ===== */
