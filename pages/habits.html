@@ -414,6 +414,9 @@
       Modal.setup("add-modal");
       Modal.setup("delete-modal");
 
+      let eventsAttached = false;
+      let isInitialized = false;
+
       function syncHabitsAccess() {
         if (Auth.canAccessHabits()) {
           init();
@@ -492,9 +495,6 @@
       ];
 
       // ─── Init ───
-      let eventsAttached = false;
-      let isInitialized = false;
-
       async function refreshUI(forceSync = false) {
         if (forceSync) {
           await HabitStore.getAll(true);
