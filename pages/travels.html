@@ -425,6 +425,31 @@
         </div>
 
         <div id="travels-container"></div>
+
+        <!-- Admin-Only Travel Wishlist (Gezilecek Yerler & Şehir Haritam) -->
+        <div id="admin-travel-wishlist-section" class="wishlist-section" style="display: none;">
+          <div class="wishlist-header-row">
+            <div>
+              <h2 class="wishlist-title">
+                📍 Gezilecek Yerler & Şehir Haritam <span class="wishlist-badge-admin">Admin Özel</span>
+              </h2>
+              <p class="page-subtitle" style="margin-top: 2px;">
+                Şehir şehir, semt semt gitmek istediğim mekanlar ve seyahat istek listem
+              </p>
+            </div>
+            <button type="button" class="btn btn-primary" id="add-wishlist-item-btn">
+              ＋ Yeni Yer Ekle
+            </button>
+          </div>
+
+          <div class="wishlist-filter-bar" id="wishlist-city-filter">
+            <!-- Dynamic city filter tabs injected via JS -->
+          </div>
+
+          <div class="wishlist-cities-grid" id="wishlist-cities-container">
+            <!-- Dynamic city & district cards injected via JS -->
+          </div>
+        </div>
       </main>
     </div>
 
@@ -555,11 +580,65 @@
       </div>
     </div>
 
+    <!-- Add/Edit Wishlist Item Modal -->
+    <div class="modal-overlay" id="wishlist-modal">
+      <div class="modal" style="max-width: 460px">
+        <div class="modal-header">
+          <div class="modal-title" id="wishlist-modal-title">📍 Yeni Yer Ekle</div>
+          <button class="modal-close">✕</button>
+        </div>
+        <form id="wishlist-form">
+          <input type="hidden" id="edit-wishlist-id" />
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+            <div class="input-group">
+              <label class="input-label">Şehir *</label>
+              <input type="text" class="input-field" id="wishlist-city" placeholder="Örn: İstanbul" required />
+            </div>
+            <div class="input-group">
+              <label class="input-label">İlçe / Semt *</label>
+              <input type="text" class="input-field" id="wishlist-district" placeholder="Örn: Balat" required />
+            </div>
+          </div>
+          <div class="input-group" style="margin-bottom: 14px;">
+            <label class="input-label">Mekan / Yer Adı *</label>
+            <input type="text" class="input-field" id="wishlist-place" placeholder="Örn: Velvet Cafe Balat" required />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+            <div class="input-group">
+              <label class="input-label">Kategori</label>
+              <select class="input-field" id="wishlist-category">
+                <option value="☕ Kafe">☕ Kafe</option>
+                <option value="🍕 Restoran">🍕 Restoran</option>
+                <option value="🏛️ Tarih & Müze">🏛️ Tarih & Müze</option>
+                <option value="🌳 Park & Doğa">🌳 Park & Doğa</option>
+                <option value="📸 Manzara">📸 Manzara</option>
+                <option value="🛍️ Mağaza & Çarşı">🛍️ Mağaza & Çarşı</option>
+                <option value="📍 Diğer">📍 Diğer</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Harita Linki (İsteğe Bağlı)</label>
+              <input type="url" class="input-field" id="wishlist-link" placeholder="https://maps.google.com/..." />
+            </div>
+          </div>
+          <div class="input-group" style="margin-bottom: 18px;">
+            <label class="input-label">Not / Tüyolar</label>
+            <textarea class="input-field" id="wishlist-note" rows="2" placeholder="Örn: Akşamüstü kahvesi harika, rezervasyon gerekebilir."></textarea>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end">
+            <button type="button" class="btn btn-ghost modal-close">İptal</button>
+            <button type="submit" class="btn btn-primary" id="save-wishlist-submit-btn">✓ Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script src="../js/i18n.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/live_api.js"></script>
+    <script src="../js/travel_wishlist_api.js"></script>
     <script src="../js/nav.js"></script>
     <script>
       Nav.init();
@@ -1068,15 +1147,221 @@
       (async () => {
         await syncTravelAccess();
         await renderTravels();
+        await renderWishlist();
       })();
       window.addEventListener("auth:changed", async () => {
         await syncTravelAccess();
         await renderTravels();
+        await renderWishlist();
       });
       window.addEventListener("languageChanged", () => {
         if (typeof render === "function") render();
         else if (typeof init === "function") init();
       });
+
+      /* ===== TRAVEL WISHLIST JS LOGIC ===== */
+      Modal.setup("wishlist-modal");
+
+      let activeWishlistCity = "all";
+      let allWishlistItems = [];
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      }
+
+      async function renderWishlist() {
+        const section = document.getElementById("admin-travel-wishlist-section");
+        if (!section) return;
+
+        const isAdmin = window.Auth && window.Auth.canAccessHabits();
+        if (!isAdmin) {
+          section.style.display = "none";
+          return;
+        }
+
+        section.style.display = "block";
+
+        allWishlistItems = await window.TravelWishlistAPI.fetchItems();
+
+        // City Filter Bar
+        const filterBar = document.getElementById("wishlist-city-filter");
+        const cities = Array.from(new Set(allWishlistItems.map(i => i.city)));
+
+        let filterHtml = `
+          <button type="button" class="wishlist-filter-btn ${activeWishlistCity === 'all' ? 'active' : ''}" data-city="all">
+            📍 Tüm Şehirler (${allWishlistItems.length})
+          </button>
+        `;
+        cities.forEach(city => {
+          const cityItems = allWishlistItems.filter(i => i.city === city);
+          const visitedCount = cityItems.filter(i => i.is_visited).length;
+          filterHtml += `
+            <button type="button" class="wishlist-filter-btn ${activeWishlistCity === city ? 'active' : ''}" data-city="${city}">
+              📍 ${city} (${visitedCount}/${cityItems.length})
+            </button>
+          `;
+        });
+        filterBar.innerHTML = filterHtml;
+
+        // Filter Items
+        const filteredItems = activeWishlistCity === 'all'
+          ? allWishlistItems
+          : allWishlistItems.filter(i => i.city === activeWishlistCity);
+
+        // Group by City -> District
+        const cityGroups = {};
+        filteredItems.forEach(item => {
+          if (!cityGroups[item.city]) cityGroups[item.city] = {};
+          if (!cityGroups[item.city][item.district]) cityGroups[item.city][item.district] = [];
+          cityGroups[item.city][item.district].push(item);
+        });
+
+        const citiesContainer = document.getElementById("wishlist-cities-container");
+        if (Object.keys(cityGroups).length === 0) {
+          citiesContainer.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: var(--text-muted);">
+              📍 Henüz gezilecek yer eklenmemiş. Yukarıdaki <b>"＋ Yeni Yer Ekle"</b> butonuna basarak ilk mekanınızı ekleyebilirsiniz.
+            </div>
+          `;
+          return;
+        }
+
+        let containerHtml = "";
+        Object.keys(cityGroups).forEach(city => {
+          const cityAllItems = allWishlistItems.filter(i => i.city === city);
+          const visitedCount = cityAllItems.filter(i => i.is_visited).length;
+          const percent = cityAllItems.length > 0 ? Math.round((visitedCount / cityAllItems.length) * 100) : 0;
+
+          containerHtml += `
+            <div class="wishlist-city-card">
+              <div class="wishlist-city-head">
+                <div class="wishlist-city-name">
+                  📍 <span>${escapeHtml(city)}</span>
+                </div>
+                <div style="font-size: 12px; font-weight: 700; color: var(--text-secondary);">
+                  ${visitedCount}/${cityAllItems.length} (${percent}%)
+                </div>
+              </div>
+              <div class="wishlist-progress-bar-bg">
+                <div class="wishlist-progress-bar-fill" style="width: ${percent}%;"></div>
+              </div>
+          `;
+
+          const districts = cityGroups[city];
+          Object.keys(districts).forEach(district => {
+            containerHtml += `
+              <div class="wishlist-district-group">
+                <div class="wishlist-district-title">
+                  📌 <span>${escapeHtml(district)}</span>
+                </div>
+                <div class="wishlist-items-list">
+            `;
+
+            districts[district].forEach(item => {
+              containerHtml += `
+                <div class="wishlist-item-row ${item.is_visited ? 'visited' : ''}" data-id="${item.id}">
+                  <div class="wishlist-checkbox" title="${item.is_visited ? 'Gidildi olarak işaretlendi' : 'Gidilecek yer'}" onclick="toggleWishlistVisited('${item.id}')"></div>
+                  <div class="wishlist-item-content">
+                    <div class="wishlist-place-title">${escapeHtml(item.place_name)}</div>
+                    <div class="wishlist-meta-bar">
+                      <span class="wishlist-category-tag">${escapeHtml(item.category)}</span>
+                      ${item.link ? `<a href="${escapeHtml(item.link)}" target="_blank" class="quick-link" style="padding: 1px 6px; font-size: 10px;">🗺️ Harita ↗</a>` : ''}
+                    </div>
+                    ${item.note ? `<div class="wishlist-note-text">💡 ${escapeHtml(item.note)}</div>` : ''}
+                  </div>
+                  <div class="wishlist-actions">
+                    <button type="button" class="wishlist-icon-btn" onclick="openEditWishlistModal('${item.id}')" title="Düzenle">✏️</button>
+                    <button type="button" class="wishlist-icon-btn delete" onclick="deleteWishlistItem('${item.id}')" title="Sil">🗑️</button>
+                  </div>
+                </div>
+              `;
+            });
+
+            containerHtml += `
+                </div>
+              </div>
+            `;
+          });
+
+          containerHtml += `</div>`;
+        });
+
+        citiesContainer.innerHTML = containerHtml;
+      }
+
+      // Filter click handler
+      document.getElementById("wishlist-city-filter").addEventListener("click", (e) => {
+        const btn = e.target.closest(".wishlist-filter-btn");
+        if (!btn) return;
+        activeWishlistCity = btn.dataset.city || "all";
+        renderWishlist();
+      });
+
+      // Add button click handler
+      document.getElementById("add-wishlist-item-btn").addEventListener("click", () => {
+        document.getElementById("wishlist-form").reset();
+        document.getElementById("edit-wishlist-id").value = "";
+        document.getElementById("wishlist-modal-title").textContent = "📍 Yeni Yer Ekle";
+        Modal.open("wishlist-modal");
+      });
+
+      // Form submit handler
+      document.getElementById("wishlist-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const editId = document.getElementById("edit-wishlist-id").value;
+        const city = document.getElementById("wishlist-city").value;
+        const district = document.getElementById("wishlist-district").value;
+        const place_name = document.getElementById("wishlist-place").value;
+        const category = document.getElementById("wishlist-category").value;
+        const link = document.getElementById("wishlist-link").value;
+        const note = document.getElementById("wishlist-note").value;
+
+        if (editId) {
+          await window.TravelWishlistAPI.updateItem(editId, { city, district, place_name, category, link, note });
+          if (window.Toast) Toast.success("Mekan güncellendi!");
+        } else {
+          await window.TravelWishlistAPI.addItem({ city, district, place_name, category, link, note });
+          if (window.Toast) Toast.success("Mekan istek listesine eklendi!");
+        }
+
+        Modal.close("wishlist-modal");
+        await renderWishlist();
+      });
+
+      // Toggle Visited Checkbox
+      window.toggleWishlistVisited = async function(id) {
+        await window.TravelWishlistAPI.toggleVisited(id);
+        await renderWishlist();
+      };
+
+      // Open Edit Modal
+      window.openEditWishlistModal = function(id) {
+        const item = allWishlistItems.find(i => i.id === id);
+        if (!item) return;
+
+        document.getElementById("edit-wishlist-id").value = item.id;
+        document.getElementById("wishlist-city").value = item.city;
+        document.getElementById("wishlist-district").value = item.district;
+        document.getElementById("wishlist-place").value = item.place_name;
+        document.getElementById("wishlist-category").value = item.category || "☕ Kafe";
+        document.getElementById("wishlist-link").value = item.link || "";
+        document.getElementById("wishlist-note").value = item.note || "";
+        document.getElementById("wishlist-modal-title").textContent = "✏️ Mekanı Düzenle";
+        Modal.open("wishlist-modal");
+      };
+
+      // Delete Item
+      window.deleteWishlistItem = async function(id) {
+        if (!confirm("Bu mekanı listenizden silmek istediğinize emin misiniz?")) return;
+        await window.TravelWishlistAPI.deleteItem(id);
+        if (window.Toast) Toast.success("Mekan silindi.");
+        await renderWishlist();
+      };
     </script>
   </body>
 </html>

@@ -231,7 +231,7 @@ const Nav = {
 
   _attachLogout() {
     const btn = document.getElementById('logout-btn');
-    if (btn) btn.addEventListener('click', () => Auth.logout());
+    if (btn) btn.addEventListener('click', () => this.confirmLogout());
   },
 
   _togglePrivateLinks() {
@@ -298,7 +298,8 @@ const Nav = {
     bar.className = 'top-controls-bar';
 
     const isLight = document.body.classList.contains('light-theme') || localStorage.getItem('theme') === 'light';
-    const lang = (window.i18n && window.i18n.lang) || localStorage.getItem('lang') || 'tr';
+    const lang = (window.i18n && window.i18n.lang) || localStorage.getItem('oyp_lang') || localStorage.getItem('lang') || 'tr';
+    const targetLangDisplay = lang === 'tr' ? 'EN' : 'TR';
     const isAdmin = window.Auth && window.Auth.canAccessHabits();
 
     const isLiveActive = localStorage.getItem('oyp_fb_live_active') === 'true';
@@ -306,19 +307,19 @@ const Nav = {
     bar.innerHTML = `
       ${isAdmin ? `
         <button type="button" class="top-control-btn ${isLiveActive ? 'live-active' : ''}" id="top-live-toggle-btn" title="Fenerbahçe Canlı Skor Gösterimini Yönet (Sadece Admin)">
-          ⚽ <span>Skor: ${isLiveActive ? 'AÇIK' : 'KAPALI'}</span>
+          ⚽ <span class="btn-text-full">Skor: ${isLiveActive ? 'AÇIK' : 'KAPALI'}</span><span class="btn-text-short">${isLiveActive ? 'AÇIK' : 'KAPALI'}</span>
         </button>
       ` : ''}
       <button type="button" class="top-control-btn" id="top-theme-btn" title="Tema Değiştir">
         <span id="top-theme-icon">${isLight ? '🌙' : '☀️'}</span>
       </button>
-      <button type="button" class="top-control-btn" id="top-lang-btn" title="Dil / Language">
-        🌐 <span>${lang.toUpperCase()}</span>
+      <button type="button" class="top-control-btn" id="top-lang-btn" title="Dil Değiştir / Switch Language">
+        🌐 <span>${targetLangDisplay}</span>
       </button>
-      <button type="button" class="top-control-btn ${isAdmin ? 'admin-active' : ''}" id="top-admin-btn" title="${isAdmin ? 'Admin Erişimi Açık' : 'Admin Girişi'}" style="${isAdmin ? 'pointer-events: none; opacity: 0.9;' : ''}">
-        ${isAdmin ? '✅ Admin' : '🔐 Giriş'}
+      <button type="button" class="top-control-btn ${isAdmin ? 'admin-active' : ''}" id="top-admin-btn" title="${isAdmin ? 'Admin Erişimi Açık' : 'Admin Girişi'}">
+        ${isAdmin ? '✅ <span class="btn-text-full">Admin</span><span class="btn-text-short">Admin</span>' : '🔐 <span class="btn-text-full">Giriş</span><span class="btn-text-short">Giriş</span>'}
       </button>
-      ${isAdmin ? `<button type="button" class="top-control-btn top-logout-btn" id="top-logout-btn" title="Çıkış Yap">🚪 Çıkış</button>` : ''}
+      ${isAdmin ? `<button type="button" class="top-control-btn top-logout-btn" id="top-logout-btn" title="Çıkış Yap">🚪 <span class="btn-text-full">Çıkış</span><span class="btn-text-short">Çıkış</span></button>` : ''}
     `;
 
     document.body.appendChild(bar);
@@ -328,16 +329,23 @@ const Nav = {
     });
 
     document.getElementById('top-lang-btn').addEventListener('click', () => {
-      const curLang = (window.i18n && window.i18n.lang) || localStorage.getItem('lang') || 'tr';
+      const curLang = (window.i18n && window.i18n.lang) || localStorage.getItem('oyp_lang') || localStorage.getItem('lang') || 'tr';
       const nextLang = curLang === 'tr' ? 'en' : 'tr';
       if (window.i18n && typeof window.i18n.setLang === 'function') {
         window.i18n.setLang(nextLang);
       } else {
+        localStorage.setItem('oyp_lang', nextLang);
         localStorage.setItem('lang', nextLang);
         window.location.reload();
       }
       const label = document.querySelector('#top-lang-btn span');
-      if (label) label.textContent = nextLang.toUpperCase();
+      if (label) label.textContent = nextLang === 'tr' ? 'EN' : 'TR';
+    });
+
+    window.addEventListener('languageChanged', () => {
+      const curLang = (window.i18n && window.i18n.lang) || localStorage.getItem('oyp_lang') || 'tr';
+      const label = document.querySelector('#top-lang-btn span');
+      if (label) label.textContent = curLang === 'tr' ? 'EN' : 'TR';
     });
 
     const adminBtn = document.getElementById('top-admin-btn');
@@ -350,9 +358,7 @@ const Nav = {
     const logoutBtn = document.getElementById('top-logout-btn');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => {
-        if (window.Auth && typeof window.Auth.logout === 'function') {
-          window.Auth.logout();
-        }
+        this.confirmLogout();
       });
     }
 
@@ -520,8 +526,10 @@ const Nav = {
     const liveBtn = document.getElementById('top-live-toggle-btn');
     if (liveBtn) {
       liveBtn.classList.toggle('live-active', isLiveActive);
-      const span = liveBtn.querySelector('span');
-      if (span) span.textContent = `Skor: ${isLiveActive ? 'AÇIK' : 'KAPALI'}`;
+      const fullSpan = liveBtn.querySelector('.btn-text-full');
+      if (fullSpan) fullSpan.textContent = `Skor: ${isLiveActive ? 'AÇIK' : 'KAPALI'}`;
+      const shortSpan = liveBtn.querySelector('.btn-text-short');
+      if (shortSpan) shortSpan.textContent = `${isLiveActive ? 'AÇIK' : 'KAPALI'}`;
     }
 
     if (isLiveActive && window.LiveFootballAPI) {
@@ -598,6 +606,46 @@ const Nav = {
     if (backdrop) backdrop.classList.remove('open');
     if (hamburgerBtn) hamburgerBtn.classList.remove('is-active');
     document.body.style.overflow = '';
+  },
+
+  confirmLogout() {
+    let overlay = document.getElementById('logout-confirm-modal');
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.id = 'logout-confirm-modal';
+      overlay.className = 'modal-overlay';
+      overlay.innerHTML = `
+        <div class="modal" style="max-width: 400px; text-align: center; padding: 28px 24px;">
+          <div style="font-size: 42px; margin-bottom: 12px;">🚪</div>
+          <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 8px;">Çıkış Yap</h3>
+          <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px;">
+            Oturumunuzu kapatmak istediğinize emin misiniz?
+          </p>
+          <div style="display: flex; gap: 12px; justify-content: center;">
+            <button type="button" class="btn btn-secondary" id="logout-cancel-btn" style="flex: 1; padding: 10px 16px;">Vazgeç</button>
+            <button type="button" class="btn" id="logout-confirm-btn" style="flex: 1; padding: 10px 16px; background: #ef4444; color: white; border: none; font-weight: 700; border-radius: var(--radius-pill);">Evet, Çıkış Yap</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+
+      document.getElementById('logout-cancel-btn').addEventListener('click', () => {
+        Modal.close('logout-confirm-modal');
+      });
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) Modal.close('logout-confirm-modal');
+      });
+
+      document.getElementById('logout-confirm-btn').addEventListener('click', () => {
+        Modal.close('logout-confirm-modal');
+        if (window.Auth && typeof window.Auth.logout === 'function') {
+          window.Auth.logout();
+        }
+      });
+    }
+
+    Modal.open('logout-confirm-modal');
   },
 
   openAdminAccessModal() {

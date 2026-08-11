@@ -361,7 +361,7 @@ img {
 .main-content {
   margin-left: 0;
   flex: 1;
-  padding: 84px 36px 36px 36px;
+  padding: 92px 36px 36px 36px;
   min-height: 100vh;
   position: relative;
   z-index: 1;
@@ -851,6 +851,13 @@ select.input-field option {
   color: var(--text-muted);
 }
 
+.btn-text-full {
+  display: inline;
+}
+.btn-text-short {
+  display: none;
+}
+
 /* ===== TOP HEADER & HAMBURGER ===== */
 .mobile-header {
   display: flex;
@@ -962,7 +969,7 @@ select.input-field option {
 /* ===== RESPONSIVE ===== */
 @media (max-width: 1024px) {
   :root { --nav-width: 200px; }
-  .main-content { padding: 24px; }
+  .main-content { padding: 92px 24px 24px 24px !important; }
 }
 
 @media (max-width: 768px) {
@@ -971,7 +978,30 @@ select.input-field option {
     padding: 0 16px;
   }
   .main-content {
-    padding: 78px 16px 24px 16px;
+    padding: 98px 16px 24px 16px !important;
+  }
+  .welcome-hero {
+    padding: 20px 18px !important;
+    margin-bottom: 20px !important;
+  }
+  .hero-name {
+    font-size: 24px !important;
+    line-height: 1.25 !important;
+  }
+  .hero-desc {
+    font-size: 13px !important;
+    margin-top: 8px !important;
+  }
+  .hero-date {
+    margin-top: 10px !important;
+  }
+  .hero-quick-links {
+    margin-top: 14px !important;
+    gap: 8px !important;
+  }
+  .quick-link {
+    padding: 7px 14px !important;
+    font-size: 12px !important;
   }
   .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .grid-2 { grid-template-columns: 1fr; }
@@ -986,14 +1016,19 @@ select.input-field option {
     -webkit-overflow-scrolling: touch;
   }
 
+  .mobile-header-title {
+    display: none !important;
+  }
+
   .top-controls-bar {
     display: flex !important;
     position: fixed !important;
     top: 0 !important;
-    right: 14px !important;
+    right: 16px !important;
     height: 64px !important;
     align-items: center !important;
     gap: 4px !important;
+    overflow: visible !important;
     z-index: 1003 !important;
     background: transparent !important;
     border: none !important;
@@ -1012,6 +1047,15 @@ select.input-field option {
     border-radius: var(--radius-pill) !important;
     background: rgba(255, 255, 255, 0.08) !important;
     border: 1px solid var(--glass-border) !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+
+  .btn-text-full {
+    display: none !important;
+  }
+  .btn-text-short {
+    display: inline !important;
   }
 
   [data-theme="light"] .top-control-btn,
@@ -1024,15 +1068,21 @@ select.input-field option {
 }
 
 @media (max-width: 480px) {
+  .main-content {
+    padding: 102px 12px 24px 12px !important;
+  }
+  .welcome-hero {
+    padding: 16px 14px !important;
+  }
+  .hero-name {
+    font-size: 21px !important;
+  }
   .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
   .mobile-header {
     padding: 0 12px;
   }
-  .mobile-logo-text {
-    display: none;
-  }
   .top-controls-bar {
-    right: 10px !important;
+    right: 12px !important;
     gap: 3px !important;
   }
   .top-control-btn {
@@ -1040,7 +1090,69 @@ select.input-field option {
     font-size: 11px !important;
     height: 32px !important;
     min-height: 32px !important;
+    flex-shrink: 0 !important;
   }
+}
+
+/* ===== TOP CONTROLS DROPDOWN ===== */
+.top-controls-dropdown {
+  position: absolute;
+  top: 54px;
+  right: 0;
+  width: 220px;
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: none;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10005;
+  animation: fadeInDown 0.2s ease;
+}
+
+.top-controls-dropdown.open {
+  display: flex !important;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.dropdown-item-btn {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+.dropdown-item-btn.danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.dropdown-item-btn.primary {
+  background: var(--accent);
+  color: white;
 }
 
 /* ===== WELCOME HERO BANNER ===== */
@@ -1931,6 +2043,261 @@ html.light-theme .footer-bottom {
   height: 32px !important;
   font-size: 16px !important;
   min-width: 32px !important;
+}
+
+/* ===== ADMIN TRAVEL WISHLIST (GEZİLECEK YERLER) ===== */
+.wishlist-section {
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: 24px;
+  margin-top: 32px;
+  box-shadow: var(--shadow-md);
+  animation: fadeInUp 0.4s ease;
+}
+
+.wishlist-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.wishlist-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wishlist-badge-admin {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.wishlist-filter-bar {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  margin-bottom: 20px;
+  scrollbar-width: none;
+}
+.wishlist-filter-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.wishlist-filter-btn {
+  padding: 7px 16px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition);
+}
+.wishlist-filter-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+
+.wishlist-cities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.wishlist-city-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  transition: var(--transition);
+}
+.wishlist-city-card:hover {
+  border-color: var(--glass-border-hover);
+  box-shadow: var(--shadow-sm);
+}
+
+.wishlist-city-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.wishlist-city-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wishlist-progress-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.wishlist-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981, #3b82f6);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.wishlist-district-group {
+  margin-top: 14px;
+}
+
+.wishlist-district-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent-light);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.wishlist-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.wishlist-item-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: var(--transition);
+}
+.wishlist-item-row:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.wishlist-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid var(--text-muted);
+  cursor: pointer;
+  margin-top: 2px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+.wishlist-item-row.visited .wishlist-checkbox {
+  background: #10b981;
+  border-color: #10b981;
+}
+.wishlist-checkbox::after {
+  content: "✓";
+  color: white;
+  font-size: 12px;
+  font-weight: 900;
+  display: none;
+}
+.wishlist-item-row.visited .wishlist-checkbox::after {
+  display: block;
+}
+
+.wishlist-item-content {
+  flex: 1;
+}
+
+.wishlist-place-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: var(--transition);
+}
+.wishlist-item-row.visited .wishlist-place-title {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.wishlist-meta-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.wishlist-category-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(108, 99, 255, 0.15);
+  color: var(--accent-light);
+  border: 1px solid rgba(108, 99, 255, 0.3);
+}
+
+.wishlist-note-text {
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin-top: 4px;
+}
+.wishlist-item-row.visited .wishlist-note-text {
+  opacity: 0.6;
+}
+
+.wishlist-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0.7;
+  transition: var(--transition);
+}
+.wishlist-item-row:hover .wishlist-actions {
+  opacity: 1;
+}
+
+.wishlist-icon-btn {
+  padding: 4px 6px;
+  font-size: 12px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-radius: 4px;
+}
+.wishlist-icon-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.1);
+}
+.wishlist-icon-btn.delete:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.15);
 }
 
 
