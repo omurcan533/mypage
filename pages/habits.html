@@ -417,23 +417,7 @@
       let eventsAttached = false;
       let isInitialized = false;
 
-      function syncHabitsAccess() {
-        if (Auth.canAccessHabits()) {
-          init();
-        } else {
-          window.location.href = "home.html";
-        }
-      }
-
-      window.addEventListener("auth:changed", syncHabitsAccess);
-
-      syncHabitsAccess();
-      (async function () {
-        await Auth.isLoggedIn();
-        syncHabitsAccess();
-      })();
-
-      // ─── State ───
+      // ─── State & Constants ───
       const state = {
         view: "monthly",
         year: new Date().getFullYear(),
@@ -493,6 +477,22 @@
         "#e879f9",
         "#10b981",
       ];
+
+      function syncHabitsAccess() {
+        if (Auth.canAccessHabits()) {
+          init();
+        } else {
+          window.location.href = "home.html";
+        }
+      }
+
+      window.addEventListener("auth:changed", syncHabitsAccess);
+
+      syncHabitsAccess();
+      (async function () {
+        await Auth.isLoggedIn();
+        syncHabitsAccess();
+      })();
 
       // ─── Init ───
       async function refreshUI(forceSync = false) {
