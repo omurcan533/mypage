@@ -14,20 +14,7 @@
   <body>
     <div class="bg-orbs"></div>
 
-    <div class="habits-gate" id="habits-access-required">
-      <div class="habits-gate-card">
-        <div class="habits-gate-badge">🔒 Yönetim Paneli</div>
-        <h2 class="habits-gate-title">Alışkanlıklar paneline erişmek için admin girişi yapın</h2>
-        <p class="habits-gate-subtitle">
-          Bu alan yalnızca yetkili kullanıcılar içindir. Giriş yapınca alışkanlıklar görünür hale gelir.
-        </p>
-        <button type="button" class="btn btn-primary" id="habits-open-admin-login">
-          Admin Girişi Yap
-        </button>
-      </div>
-    </div>
-
-    <div class="app-layout" id="habits-app-layout" style="display: none">
+    <div class="app-layout" id="habits-app-layout">
       <!-- Sidebar -->
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
@@ -427,39 +414,17 @@
       Modal.setup("add-modal");
       Modal.setup("delete-modal");
 
-      const accessRequiredEl = document.getElementById("habits-access-required");
-      const appEl = document.getElementById("habits-app-layout");
-      const openAdminLoginBtn = document.getElementById("habits-open-admin-login");
-
-      function showAccessRequired() {
-        accessRequiredEl.style.display = "flex";
-        appEl.style.display = "none";
-      }
-
-      function showApp() {
-        accessRequiredEl.style.display = "none";
-        appEl.style.display = "flex";
-      }
-
       function syncHabitsAccess() {
         if (Auth.canAccessHabits()) {
-          showApp();
           init();
         } else {
-          showAccessRequired();
+          window.location.href = "home.html";
         }
-      }
-
-      if (openAdminLoginBtn) {
-        openAdminLoginBtn.addEventListener("click", () => {
-          if (window.openAdminAccessModal) {
-            window.openAdminAccessModal();
-          }
-        });
       }
 
       window.addEventListener("auth:changed", syncHabitsAccess);
 
+      syncHabitsAccess();
       (async function () {
         await Auth.isLoggedIn();
         syncHabitsAccess();
