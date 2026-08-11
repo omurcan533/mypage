@@ -17,23 +17,25 @@ const HABITS_KEY = "oyp_habits";
 
 function dedupeHabits(habits) {
   if (!Array.isArray(habits)) return [];
-  const seen = new Set();
-  const result = [];
+  const map = new Map();
   for (const h of habits) {
+    if (!h || !h.name) continue;
     const key = (h.name || "").trim().toLowerCase();
-    if (key && !seen.has(key)) {
-      seen.add(key);
-      result.push(h);
-    } else if (!key && h.id && !seen.has(h.id)) {
-      seen.add(h.id);
-      result.push(h);
+    const existing = map.get(key);
+    if (!existing) {
+      map.set(key, h);
+    } else {
+      if (!isUuid(existing.id) && isUuid(h.id)) {
+        map.set(key, h);
+      }
     }
   }
-  return result;
+  return Array.from(map.values());
 }
 
 let _getAllPromise = null;
 let _hasSyncedInitialData = false;
+const _toggleLocks = new Map();
 
 const HabitStore = {
   _id(v) {
@@ -52,7 +54,7 @@ const HabitStore = {
     localStorage.setItem(HABITS_KEY, JSON.stringify(dedupeHabits(habits)));
   },
 
-  _migrateLogs(oldId, newId) {
+  async _migrateLogs(oldId, newId, userId) {
     if (!oldId || !newId || String(oldId) === String(newId)) return;
     const logs = this.getLogs();
     let logsChanged = false;
@@ -64,6 +66,18 @@ const HabitStore = {
       }
     });
     if (logsChanged) this.saveLogs(logs);
+
+    if (userId && window.supabaseClient) {
+      try {
+        await window.supabaseClient
+          .from("habit_logs")
+          .update({ habit_id: newId })
+          .eq("user_id", userId)
+          .eq("habit_id", oldId);
+      } catch (e) {
+        console.warn("Supabase migrate habit_logs error:", e);
+      }
+    }
   },
 
   /* ─── Habits CRUD ─── */
@@ -104,7 +118,7 @@ const HabitStore = {
               for (const item of unpushed) {
                 const existing = sbHabits.find((sb) => sb.name && sb.name.trim().toLowerCase() === (item.name || "").trim().toLowerCase());
                 if (existing) {
-                  this._migrateLogs(item.id, existing.id);
+                  await this._migrateLogs(item.id, existing.id, user.id);
                   continue;
                 }
 
@@ -123,7 +137,7 @@ const HabitStore = {
                   .select();
                 if (!insErr && insData && insData.length > 0) {
                   sbHabits.push(insData[0]);
-                  this._migrateLogs(item.id, newId);
+                  await this._migrateLogs(item.id, newId, user.id);
                 }
               }
               sbHabits = dedupeHabits(sbHabits);
@@ -132,32 +146,29 @@ const HabitStore = {
           }
 
           if (!logsRes.error && logsRes.data) {
-            const logsMap = this.getLogs();
+            const freshLogsMap = {};
+            const validHabitIds = new Set(this.getHabits().map((h) => String(h.id)));
             logsRes.data.forEach((row) => {
               const d = row.completed_date;
               const hid = String(row.habit_id);
-              if (d && hid) {
-                if (!logsMap[d]) logsMap[d] = {};
-                logsMap[d][hid] = true;
+              if (d && hid && validHabitIds.has(hid)) {
+                if (!freshLogsMap[d]) freshLogsMap[d] = {};
+                freshLogsMap[d][hid] = true;
               }
             });
-            this.saveLogs(logsMap);
+            this.saveLogs(freshLogsMap);
           }
 
           if (!notesRes.error && notesRes.data) {
-            const notesMap = this.getNotes();
+            const freshNotesMap = {};
             notesRes.data.forEach((row) => {
               const d = row.note_date;
               const content = row.content;
-              if (d) {
-                if (content && content.trim()) {
-                  notesMap[d] = content.trim();
-                } else {
-                  delete notesMap[d];
-                }
+              if (d && content && content.trim()) {
+                freshNotesMap[d] = content.trim();
               }
             });
-            localStorage.setItem(NOTES_KEY, JSON.stringify(notesMap));
+            localStorage.setItem(NOTES_KEY, JSON.stringify(freshNotesMap));
           }
 
           _hasSyncedInitialData = true;
@@ -346,6 +357,21 @@ const HabitStore = {
   },
 
   async toggle(habitId, dateKey) {
+    const lockKey = `${this._id(habitId)}_${dateKey}`;
+    const previousLock = _toggleLocks.get(lockKey) || Promise.resolve();
+
+    const currentOp = (async () => {
+      try {
+        await previousLock;
+      } catch (e) {}
+      return this._performToggle(habitId, dateKey);
+    })();
+
+    _toggleLocks.set(lockKey, currentOp.catch(() => {}));
+    return currentOp;
+  },
+
+  async _performToggle(habitId, dateKey) {
     const logs = this.getLogs();
     const dayLogs = logs[dateKey] ? { ...logs[dateKey] } : {};
     const habitKey = this._id(habitId);
@@ -355,28 +381,8 @@ const HabitStore = {
 
     if (wasCompleted) {
       delete dayLogs[habitKey];
-      if (user && window.supabaseClient) {
-        try {
-          await window.supabaseClient
-            .from("habit_logs")
-            .delete()
-            .eq("habit_id", habitId)
-            .eq("completed_date", dateKey);
-        } catch (e) {
-          console.warn("Supabase habit log delete error:", e);
-        }
-      }
     } else {
       dayLogs[habitKey] = true;
-      if (user && window.supabaseClient) {
-        try {
-          await window.supabaseClient
-            .from("habit_logs")
-            .insert([{ habit_id: habitId, completed_date: dateKey, user_id: user.id }]);
-        } catch (e) {
-          console.warn("Supabase habit log insert error:", e);
-        }
-      }
     }
 
     if (Object.keys(dayLogs).length === 0) {
@@ -386,6 +392,38 @@ const HabitStore = {
     }
 
     this.saveLogs(logs);
+
+    if (user && window.supabaseClient) {
+      try {
+        if (wasCompleted) {
+          const { error } = await window.supabaseClient
+            .from("habit_logs")
+            .delete()
+            .eq("user_id", user.id)
+            .eq("habit_id", habitId)
+            .eq("completed_date", dateKey);
+          if (error) console.warn("Supabase habit log delete error:", error);
+        } else {
+          const { error } = await window.supabaseClient
+            .from("habit_logs")
+            .insert([{ habit_id: habitId, completed_date: dateKey, user_id: user.id }]);
+
+          if (error) {
+            const isConflict =
+              error.code === "23505" ||
+              error.status === 409 ||
+              String(error.message || "").includes("duplicate") ||
+              String(error.details || "").includes("already exists");
+            if (!isConflict) {
+              console.error("Supabase habit log insert error:", error);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn("Supabase habit log toggle error:", e);
+      }
+    }
+
     return !wasCompleted;
   },
 

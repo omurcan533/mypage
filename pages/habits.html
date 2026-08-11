@@ -530,7 +530,10 @@
       let eventsAttached = false;
       let isInitialized = false;
 
-      async function refreshUI() {
+      async function refreshUI(forceSync = false) {
+        if (forceSync) {
+          await HabitStore.getAll(true);
+        }
         await updateStats();
         await renderView();
         await buildHeatmap();
@@ -542,7 +545,7 @@
         isInitialized = true;
         buildEmojiPicker();
         buildColorPicker();
-        refreshUI();
+        refreshUI(true);
         if (!eventsAttached) {
           attachNav();
           attachAddHabit();
@@ -560,13 +563,9 @@
       // ─── Stats ───
       async function updateStats() {
         const habits = await HabitStore.getAll();
-
         const ts = await HabitStore.getTodayStats();
-
         const streak = HabitStore.getOverallStreak();
-
         const now = new Date();
-
         const logs = HabitStore.getLogs();
 
         let monthDone = 0;
@@ -574,25 +573,25 @@
 
         for (let d = 1; d <= now.getDate(); d++) {
           const key = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+          const dayHabits = habits.filter((h) => HabitStore.isDueOnDate(h, key));
+          const dayLogs = logs[key] || {};
 
-          monthDone += logs[key] ? Object.keys(logs[key]).length : 0;
-
-          monthTotal += habits.length;
+          dayHabits.forEach((h) => {
+            monthTotal++;
+            if (dayLogs[HabitStore._id(h.id)]) {
+              monthDone++;
+            }
+          });
         }
 
         const rate = monthTotal
-          ? Math.round((monthDone / monthTotal) * 100)
+          ? Math.min(100, Math.round((monthDone / monthTotal) * 100))
           : 0;
 
         document.getElementById("hs-total").textContent = habits.length;
-
-        document.getElementById("hs-today").textContent =
-          `${ts.done}/${ts.total}`;
-
+        document.getElementById("hs-today").textContent = `${ts.done}/${ts.total}`;
         document.getElementById("hs-streak").textContent = `🔥 ${streak}`;
-
         document.getElementById("hs-rate").textContent = rate + "%";
-
         document.getElementById("sb-streak").textContent = streak;
       }
 
@@ -1190,33 +1189,49 @@
 
       // ─── Add Habit ───
       function buildEmojiPicker() {
-        document.getElementById("emoji-picker").innerHTML = EMOJIS.map(
-          (e) =>
-            `<button type="button" class="emoji-option${e === state.selectedEmoji ? " selected" : ""}" data-emoji="${e}" onclick="selectEmoji('${e}', this)">${e}</button>`,
-        ).join("");
+        const picker = document.getElementById("emoji-picker");
+        if (picker && picker.children.length === 0) {
+          picker.innerHTML = EMOJIS.map(
+            (e) =>
+              `<button type="button" class="emoji-option${e === state.selectedEmoji ? " selected" : ""}" data-emoji="${e}" onclick="selectEmoji('${e}', this)">${e}</button>`,
+          ).join("");
+        } else {
+          updateEmojiSelection();
+        }
+      }
+
+      function updateEmojiSelection() {
+        document.querySelectorAll(".emoji-option").forEach((el) => {
+          el.classList.toggle("selected", el.dataset.emoji === state.selectedEmoji);
+        });
       }
 
       function buildColorPicker() {
-        document.getElementById("color-picker").innerHTML = COLORS.map(
-          (c) =>
-            `<div class="color-option${c === state.selectedColor ? " selected" : ""}" style="background:${c};" data-color="${c}" onclick="selectColor('${c}', this)"></div>`,
-        ).join("");
+        const picker = document.getElementById("color-picker");
+        if (picker && picker.children.length === 0) {
+          picker.innerHTML = COLORS.map(
+            (c) =>
+              `<div class="color-option${c === state.selectedColor ? " selected" : ""}" style="background:${c};" data-color="${c}" onclick="selectColor('${c}', this)"></div>`,
+          ).join("");
+        } else {
+          updateColorSelection();
+        }
+      }
+
+      function updateColorSelection() {
+        document.querySelectorAll(".color-option").forEach((el) => {
+          el.classList.toggle("selected", el.dataset.color === state.selectedColor);
+        });
       }
 
       function selectEmoji(emoji, el) {
         state.selectedEmoji = emoji;
-        document
-          .querySelectorAll(".emoji-option")
-          .forEach((e) => e.classList.remove("selected"));
-        el.classList.add("selected");
+        updateEmojiSelection();
       }
 
       function selectColor(color, el) {
         state.selectedColor = color;
-        document
-          .querySelectorAll(".color-option")
-          .forEach((e) => e.classList.remove("selected"));
-        el.classList.add("selected");
+        updateColorSelection();
       }
 
       function attachAddHabit() {
@@ -1232,8 +1247,8 @@
             state.selectedEmoji = "⭐";
             state.selectedColor = "#6c63ff";
             state.selectedFreq = "daily";
-            buildEmojiPicker();
-            buildColorPicker();
+            updateEmojiSelection();
+            updateColorSelection();
             document.querySelectorAll(".freq-btn").forEach((b) => {
               b.classList.toggle("active", b.dataset.freq === "daily");
             });
@@ -1248,17 +1263,6 @@
               .forEach((b) => b.classList.remove("active"));
             btn.classList.add("active");
           });
-        });
-
-        document
-          .querySelector("#add-modal .modal-close")
-          .addEventListener("click", () => Modal.close("add-modal"));
-        document
-          .querySelector(".modal-close-btn")
-          .addEventListener("click", () => Modal.close("add-modal"));
-        document.getElementById("add-modal").addEventListener("click", (e) => {
-          if (e.target === document.getElementById("add-modal"))
-            Modal.close("add-modal");
         });
 
         document
