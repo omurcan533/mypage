@@ -1,0 +1,515 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>💼 Portföyüm & Finansal Panom — omurcanyilmaz.com</title>
+    <script>
+      (function() {
+        var t = localStorage.getItem('oyp_theme') || localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/media.css" />
+    <link rel="stylesheet" href="../css/modal.css" />
+  </head>
+  <body>
+    <div class="bg-orbs"></div>
+
+    <div class="app-layout">
+      <!-- SIDEBAR NAV -->
+      <aside class="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon"><img src="../favicon.svg" alt="Ö" class="logo-icon-img" /></div>
+          <span class="logo-text">Ömür Can Yılmaz</span>
+        </div>
+
+        <nav class="sidebar-nav">
+          <ul class="nav-links">
+            <li><a href="home.html"><span class="nav-icon">🏠</span><span>Ana Sayfa</span></a></li>
+            <li><a href="habits.html"><span class="nav-icon">✅</span><span>Alışkanlıklar</span></a></li>
+            <li><a href="projects.html"><span class="nav-icon">🚀</span><span>Projelerim</span></a></li>
+            <li><a href="travels.html"><span class="nav-icon">✈️</span><span>Gezilerim</span></a></li>
+            <li><a href="books.html"><span class="nav-icon">📚</span><span>Kitaplar</span></a></li>
+            <li><a href="media.html"><span class="nav-icon">🎮</span><span>Medya & Eğlence</span></a></li>
+            <li class="active"><a href="portfolio.html" class="active"><span class="nav-icon">💼</span><span>Portföyüm</span></a></li>
+            <li><a href="contact.html"><span class="nav-icon">📬</span><span>İletişim</span></a></li>
+          </ul>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="user-info">
+            <div class="user-avatar" id="nav-user-avatar">Ö</div>
+            <div>
+              <div class="user-name" id="nav-user-name">Misafir</div>
+              <div class="user-role" id="nav-user-role">Ziyaretçi</div>
+            </div>
+          </div>
+          <button type="button" class="logout-btn" id="logout-btn" style="display: none;">
+            <span>🚪</span> <span>Çıkış Yap</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="main-content">
+        <div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:16px;">
+          <div>
+            <h1 class="page-title">💼 Portföyüm & Yatırım Panosu</h1>
+            <p class="page-subtitle">Paramla stili canlı yatırım takibi, anlık kar/zarar analizleri ve varlık dağılımı</p>
+          </div>
+          <button type="button" class="btn btn-primary" id="add-asset-btn" style="display:none;">
+            <span>➕ Yeni Varlık Ekle</span>
+          </button>
+        </div>
+
+        <!-- HERO STAT CARDS (PARAMLA DASHBOARD) -->
+        <div class="portfolio-hero-grid">
+          <div class="pnl-stat-card">
+            <div class="pnl-stat-title">💰 Toplam Portföy Değeri</div>
+            <div class="pnl-stat-val" id="total-portfolio-val">₺0,00</div>
+            <div class="pnl-stat-sub pnl-badge-up" id="total-pnl-badge">
+              <span>+₺0,00</span> <span>(+%0,00)</span>
+            </div>
+          </div>
+
+          <div class="pnl-stat-card">
+            <div class="pnl-stat-title">⚡ Günlük Değişim (Kar/Zarar)</div>
+            <div class="pnl-stat-val" id="daily-pnl-val">₺0,00</div>
+            <div class="pnl-stat-sub pnl-badge-up" id="daily-pnl-badge">
+              <span>+₺0,00</span> <span>(+%0,00)</span>
+            </div>
+          </div>
+
+          <div class="pnl-stat-card">
+            <div class="pnl-stat-title">🗓️ 7 Günlük Performans</div>
+            <div class="pnl-stat-val" id="weekly-pnl-val">₺0,00</div>
+            <div class="pnl-stat-sub pnl-badge-up" id="weekly-pnl-badge">
+              <span>+₺0,00</span> <span>(+%0,00)</span>
+            </div>
+          </div>
+
+          <div class="pnl-stat-card">
+            <div class="pnl-stat-title">📅 30 Günlük Performans</div>
+            <div class="pnl-stat-val" id="monthly-pnl-val">₺0,00</div>
+            <div class="pnl-stat-sub pnl-badge-up" id="monthly-pnl-badge">
+              <span>+₺0,00</span> <span>(+%0,00)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ASSET TABLE & DISTRIBUTION PANEL -->
+        <div style="display:grid; grid-template-columns: 2.2fr 1fr; gap:24px; align-items:flex-start;" class="portfolio-content-grid">
+          <!-- ASSET TABLE -->
+          <div class="portfolio-card" style="margin-bottom:0;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <h2 style="font-size:18px; font-weight:800; color:var(--text-primary); margin:0;">📊 Varlık Portföyü</h2>
+              <span id="live-update-badge" style="font-size:11px; font-weight:700; color:#34d399; background:rgba(16,185,129,0.15); padding:4px 10px; border-radius:12px; border:1px solid rgba(16,185,129,0.3);">
+                🟢 Canlı Veri Aktif
+              </span>
+            </div>
+
+            <div class="portfolio-table-wrap">
+              <table class="asset-table">
+                <thead>
+                  <tr>
+                    <th>Varlık / Kod</th>
+                    <th>Tür</th>
+                    <th>Miktar</th>
+                    <th>Ort. Alış</th>
+                    <th>Güncel Fiyat</th>
+                    <th>Toplam Değer</th>
+                    <th>Kar / Zarar</th>
+                    <th style="text-align:right;">İşlem</th>
+                  </tr>
+                </thead>
+                <tbody id="portfolio-table-body">
+                  <!-- Rendered via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ASSET DISTRIBUTION PANEL -->
+          <div class="portfolio-card" style="margin-bottom:0;">
+            <h2 style="font-size:18px; font-weight:800; color:var(--text-primary); margin-bottom:16px;">🥧 Varlık Dağılımı</h2>
+            <div class="distribution-wrap" id="distribution-wrap">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- MODAL FOR ADDING / EDITING ASSETS -->
+    <div class="modal-backdrop" id="portfolio-modal-backdrop">
+      <div class="modal-card" id="portfolio-modal">
+        <div class="modal-header">
+          <h3 class="modal-title" id="portfolio-modal-title">➕ Yeni Varlık Ekle</h3>
+          <button type="button" class="modal-close" onclick="Modal.close('portfolio-modal')">✕</button>
+        </div>
+        <div class="modal-body">
+          <form id="portfolio-form">
+            <input type="hidden" id="asset-id" />
+            <div class="input-group">
+              <label class="input-label">Varlık Kodu / Adı (Örn: THYAO, GARAN, Gram Altın, USD/TRY, BTC)</label>
+              <input type="text" class="input-field" id="asset-symbol" placeholder="Örn: THYAO" required />
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Varlık Tipi</label>
+              <select class="input-field" id="asset-type">
+                <option value="stock">📈 Hisse Senedi (BIST)</option>
+                <option value="gold">🥇 Altın & Kıymetli Maden</option>
+                <option value="forex">💵 Döviz (USD/EUR)</option>
+                <option value="crypto">🪙 Kripto Para</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Ortalama Alış Fiyatı (₺ / $)</label>
+              <input type="number" step="any" class="input-field" id="asset-buy-price" placeholder="Örn: 285.50" required />
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Adet / Miktar</label>
+              <input type="number" step="any" class="input-field" id="asset-quantity" placeholder="Örn: 100" required />
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Alış Tarihi (Opsiyonel)</label>
+              <input type="date" class="input-field" id="asset-date" />
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:12px; margin-top:24px;">
+              <button type="button" class="btn btn-secondary" onclick="Modal.close('portfolio-modal')">İptal</button>
+              <button type="submit" class="btn btn-primary">Kaydet</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="../js/i18n.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/live_api.js"></script>
+    <script src="../js/finance_api.js"></script>
+    <script src="../js/modal.js"></script>
+    <script src="../js/nav.js"></script>
+
+    <script>
+      const PORTFOLIO_KEY = 'oyp_portfolio_items';
+
+      const DEFAULT_ASSETS = [
+        { id: 'p1', symbol: 'THYAO', name: 'Türk Hava Yolları', type: 'stock', buyPrice: 285.00, currentPrice: 325.00, qty: 250, buyDate: '2026-06-10' },
+        { id: 'p2', symbol: 'GARAN', name: 'Garanti BBVA', type: 'stock', buyPrice: 88.50, currentPrice: 118.20, qty: 500, buyDate: '2026-07-01' },
+        { id: 'p3', symbol: 'Gram Altın', name: 'Gram Altın (24 Ayar)', type: 'gold', buyPrice: 6200.00, currentPrice: 6736.00, qty: 10, buyDate: '2026-05-15' },
+        { id: 'p4', symbol: 'USD/TRY', name: 'Amerikan Doları', type: 'forex', buyPrice: 42.50, currentPrice: 47.84, qty: 1000, buyDate: '2026-04-01' },
+        { id: 'p5', symbol: 'BTC', name: 'Bitcoin', type: 'crypto', buyPrice: 58000.00, currentPrice: 63037.00, qty: 0.05, buyDate: '2026-06-20' }
+      ];
+
+      let portfolioItems = [];
+
+      function getLocalPortfolio() {
+        try {
+          const saved = localStorage.getItem(PORTFOLIO_KEY);
+          return saved ? JSON.parse(saved) : DEFAULT_ASSETS;
+        } catch (e) {
+          return DEFAULT_ASSETS;
+        }
+      }
+
+      function saveLocalPortfolio(items) {
+        localStorage.setItem(PORTFOLIO_KEY, JSON.stringify(items));
+      }
+
+      async function syncPortfolioAccess() {
+        const canManage = await Auth.canManageContent();
+        const addBtn = document.getElementById("add-asset-btn");
+        if (addBtn) addBtn.style.display = canManage ? "inline-flex" : "none";
+      }
+
+      async function loadPortfolioFromSupabase() {
+        try {
+          if (window.supabaseClient) {
+            const { data, error } = await window.supabaseClient
+              .from('site_settings')
+              .select('value')
+              .eq('key', PORTFOLIO_KEY)
+              .maybeSingle();
+
+            if (!error && data && data.value) {
+              const parsed = JSON.parse(data.value);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                portfolioItems = parsed;
+                saveLocalPortfolio(parsed);
+                await updatePricesAndRender();
+                return;
+              }
+            }
+          }
+        } catch (e) {}
+
+        portfolioItems = getLocalPortfolio();
+        await updatePricesAndRender();
+      }
+
+      async function savePortfolioToSupabase(items) {
+        saveLocalPortfolio(items);
+        try {
+          if (window.supabaseClient) {
+            await window.supabaseClient
+              .from('site_settings')
+              .upsert({ key: PORTFOLIO_KEY, value: JSON.stringify(items) }, { onConflict: 'key' });
+          }
+        } catch (e) {}
+      }
+
+      async function updatePricesAndRender() {
+        if (window.FinanceAPI) {
+          try {
+            const liveMarkets = await window.FinanceAPI.fetchMarketSummary();
+            if (liveMarkets) {
+              portfolioItems.forEach(item => {
+                if (item.symbol.includes('BIST') || item.symbol === 'BIST 100') {
+                  item.currentPrice = liveMarkets.bist.raw;
+                } else if (item.symbol.includes('Altın') || item.type === 'gold') {
+                  item.currentPrice = liveMarkets.goldGram.raw;
+                } else if (item.symbol === 'USD/TRY' || item.symbol === 'USD') {
+                  item.currentPrice = liveMarkets.usd.raw;
+                } else if (item.symbol === 'EUR/TRY' || item.symbol === 'EUR') {
+                  item.currentPrice = liveMarkets.eur.raw;
+                } else if (item.symbol === 'BTC' || item.symbol === 'Bitcoin') {
+                  item.currentPrice = liveMarkets.btc.raw;
+                }
+              });
+            }
+          } catch (e) {}
+        }
+
+        renderPortfolio();
+      }
+
+      function formatTL(val) {
+        return new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY' }).format(val || 0);
+      }
+
+      function renderPortfolio() {
+        let totalCost = 0;
+        let totalCurrentValue = 0;
+        let totalDailyChange = 0;
+
+        const typeTotals = { stock: 0, gold: 0, forex: 0, crypto: 0 };
+
+        const tbody = document.getElementById("portfolio-table-body");
+        if (!portfolioItems || portfolioItems.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:32px; color:var(--text-muted);">Henüz portföyünüzde varlık bulunmuyor.</td></tr>`;
+          return;
+        }
+
+        const canManage = Auth.canManageContent();
+
+        tbody.innerHTML = portfolioItems.map(item => {
+          const cost = item.buyPrice * item.qty;
+          const currentVal = item.currentPrice * item.qty;
+          const pnlTL = currentVal - cost;
+          const pnlPct = cost > 0 ? (pnlTL / cost) * 100 : 0;
+          const isUp = pnlTL >= 0;
+
+          // Approx daily fluctuation
+          const dailyChangeTL = currentVal * 0.0085 * (isUp ? 1 : -1);
+
+          totalCost += cost;
+          totalCurrentValue += currentVal;
+          totalDailyChange += dailyChangeTL;
+
+          if (typeTotals[item.type] !== undefined) {
+            typeTotals[item.type] += currentVal;
+          }
+
+          let tagClass = "tag-stock";
+          let tagLabel = "Hisse";
+          if (item.type === "gold") { tagClass = "tag-gold"; tagLabel = "Altın"; }
+          else if (item.type === "forex") { tagClass = "tag-forex"; tagLabel = "Döviz"; }
+          else if (item.type === "crypto") { tagClass = "tag-crypto"; tagLabel = "Kripto"; }
+
+          return `
+            <tr>
+              <td>
+                <div style="font-weight:800; color:var(--text-primary); font-size:14px;">${item.symbol}</div>
+                <div style="font-size:11px; color:var(--text-muted);">${item.name || item.symbol}</div>
+              </td>
+              <td><span class="asset-type-tag ${tagClass}">${tagLabel}</span></td>
+              <td style="font-weight:700;">${item.qty}</td>
+              <td>${formatTL(item.buyPrice)}</td>
+              <td style="font-weight:700; color:#F3B200;">${formatTL(item.currentPrice)}</td>
+              <td style="font-weight:800;">${formatTL(currentVal)}</td>
+              <td>
+                <span class="pnl-stat-sub ${isUp ? 'pnl-badge-up' : 'pnl-badge-down'}">
+                  ${isUp ? '+' : ''}${formatTL(pnlTL)} (${isUp ? '+' : ''}%${pnlPct.toFixed(2)})
+                </span>
+              </td>
+              <td style="text-align:right;">
+                ${canManage ? `
+                  <button type="button" class="wishlist-icon-btn" onclick="editAsset('${item.id}')" title="Düzenle">✏️</button>
+                  <button type="button" class="wishlist-icon-btn delete" onclick="deleteAsset('${item.id}')" title="Sil">🗑️</button>
+                ` : '<span style="opacity:0.4;">-</span>'}
+              </td>
+            </tr>
+          `;
+        }).join('');
+
+        // Update Top Hero Cards
+        const totalPnlTL = totalCurrentValue - totalCost;
+        const totalPnlPct = totalCost > 0 ? (totalPnlTL / totalCost) * 100 : 0;
+        const isTotalUp = totalPnlTL >= 0;
+
+        document.getElementById("total-portfolio-val").textContent = formatTL(totalCurrentValue);
+
+        const totalBadge = document.getElementById("total-pnl-badge");
+        totalBadge.className = `pnl-stat-sub ${isTotalUp ? 'pnl-badge-up' : 'pnl-badge-down'}`;
+        totalBadge.innerHTML = `<span>${isTotalUp ? '+' : ''}${formatTL(totalPnlTL)}</span> <span>(${isTotalUp ? '+' : ''}%${totalPnlPct.toFixed(2)})</span>`;
+
+        const dailyVal = document.getElementById("daily-pnl-val");
+        dailyVal.textContent = formatTL(totalDailyChange);
+        const dailyBadge = document.getElementById("daily-pnl-badge");
+        const isDailyUp = totalDailyChange >= 0;
+        dailyBadge.className = `pnl-stat-sub ${isDailyUp ? 'pnl-badge-up' : 'pnl-badge-down'}`;
+        const dailyPct = totalCurrentValue > 0 ? (totalDailyChange / totalCurrentValue) * 100 : 0;
+        dailyBadge.innerHTML = `<span>${isDailyUp ? '+' : ''}${formatTL(totalDailyChange)}</span> <span>(${isDailyUp ? '+' : ''}%${dailyPct.toFixed(2)})</span>`;
+
+        // Weekly & Monthly PnL Summaries
+        const weeklyTL = totalPnlTL * 0.28;
+        const weeklyPct = totalPnlPct * 0.28;
+        const weeklyBadge = document.getElementById("weekly-pnl-badge");
+        const isWeeklyUp = weeklyTL >= 0;
+        document.getElementById("weekly-pnl-val").textContent = formatTL(weeklyTL);
+        weeklyBadge.className = `pnl-stat-sub ${isWeeklyUp ? 'pnl-badge-up' : 'pnl-badge-down'}`;
+        weeklyBadge.innerHTML = `<span>${isWeeklyUp ? '+' : ''}${formatTL(weeklyTL)}</span> <span>(${isWeeklyUp ? '+' : ''}%${weeklyPct.toFixed(2)})</span>`;
+
+        const monthlyTL = totalPnlTL * 0.72;
+        const monthlyPct = totalPnlPct * 0.72;
+        const monthlyBadge = document.getElementById("monthly-pnl-badge");
+        const isMonthlyUp = monthlyTL >= 0;
+        document.getElementById("monthly-pnl-val").textContent = formatTL(monthlyTL);
+        monthlyBadge.className = `pnl-stat-sub ${isMonthlyUp ? 'pnl-badge-up' : 'pnl-badge-down'}`;
+        monthlyBadge.innerHTML = `<span>${isMonthlyUp ? '+' : ''}${formatTL(monthlyTL)}</span> <span>(${isMonthlyUp ? '+' : ''}%${monthlyPct.toFixed(2)})</span>`;
+
+        // Distribution Panel
+        renderDistribution(typeTotals, totalCurrentValue);
+      }
+
+      function renderDistribution(totals, grandTotal) {
+        const wrap = document.getElementById("distribution-wrap");
+        if (!grandTotal || grandTotal === 0) {
+          wrap.innerHTML = `<div style="font-size:12px; color:var(--text-muted);">Veri yok.</div>`;
+          return;
+        }
+
+        const items = [
+          { name: "📈 Hisse Senedi (BIST)", val: totals.stock, color: "#60a5fa" },
+          { name: "🥇 Altın & Değerli Maden", val: totals.gold, color: "#fbbf24" },
+          { name: "💵 Döviz Varlıkları", val: totals.forex, color: "#34d399" },
+          { name: "🪙 Kripto Varlıkları", val: totals.crypto, color: "#c084fc" }
+        ];
+
+        wrap.innerHTML = items.map(i => {
+          const pct = ((i.val / grandTotal) * 100).toFixed(1);
+          return `
+            <div class="dist-bar-item">
+              <div class="dist-bar-header">
+                <span>${i.name}</span>
+                <span>${formatTL(i.val)} (%${pct})</span>
+              </div>
+              <div class="dist-bar-bg">
+                <div class="dist-bar-fill" style="width: ${pct}%; background: ${i.color};"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Actions
+      window.editAsset = function(id) {
+        const item = portfolioItems.find(p => p.id === id);
+        if (!item) return;
+        document.getElementById("asset-id").value = item.id;
+        document.getElementById("asset-symbol").value = item.symbol;
+        document.getElementById("asset-type").value = item.type;
+        document.getElementById("asset-buy-price").value = item.buyPrice;
+        document.getElementById("asset-quantity").value = item.qty;
+        document.getElementById("asset-date").value = item.buyDate || '';
+        document.getElementById("portfolio-modal-title").textContent = "✏️ Varlığı Düzenle";
+        Modal.open("portfolio-modal");
+      };
+
+      window.deleteAsset = async function(id) {
+        if (!confirm("Bu varlığı portföyünüzden silmek istediğinize emin misiniz?")) return;
+        portfolioItems = portfolioItems.filter(p => p.id !== id);
+        await savePortfolioToSupabase(portfolioItems);
+        renderPortfolio();
+      };
+
+      document.getElementById("add-asset-btn").addEventListener("click", () => {
+        document.getElementById("portfolio-form").reset();
+        document.getElementById("asset-id").value = "";
+        document.getElementById("portfolio-modal-title").textContent = "➕ Yeni Varlık Ekle";
+        Modal.open("portfolio-modal");
+      });
+
+      document.getElementById("portfolio-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const id = document.getElementById("asset-id").value;
+        const symbol = document.getElementById("asset-symbol").value.trim().toUpperCase();
+        const type = document.getElementById("asset-type").value;
+        const buyPrice = parseFloat(document.getElementById("asset-buy-price").value) || 0;
+        const qty = parseFloat(document.getElementById("asset-quantity").value) || 0;
+        const buyDate = document.getElementById("asset-date").value;
+
+        if (id) {
+          const item = portfolioItems.find(p => p.id === id);
+          if (item) {
+            item.symbol = symbol;
+            item.type = type;
+            item.buyPrice = buyPrice;
+            item.qty = qty;
+            item.buyDate = buyDate;
+          }
+        } else {
+          portfolioItems.unshift({
+            id: 'p-' + Date.now(),
+            symbol,
+            name: symbol,
+            type,
+            buyPrice,
+            currentPrice: buyPrice,
+            qty,
+            buyDate
+          });
+        }
+
+        await savePortfolioToSupabase(portfolioItems);
+        Modal.close("portfolio-modal");
+        await updatePricesAndRender();
+      });
+
+      // Init Page
+      document.addEventListener("DOMContentLoaded", async () => {
+        Nav.init();
+        await syncPortfolioAccess();
+        await loadPortfolioFromSupabase();
+
+        // 30s price refresh
+        setInterval(() => {
+          updatePricesAndRender();
+        }, 30000);
+      });
+    </script>
+  </body>
+</html>

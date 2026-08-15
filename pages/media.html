@@ -50,6 +50,9 @@
             <a href="media.html" class="active"><span class="nav-icon">🎮</span> <span>Medya & Eğlence</span></a>
           </li>
           <li>
+            <a href="portfolio.html"><span class="nav-icon">💼</span> <span>Portföyüm</span></a>
+          </li>
+          <li>
             <a href="contact.html"><span class="nav-icon">📬</span> <span>İletişim</span></a>
           </li>
         </ul>
@@ -211,9 +214,7 @@
               <label class="input-label">Kategori</label>
               <select class="input-field" id="media-category">
                 <option value="movies_tv">🎬 Film / Dizi</option>
-                <option value="games">🎮 Oyun</option>
                 <option value="trivia">💡 Genel Kültür</option>
-                <option value="news">📰 Haber</option>
               </select>
             </div>
             <div class="input-group">
@@ -221,11 +222,7 @@
               <select class="input-field" id="media-sub-type">
                 <option value="movie">🎥 Film</option>
                 <option value="tv">📺 Dizi</option>
-                <option value="game">🎮 Oyun</option>
-                <option value="trivia">💡 Bilgi</option>
-                <option value="news_sports">⚽ Spor & Fenerbahçe</option>
-                <option value="news_tech">💻 Teknoloji & Bilim</option>
-                <option value="news_general">🌍 Gündem</option>
+                <option value="trivia">💡 Genel Kültür Notu</option>
               </select>
             </div>
             <div class="input-group">
@@ -560,14 +557,14 @@
                     <span>${m.date} · ${m.day}</span>
                   </div>
                   <div class="fb-match-body">
-                    <div class="fb-team-box">
-                      <span>${m.homeIcon}</span>
-                      <span style="${m.home === 'Fenerbahçe' ? 'color:#F3B200; font-weight:800;' : ''}">${m.home}</span>
+                    <div class="fb-team-box home-team">
+                      <span class="fb-team-icon">${Array.from(m.homeIcon || '').map(e => `<span class="emoji-dot">${e}</span>`).join('')}</span>
+                      <span class="fb-team-name" style="${m.home === 'Fenerbahçe' ? 'color:#F3B200; font-weight:800;' : ''}">${m.home}</span>
                     </div>
-                    <div style="font-size:12px; font-weight:800; color:${m.scoreText && m.scoreText !== 'vs' ? '#F3B200' : 'var(--text-muted)'}; white-space:nowrap; padding:2px 6px;">${m.scoreText || 'vs'}</div>
-                    <div class="fb-team-box">
-                      <span style="${m.away === 'Fenerbahçe' ? 'color:#F3B200; font-weight:800;' : ''}">${m.away}</span>
-                      <span>${m.awayIcon}</span>
+                    <div style="font-size:12px; font-weight:800; color:${m.scoreText && m.scoreText !== 'vs' ? '#F3B200' : 'var(--text-muted)'}; white-space:nowrap; padding:2px 6px; flex-shrink:0;">${m.scoreText || 'vs'}</div>
+                    <div class="fb-team-box away-team">
+                      <span class="fb-team-name" style="${m.away === 'Fenerbahçe' ? 'color:#F3B200; font-weight:800;' : ''}">${m.away}</span>
+                      <span class="fb-team-icon">${Array.from(m.awayIcon || '').map(e => `<span class="emoji-dot">${e}</span>`).join('')}</span>
                     </div>
                   </div>
                   <div class="fb-match-top" style="margin-top:4px;">
@@ -750,7 +747,57 @@
         Modal.open("media-modal");
       });
 
-      document.getElementById("media-form").addEventListener("submit", (e) => {
+      document.getElementById("media-category").addEventListener("change", (e) => {
+        const cat = e.target.value;
+        const subSelect = document.getElementById("media-sub-type");
+        if (cat === "movies_tv") {
+          subSelect.innerHTML = `
+            <option value="movie">🎥 Film</option>
+            <option value="tv">📺 Dizi</option>
+          `;
+        } else if (cat === "trivia") {
+          subSelect.innerHTML = `
+            <option value="trivia">💡 Genel Kültür Notu</option>
+          `;
+        }
+      });
+
+      async function saveMediaToSupabase(items) {
+        saveLocalMedia(items);
+        try {
+          if (window.supabaseClient) {
+            await window.supabaseClient
+              .from("site_settings")
+              .upsert({ key: "oyp_media_items", value: JSON.stringify(items) }, { onConflict: "key" });
+          }
+        } catch (err) {}
+      }
+
+      async function loadMediaFromSupabase() {
+        try {
+          if (window.supabaseClient) {
+            const { data, error } = await window.supabaseClient
+              .from("site_settings")
+              .select("value")
+              .eq("key", "oyp_media_items")
+              .maybeSingle();
+
+            if (!error && data && data.value) {
+              const parsed = JSON.parse(data.value);
+              if (Array.isArray(parsed) && parsed.length > 0) {
+                allMedia = parsed;
+                saveLocalMedia(parsed);
+                renderMedia();
+                return;
+              }
+            }
+          }
+        } catch (err) {}
+        allMedia = getLocalMedia();
+        renderMedia();
+      }
+
+      document.getElementById("media-form").addEventListener("submit", async (e) => {
         e.preventDefault();
         const title = document.getElementById("media-title").value.trim();
         const category = document.getElementById("media-category").value;
@@ -770,10 +817,12 @@
         };
 
         allMedia.unshift(newItem);
-        saveLocalMedia(allMedia);
+        await saveMediaToSupabase(allMedia);
         Modal.close("media-modal");
         renderMedia();
       });
+
+      loadMediaFromSupabase();
 
       const TAB_ORDER_KEY = "oyp_media_tab_order";
 

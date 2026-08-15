@@ -27,6 +27,11 @@ const Nav = {
         this.syncLiveScoreStateFromSupabase();
         this._updateLiveScoreBanner();
       });
+
+      // Auto-poll live score every 30 seconds
+      setInterval(() => {
+        this._updateLiveScoreBanner();
+      }, 30000);
     }
 
     try {
@@ -618,15 +623,13 @@ const Nav = {
         if (mainApp) mainApp.prepend(island);
       }
     }
-
-    this._updateLiveScoreBanner();
   },
 
   async _updateLiveScoreBanner() {
     let saved = localStorage.getItem('oyp_fb_live_active');
     if (saved === null) {
-      saved = 'false';
-      localStorage.setItem('oyp_fb_live_active', 'false');
+      saved = 'true';
+      localStorage.setItem('oyp_fb_live_active', 'true');
     }
     const isLiveActive = saved === 'true';
 
@@ -649,6 +652,9 @@ const Nav = {
         const realData = await window.LiveFootballAPI.fetchLiveMatch();
         if (realData) {
           localStorage.setItem('oyp_fb_live_match_data', JSON.stringify(realData));
+          if (realData.isLive) {
+            this._ensureLiveScoreBanner();
+          }
         }
       } catch (err) {}
     }
@@ -679,6 +685,7 @@ const Nav = {
           <li><a href="travels.html">✈️ Gezilerim</a></li>
           <li><a href="books.html">📚 Kitaplar</a></li>
           <li><a href="media.html">🎮 Medya & Eğlence</a></li>
+          <li><a href="portfolio.html">💼 Portföyüm</a></li>
           <li><a href="contact.html">📬 İletişim</a></li>
         </ul>
       </div>
