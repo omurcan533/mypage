@@ -1573,9 +1573,8 @@ html.light-theme .top-control-btn:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 14px;
-  white-space: nowrap;
 }
 
 .island-pop-team {
@@ -1584,7 +1583,19 @@ html.light-theme .top-control-btn:hover {
   gap: 6px;
   font-size: 14px;
   font-weight: 800;
+  min-width: 0;
+}
+
+.island-team-name {
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+.island-team-icon {
+  flex-shrink: 0;
+  font-size: 16px;
 }
 
 .island-pop-score {
@@ -2367,10 +2378,12 @@ html.light-theme .footer-bottom {
   background: rgba(239, 68, 68, 0.15);
 }
 
-/* ===== STICKY FOOTER — push to bottom on short pages ===== */
+/* ===== STICKY FOOTER - push to bottom on short pages ===== */
 .main-content > .site-footer {
   margin-top: auto !important;
-  padding-top: 48px;
+}
+.oyp-footer {
+  margin-top: 60px !important;
 }
 
 /* ===== PORTFOLIO & PARAMLA DASHBOARD STYLES ===== */
@@ -2567,6 +2580,12 @@ body.light-theme .asset-table th {
 }
 
 /* ===== PORTFOLIO RESPONSIVE ===== */
+.portfolio-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 @media (max-width: 900px) {
   .portfolio-content-grid {
     grid-template-columns: 1fr !important;
@@ -2592,5 +2611,21 @@ body.light-theme .asset-table th {
   .portfolio-hero-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* Global Date Input Calendar Icon Fix for Dark/Light Mode */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.9) brightness(1.2);
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s ease;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+html[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none;
 }
 

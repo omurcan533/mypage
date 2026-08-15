@@ -19,6 +19,7 @@ const Nav = {
     this._ensureLiveScoreBanner();
     this.syncLiveScoreStateFromSupabase();
     this._attachThemeToggle();
+    this._hideFamilyLinkIfNotAdmin();
 
     if (!this._listenersAttached) {
       this._listenersAttached = true;
@@ -26,6 +27,7 @@ const Nav = {
       window.addEventListener('auth:changed', () => {
         this.syncLiveScoreStateFromSupabase();
         this._updateLiveScoreBanner();
+        this._hideFamilyLinkIfNotAdmin();
       });
 
       // Auto-poll live score every 30 seconds
@@ -40,6 +42,18 @@ const Nav = {
     try {
       this.syncAccess();
     } catch (err) {}
+  },
+
+  async _hideFamilyLinkIfNotAdmin() {
+    let isAdmin = false;
+    if (window.Auth && typeof window.Auth.canManageContent === 'function') {
+      isAdmin = await window.Auth.canManageContent();
+    }
+    document.querySelectorAll('a[href*="family.html"]').forEach(link => {
+      const li = link.closest('li');
+      if (li) li.style.display = isAdmin ? '' : 'none';
+      else link.style.display = isAdmin ? '' : 'none';
+    });
   },
 
   _initTheme() {
@@ -440,7 +454,7 @@ const Nav = {
         dayStr: 'Çarşamba 22:00',
         comp: 'UEFA Şampiyonlar Ligi Play-Off',
         home: 'Fenerbahçe', homeIcon: '💛💙',
-        away: 'Lyon / Sparta Prag', awayIcon: '🔵🔴',
+        away: 'Lyon', awayIcon: '🔵🔴',
         venue: 'Ülker Stadyumu Kadıköy'
       },
       {
@@ -457,7 +471,7 @@ const Nav = {
         time: '22:00',
         dayStr: 'Çarşamba 22:00',
         comp: 'UEFA Şampiyonlar Ligi Play-Off Rövanş',
-        home: 'Lyon / Sparta Prag', homeIcon: '🔵🔴',
+        home: 'Lyon', homeIcon: '🔵🔴',
         away: 'Fenerbahçe', awayIcon: '💛💙',
         venue: 'Deplasman'
       },
@@ -553,13 +567,13 @@ const Nav = {
             </div>
             <div class="island-pop-scoreboard">
               <div class="island-pop-team">
-                <span style="white-space:nowrap;">${liveData.homeIcon || '💛💙'}</span>
-                <span style="color:#F3B200; white-space:nowrap;">${liveData.home || 'Fenerbahçe'}</span>
+                <span class="island-team-icon">${liveData.homeIcon || '💛💙'}</span>
+                <span class="island-team-name" style="color:#F3B200;">${liveData.home || 'Fenerbahçe'}</span>
               </div>
               <div class="island-pop-score">${liveData.scoreHome || 0} - ${liveData.scoreAway || 0}</div>
               <div class="island-pop-team">
-                <span style="white-space:nowrap;">${liveData.away || 'Rakip Takım'}</span>
-                <span style="white-space:nowrap;">${liveData.awayIcon || '⚽'}</span>
+                <span class="island-team-name">${liveData.away || 'Rakip Takım'}</span>
+                <span class="island-team-icon">${liveData.awayIcon || '⚽'}</span>
               </div>
             </div>
             <div class="island-pop-info">
@@ -697,7 +711,11 @@ const Nav = {
         </div>
       </div>
     `;
-
+    const spacer = document.createElement('div');
+    spacer.style.height = '60px';
+    spacer.style.flexShrink = '0';
+    mainContent.appendChild(spacer);
+    
     mainContent.appendChild(footer);
   },
 

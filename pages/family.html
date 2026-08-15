@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ailem — Ömür Can Yılmaz</title>
+    <script>
+      (function() {
+        var t = localStorage.getItem('oyp_theme') || localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/family.css" />
+  </head>
+  <body>
+    <div class="bg-orbs"></div>
+    <div class="app-layout">
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon"><img src="../favicon.svg" alt="Ö" class="logo-icon-img" /></div>
+          <div>
+            <div class="logo-text">Ömür Can</div>
+            <div class="logo-sub" data-i18n="nav_personal_space">
+              Kişisel Alan
+            </div>
+          </div>
+        </div>
+        <span class="nav-group-label" data-i18n="nav_navigation">Navigasyon</span>
+        <ul class="nav-links">
+          <li>
+            <a href="home.html"
+              ><span class="nav-icon">🏠</span>
+              <span data-i18n="nav_home">Ana Sayfa</span></a
+            >
+          </li>
+          <li>
+            <a href="habits.html"
+              ><span class="nav-icon">✅</span>
+              <span data-i18n="nav_habits">Alışkanlıklar</span></a
+            >
+          </li>
+          <li>
+            <a href="projects.html"
+              ><span class="nav-icon">🚀</span>
+              <span data-i18n="nav_projects">Projeler</span></a
+            >
+          </li>
+          <li>
+            <a href="travels.html"
+              ><span class="nav-icon">✈️</span>
+              <span data-i18n="nav_travels">Geziler</span></a
+            >
+          </li>
+          <li>
+            <a href="books.html"
+              ><span class="nav-icon">📚</span>
+              <span>Kitaplar</span></a
+            >
+          </li>
+          <li>
+            <a href="media.html"
+              ><span class="nav-icon">🎮</span>
+              <span>Medya & Eğlence</span></a
+            >
+          </li>
+          <li>
+            <a href="portfolio.html"
+              ><span class="nav-icon">💼</span>
+              <span>Portföyüm</span></a
+            >
+          </li>
+          <li>
+            <a href="family.html" class="active"
+              ><span class="nav-icon">👨‍👩‍👧‍👦</span>
+              <span data-i18n="nav_family">Ailem</span></a
+            >
+          </li>
+          <li>
+            <a href="contact.html"
+              ><span class="nav-icon">📬</span>
+              <span data-i18n="nav_contact">İletişim</span></a
+            >
+          </li>
+        </ul>
+        <div class="sidebar-bottom">
+          <div
+            style="
+              display: flex;
+              gap: 4px;
+              margin-bottom: 16px;
+              justify-content: center;
+            "
+          >
+            <button
+              id="lang-tr"
+              onclick="i18n.setLang('tr')"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+              "
+            >
+              TR
+            </button>
+            <button
+              id="lang-en"
+              onclick="i18n.setLang('en')"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+              "
+            >
+              EN
+            </button>
+            <button
+              id="theme-toggle"
+              style="
+                background: transparent;
+                border: 1px solid var(--glass-border);
+                color: var(--text-secondary);
+                border-radius: 4px;
+                padding: 4px 8px;
+                cursor: pointer;
+                flex: 1;
+              "
+            >
+              ☀️ Açık Tema
+            </button>
+          </div>
+          <div class="user-info">
+            <div class="user-avatar" id="nav-user-avatar">Ö</div>
+            <div>
+              <div class="user-name" id="nav-user-name">Ömür Can</div>
+              <div class="user-role" id="nav-user-role">Admin</div>
+            </div>
+          </div>
+          <button class="logout-btn" id="logout-btn">
+            <span>🚪</span> <span data-i18n="nav_logout">Çıkış Yap</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- Main -->
+      <main class="main-content">
+        <!-- Global Hero Header -->
+        <div class="welcome-hero" style="margin-bottom: 32px;">
+          <h1 class="welcome-title">👨‍👩‍👧‍👦 <span data-i18n="family_title">Ailem</span></h1>
+          <p class="welcome-subtitle" data-i18n="family_subtitle">Ailemize özel notlar, akşam yemekleri ve gezilerimiz.</p>
+        </div>
+
+        <!-- Aile Panosu (Geniş 50/50 Bölünmüş Tablo Alanı) -->
+        <div class="family-section" style="margin-bottom: 32px;">
+          <div class="family-section-header">
+            <h2 class="family-section-title">📌 Aile Panosu</h2>
+            <button class="btn btn-primary admin-only" onclick="openNewBoardModal()" style="display:none; padding: 6px 12px; font-size: 13px;">
+              ＋ Not / Görev Ekle
+            </button>
+          </div>
+          <div class="board-split-container" id="board-list">
+            <!-- JS Injected: Yapılacaklar (%50) | Bilgilendirmeler (%50) -->
+          </div>
+        </div>
+
+        <!-- Aile Gezilerimiz -->
+        <div class="travels-section" style="margin-bottom: 32px;">
+          <div class="family-section-header">
+            <h2 class="family-section-title">✈️ Aile Gezilerimiz</h2>
+            <button class="btn btn-primary admin-only" onclick="openNewTravelModal()" style="display:none;">
+              ＋ Gezi Ekle
+            </button>
+          </div>
+          <div id="travels-timeline">
+            <!-- JS Injected -->
+          </div>
+        </div>
+
+        <!-- Alt Grid: Akşam Menüsü + Doğum Günleri -->
+        <div class="family-top-grid">
+          <!-- Akşam Yemekleri -->
+          <div class="family-section">
+            <div class="family-section-header">
+              <h2 class="family-section-title">🍽️ Akşam Menüsü</h2>
+              <div style="display:flex; gap: 8px;">
+                <select id="dinner-year-filter" class="dinner-filter">
+                  <option value="all">Tüm Yıllar</option>
+                </select>
+                <button class="btn btn-primary admin-only" onclick="openNewDinnerModal()" style="display:none; padding: 6px 12px; font-size: 13px;">
+                  ＋ Ekle
+                </button>
+              </div>
+            </div>
+            <div class="dinner-list" id="dinner-list">
+              <!-- JS Injected -->
+            </div>
+          </div>
+
+          <!-- Doğum Günleri -->
+          <div class="family-section">
+            <div class="family-section-header">
+              <h2 class="family-section-title">🎂 Doğum Günleri</h2>
+              <button class="btn btn-primary admin-only" onclick="openModal('birthday-modal')" style="display:none; padding: 6px 12px; font-size: 13px;">
+                ＋ Ekle
+              </button>
+            </div>
+            <div class="dinner-list" id="birthdays-list">
+              <!-- JS Injected -->
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- ===== MODALS ===== -->
+    
+    <!-- Dinner Modal -->
+    <div class="modal-overlay" id="dinner-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">🍽️ Yemek Ekle</div>
+          <button class="modal-close">✕</button>
+        </div>
+        <form id="add-dinner-form">
+          <div class="form-group">
+            <label class="form-label">Tarih</label>
+            <input type="date" id="dinner-date" class="form-input" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Yemek (Menü)</label>
+            <input type="text" id="dinner-meal" class="form-input" placeholder="Örn: Fırında Makarna, Salata..." required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Kaydet</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Board Modal -->
+    <div class="modal-overlay" id="board-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">📌 Panoya Not Ekle</div>
+          <button class="modal-close">✕</button>
+        </div>
+        <form id="add-board-form">
+          <div class="form-group">
+            <label class="form-label">Not Tipi</label>
+            <select id="board-type" class="form-select">
+              <option value="todo">🟩 Yapılacak (Tikli)</option>
+              <option value="info">📌 Bilgilendirme</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">İçerik</label>
+            <textarea id="board-text" class="form-textarea" placeholder="Pano notu..." required></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Panoya As</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Travel Modal (Ekle / Düzenle) -->
+    <div class="modal-overlay" id="travel-modal">
+      <div class="modal" style="max-width: 540px;">
+        <div class="modal-header">
+          <div class="modal-title">✈️ Gezi Ekle</div>
+          <button class="modal-close">✕</button>
+        </div>
+        <form id="add-travel-form">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label class="form-label">Yıl</label>
+              <input type="number" id="travel-year" class="form-input" placeholder="Örn: 2026" required min="1900" max="2100">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ay</label>
+              <select id="travel-month" class="form-select">
+                <option value="">Ay Seçin (Opsiyonel)</option>
+                <option value="Ocak">Ocak</option>
+                <option value="Şubat">Şubat</option>
+                <option value="Mart">Mart</option>
+                <option value="Nisan">Nisan</option>
+                <option value="Mayıs">Mayıs</option>
+                <option value="Haziran">Haziran</option>
+                <option value="Temmuz">Temmuz</option>
+                <option value="Ağustos">Ağustos</option>
+                <option value="Eylül">Eylül</option>
+                <option value="Ekim">Ekim</option>
+                <option value="Kasım">Kasım</option>
+                <option value="Aralık">Aralık</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Gezilen Yer / Başlık</label>
+            <input type="text" id="travel-place" class="form-input" placeholder="Örn: Fethiye & Ölüdeniz Turu" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Konum / Şehir / Link</label>
+            <input type="text" id="travel-location" class="form-input" placeholder="Örn: Muğla / Türkiye veya Harita Linki">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kimlerle Gidildi?</label>
+            <input type="text" id="travel-companions" class="form-input" placeholder="Örn: Ailecek ve Akrabalar">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nerede Kaldık / Detaylar & Anılar</label>
+            <textarea id="travel-details" class="form-textarea" placeholder="Gezilen yerler, nerede kaldık, mekanlar ve notlar..." style="min-height: 100px;"></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Geziyi Kaydet</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Travel Detail Modal (Detaylı Gezi Görünümü) -->
+    <div class="modal-overlay" id="travel-detail-modal">
+      <div class="modal" style="max-width: 580px;">
+        <div class="modal-header">
+          <div class="modal-title" id="td-title">✈️ Gezi Detayı</div>
+          <button class="modal-close">✕</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+            <span class="dinner-date-badge" id="td-badge">🗓️ 2026</span>
+            <span id="td-location-badge" style="display:none; font-size: 13px; color: var(--accent); font-weight: 600;">📍 <span id="td-location-text"></span></span>
+          </div>
+
+          <div id="td-companions-box" style="padding: 10px 14px; background: rgba(255, 255, 255, 0.03); border-radius: var(--radius-md); border: 1px solid var(--glass-border); font-size: 14px;">
+            👥 <strong>Kimlerle:</strong> <span id="td-companions"></span>
+          </div>
+
+          <div>
+            <div style="font-size: 12px; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px;">Gezi Notları & Detaylar</div>
+            <div id="td-details" style="font-size: 15px; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap; background: rgba(0,0,0,0.15); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--glass-border); max-height: 250px; overflow-y: auto;">
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+            <div id="td-admin-actions" class="admin-only" style="display: none; gap: 8px;">
+              <button class="btn btn-secondary" id="td-edit-btn" style="padding: 6px 14px; font-size: 13px;">✏️ Düzenle</button>
+              <button class="btn" id="td-delete-btn" style="padding: 6px 14px; font-size: 13px; background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid rgba(239,68,68,0.3);">✕ Sil</button>
+            </div>
+            <button class="btn btn-secondary modal-close" style="padding: 6px 16px; font-size: 13px; margin-left: auto;">Kapat</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Birthday Modal -->
+    <div class="modal-overlay" id="birthday-modal">
+      <div class="modal">
+        <div class="modal-header">
+          <div class="modal-title">🎂 Doğum Günü Ekle</div>
+          <button class="modal-close">✕</button>
+        </div>
+        <form id="add-birthday-form">
+          <div class="form-group">
+            <label class="form-label">Ad Soyad / Kişi</label>
+            <input type="text" id="birthday-name" class="form-input" placeholder="Örn: Annem" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Doğum Tarihi</label>
+            <input type="date" id="birthday-date" class="form-input" required>
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Kaydet</button>
+        </form>
+      </div>
+    </div>
+
+    <script src="../js/i18n.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/nav.js"></script>
+    <script src="../js/family.js"></script>
+  </body>
+</html>

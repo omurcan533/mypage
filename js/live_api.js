@@ -99,6 +99,8 @@ const LiveFootballAPI = {
           const isLive = ["in", "in_progress", "halftime", "live"].includes(state) ||
                          ["STATUS_IN_PROGRESS", "STATUS_HALFTIME"].includes(statusName);
 
+          const isHalftime = state === "halftime" || statusName === "STATUS_HALFTIME";
+
           const homeComp = competitors.find(c => c.homeAway === "home") || competitors[0];
           const awayComp = competitors.find(c => c.homeAway === "away") || competitors[1];
 
@@ -148,11 +150,14 @@ const LiveFootballAPI = {
               }
             } catch (_) { /* summary endpoint optional */ }
           }
+          
+          let displayMinute = comp.status?.displayClock || (isLive ? "1'" : "0'");
+          if (isHalftime) displayMinute = "İY";
 
           const result = {
             isLive,
             statusDescription: statusType.shortDetail || statusType.description || (isLive ? "CANLI" : "Maç Yok"),
-            minute: comp.status?.displayClock || (isLive ? "1'" : "0'"),
+            minute: displayMinute,
             home: isFbHome ? "Fenerbahçe" : homeName,
             homeIcon: isFbHome ? "💛💙" : "🔴⚫",
             homeShort: isFbHome ? "FB" : homeName.substring(0, 3).toUpperCase(),
@@ -183,5 +188,4 @@ const LiveFootballAPI = {
     }
   }
 };
-
 window.LiveFootballAPI = LiveFootballAPI;
