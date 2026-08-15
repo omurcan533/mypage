@@ -410,19 +410,127 @@ const Nav = {
     }
   },
 
-  _ensureLiveScoreBanner() {
-    if (document.getElementById('fb-dynamic-island')) return;
+  _getUpcomingMatchInfo() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
+    const months = {
+      'Ocak': 0, 'Şubat': 1, 'Mart': 2, 'Nisan': 3, 'Mayıs': 4, 'Haziran': 5,
+      'Temmuz': 6, 'Ağustos': 7, 'Eylül': 8, 'Ekim': 9, 'Kasım': 10, 'Aralık': 11
+    };
+
+    const fixtures = [
+      {
+        dateStr: '15 Ağustos 2026',
+        time: '21:30',
+        dayStr: 'Cumartesi 21:30',
+        comp: 'Trendyol Süper Lig 1. Hafta',
+        home: 'Gençlerbirliği', homeIcon: '🔴⚫',
+        away: 'Fenerbahçe', awayIcon: '💛💙',
+        venue: 'Eryaman Stadyumu (Ankara)'
+      },
+      {
+        dateStr: '19 Ağustos 2026',
+        time: '22:00',
+        dayStr: 'Çarşamba 22:00',
+        comp: 'UEFA Şampiyonlar Ligi Play-Off',
+        home: 'Fenerbahçe', homeIcon: '💛💙',
+        away: 'Lyon / Sparta Prag', awayIcon: '🔵🔴',
+        venue: 'Ülker Stadyumu Kadıköy'
+      },
+      {
+        dateStr: '22 Ağustos 2026',
+        time: '21:30',
+        dayStr: 'Cumartesi 21:30',
+        comp: 'Trendyol Süper Lig 2. Hafta',
+        home: 'Fenerbahçe', homeIcon: '💛💙',
+        away: 'Tümosan Konyaspor', awayIcon: '🟢⚪',
+        venue: 'Ülker Stadyumu Kadıköy'
+      },
+      {
+        dateStr: '26 Ağustos 2026',
+        time: '22:00',
+        dayStr: 'Çarşamba 22:00',
+        comp: 'UEFA Şampiyonlar Ligi Play-Off Rövanş',
+        home: 'Lyon / Sparta Prag', homeIcon: '🔵🔴',
+        away: 'Fenerbahçe', awayIcon: '💛💙',
+        venue: 'Deplasman'
+      },
+      {
+        dateStr: '30 Ağustos 2026',
+        time: '21:30',
+        dayStr: 'Pazar 21:30',
+        comp: 'Trendyol Süper Lig 3. Hafta',
+        home: 'Samsunspor', homeIcon: '🔴⚪',
+        away: 'Fenerbahçe', awayIcon: '💛💙',
+        venue: 'Samsun Yeni 19 Mayıs Stadyumu'
+      },
+      {
+        dateStr: '13 Eylül 2026',
+        time: '20:00',
+        dayStr: 'Pazar 20:00',
+        comp: 'Trendyol Süper Lig 4. Hafta',
+        home: 'Fenerbahçe', homeIcon: '💛💙',
+        away: 'Trabzonspor', awayIcon: '🔴🔵',
+        venue: 'Ülker Stadyumu Kadıköy'
+      }
+    ];
+
+    for (const f of fixtures) {
+      const parts = f.dateStr.split(' ');
+      if (parts.length >= 3) {
+        const day = parseInt(parts[0], 10);
+        const month = months[parts[1]] !== undefined ? months[parts[1]] : 7;
+        const year = parseInt(parts[2], 10);
+        const fDate = new Date(year, month, day);
+        fDate.setHours(0, 0, 0, 0);
+
+        if (fDate.getTime() === today.getTime()) {
+          return {
+            isToday: true,
+            pillText: `🔥 Bugün Maç Var (${f.time})`,
+            headerText: `🔥 BUGÜN MAÇ VAR (${f.time})`,
+            descText: `Bu akşam saat ${f.time}'da ${f.home} - ${f.away} maçı var!`,
+            match: f
+          };
+        } else if (fDate > today) {
+          const diffDays = Math.round((fDate - today) / (1000 * 60 * 60 * 24));
+          return {
+            isToday: false,
+            pillText: `⏳ Sıradaki: ${parts[0]} ${parts[1]} (${diffDays} gün)`,
+            headerText: `⏳ SIRADAKİ MAÇ (${diffDays} GÜN)`,
+            descText: `Sıradaki resmi karşılaşma hazırlıkları sürüyor.`,
+            match: f
+          };
+        }
+      }
+    }
+
+    return {
+      isToday: false,
+      pillText: "Maç Yok",
+      headerText: "BİLGİ",
+      descText: "Yakın tarihli maç fikstürü bulunmuyor.",
+      match: null
+    };
+  },
+
+  _ensureLiveScoreBanner() {
     if (localStorage.getItem('oyp_fb_live_active') === null) {
       localStorage.setItem('oyp_fb_live_active', 'false');
     }
 
     const liveData = this._getLiveScoreData();
     const isMatchLive = liveData && liveData.isLive;
+    const matchInfo = this._getUpcomingMatchInfo();
 
-    const island = document.createElement('div');
-    island.id = 'fb-dynamic-island';
-    island.className = 'fb-dynamic-island';
+    let island = document.getElementById('fb-dynamic-island');
+    const isNew = !island;
+    if (isNew) {
+      island = document.createElement('div');
+      island.id = 'fb-dynamic-island';
+      island.className = 'fb-dynamic-island';
+    }
 
     if (isMatchLive) {
       island.innerHTML = `
@@ -467,44 +575,48 @@ const Nav = {
     } else {
       island.innerHTML = `
         <div class="island-pill-wrapper">
-          <div class="island-collapsed" style="border-color: rgba(243, 178, 0, 0.4);">
-            <span style="width:8px; height:8px; border-radius:50%; background:#10b981; display:inline-block;"></span>
-            <span style="font-size:12px; font-weight:700; color:#F3B200;">Fenerbahçe</span>
-            <span style="font-size:11px; opacity:0.85;">Maç Yok</span>
+          <div class="island-collapsed" style="border-color:${matchInfo.isToday ? 'rgba(243, 178, 0, 0.6)' : 'rgba(243, 178, 0, 0.4)'}; background:${matchInfo.isToday ? 'rgba(243, 178, 0, 0.12)' : 'transparent'};">
+            <span style="width:8px; height:8px; border-radius:50%; background:${matchInfo.isToday ? '#f59e0b' : '#10b981'}; display:inline-block; box-shadow:${matchInfo.isToday ? '0 0 8px #f59e0b' : 'none'};"></span>
+            <span style="font-size:12px; font-weight:800; color:#F3B200;">Fenerbahçe</span>
+            <span style="font-size:11px; font-weight:700; color:${matchInfo.isToday ? '#F3B200' : 'var(--text-secondary)'}; background:${matchInfo.isToday ? 'rgba(243, 178, 0, 0.25)' : 'transparent'}; padding:2px 8px; border-radius:8px; white-space:nowrap;">${matchInfo.pillText}</span>
           </div>
           <div class="island-expanded-popover">
             <div class="island-pop-header">
-              <div class="island-pop-badge" style="background:rgba(16, 185, 129, 0.15); border-color:rgba(16, 185, 129, 0.4); color:#34d399;">
-                <span style="width:7px; height:7px; border-radius:50%; background:#34d399; display:inline-block;"></span> BİLGİ
+              <div class="island-pop-badge" style="background:${matchInfo.isToday ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.15)'}; border-color:${matchInfo.isToday ? 'rgba(245, 158, 11, 0.5)' : 'rgba(16, 185, 129, 0.4)'}; color:${matchInfo.isToday ? '#f59e0b' : '#34d399'};">
+                <span style="width:7px; height:7px; border-radius:50%; background:${matchInfo.isToday ? '#f59e0b' : '#34d399'}; display:inline-block;"></span> ${matchInfo.headerText}
               </div>
-              <div class="island-pop-league">🏆 Trendyol Süper Lig 1. Hafta</div>
+              <div class="island-pop-league">🏆 ${matchInfo.match ? matchInfo.match.comp : 'Trendyol Süper Lig'}</div>
             </div>
             <div style="font-size:13px; font-weight:700; color:#F3B200; margin-bottom:10px;">
-              Şu anda devam eden canlı maç bulunmuyor.
+              ${matchInfo.descText}
             </div>
+            ${matchInfo.match ? `
             <div style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:12px; font-size:12px; line-height:1.6;">
-              <div style="font-size:11px; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Sıradaki Karşılaşma</div>
+              <div style="font-size:11px; color:rgba(255,255,255,0.6); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px;">Karşılaşma Bilgisi</div>
               <div style="font-size:14px; font-weight:800; color:white; display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-                <span>🔴⚫ Gençlerbirliği</span>
-                <span style="color:#F3B200; font-size:12px;">vs</span>
-                <span>Fenerbahçe 💛💙</span>
+                <span>${matchInfo.match.homeIcon} ${matchInfo.match.home}</span>
+                <span style="color:#F3B200; font-size:12px; font-weight:800;">vs</span>
+                <span>${matchInfo.match.away} ${matchInfo.match.awayIcon}</span>
               </div>
               <div style="color:rgba(255,255,255,0.85); display:flex; justify-content:space-between; font-size:11px;">
-                <span>📅 15 Ağustos 2026, Cumartesi 21:30</span>
-                <span>🏟️ Eryaman Stadyumu</span>
+                <span>📅 ${matchInfo.match.dateStr}, ${matchInfo.match.dayStr}</span>
+                <span>🏟️ ${matchInfo.match.venue}</span>
               </div>
             </div>
+            ` : ''}
           </div>
         </div>
       `;
     }
 
-    const hero = document.querySelector('.welcome-hero');
-    if (hero) {
-      hero.prepend(island);
-    } else {
-      const mainApp = document.querySelector('.app-layout') || document.body;
-      if (mainApp) mainApp.prepend(island);
+    if (isNew) {
+      const hero = document.querySelector('.welcome-hero');
+      if (hero) {
+        hero.prepend(island);
+      } else {
+        const mainApp = document.querySelector('.app-layout') || document.body;
+        if (mainApp) mainApp.prepend(island);
+      }
     }
 
     this._updateLiveScoreBanner();

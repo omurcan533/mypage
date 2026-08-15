@@ -177,7 +177,11 @@
           <button type="button" class="sub-view-btn active" data-news-sub="sports">⚽ Spor & Fenerbahçe</button>
           <button type="button" class="sub-view-btn" data-news-sub="tech">💻 Teknoloji & Bilim</button>
           <button type="button" class="sub-view-btn" data-news-sub="general">🌍 Gündem</button>
+          <button type="button" class="sub-view-btn" data-news-sub="markets">📈 Borsa & Piyasalar</button>
         </div>
+
+        <!-- Borsa & Finans Piyasası Container -->
+        <div id="finance-market-container" style="display: none;"></div>
 
         <!-- Fenerbahçe Fixture Widget Container -->
         <div id="fenerbahce-fixture-container" style="display: none;"></div>
@@ -253,6 +257,7 @@
     <script src="../js/auth.js"></script>
     <script src="../js/live_api.js"></script>
     <script src="../js/news_api.js"></script>
+    <script src="../js/finance_api.js"></script>
     <script src="../js/nav.js"></script>
     <script>
       Nav.init();
@@ -576,6 +581,62 @@
         `;
       }
 
+      async function renderFinanceMarketContainer(forceRefresh = false) {
+        const container = document.getElementById("finance-market-container");
+        if (!container) return;
+
+        if (activeMainTab !== "news" || (activeNewsSubView !== "all" && activeNewsSubView !== "markets")) {
+          container.style.display = "none";
+          return;
+        }
+
+        container.style.display = "block";
+
+        if (!container.innerHTML || forceRefresh) {
+          container.innerHTML = `
+            <div class="finance-market-card">
+              <div class="finance-market-header">
+                <div class="finance-header-title">
+                  <div class="finance-icon-badge">📈</div>
+                  <div>
+                    <div class="finance-title-text">Borsa İstanbul & Canlı Piyasalar</div>
+                    <div class="finance-sub-text">Anlık Döviz Kurları, Altın Fiyatları, Kripto & BIST 100 Endeksi</div>
+                  </div>
+                </div>
+                <button type="button" class="finance-refresh-btn" onclick="renderFinanceMarketContainer(true)" title="Verileri Güncelle">
+                  <span>🔄</span> <span>Canlı Yenile</span>
+                </button>
+              </div>
+              <div class="finance-grid" id="finance-items-grid">
+                <div class="skeleton-card" style="min-height:100px; grid-column:1/-1;">Canlı piyasa verileri yükleniyor...</div>
+              </div>
+            </div>
+          `;
+        }
+
+        const itemsGrid = document.getElementById("finance-items-grid");
+        if (!window.FinanceAPI) return;
+        const data = await window.FinanceAPI.fetchMarketData(forceRefresh);
+
+        if (!itemsGrid || !data) return;
+
+        itemsGrid.innerHTML = data.map(item => `
+          <div class="finance-item-card">
+            <div class="finance-item-top">
+              <span class="finance-item-name">${item.icon} ${item.name}</span>
+              <span class="market-pill ${item.isUp ? 'market-pill-up' : 'market-pill-down'}">
+                ${item.isUp ? '▲' : '▼'} ${item.changeFormatted}
+              </span>
+            </div>
+            <div class="finance-item-price">${item.priceFormatted}</div>
+            <div class="finance-item-sub">
+              <span>${item.code}</span>
+              <span>${item.source}</span>
+            </div>
+          </div>
+        `).join("");
+      }
+
       function renderMedia() {
         const grid = document.getElementById("media-cards-grid");
         const moviesSubBar = document.getElementById("movies-sub-view-bar");
@@ -593,6 +654,7 @@
         }
 
         renderFenerbahceFixture();
+        renderFinanceMarketContainer();
 
         let items = allMedia.filter((x) => x.category === activeMainTab);
 
@@ -605,6 +667,12 @@
           if (activeNewsSubView === "sports") items = items.filter((x) => x.subType === "news_sports");
           else if (activeNewsSubView === "tech") items = items.filter((x) => x.subType === "news_tech");
           else if (activeNewsSubView === "general") items = items.filter((x) => x.subType === "news_general" || x.subType === "news");
+          else if (activeNewsSubView === "markets") items = [];
+        }
+
+        if (activeMainTab === "news" && activeNewsSubView === "markets") {
+          grid.innerHTML = "";
+          return;
         }
 
         if (items.length === 0 && (activeMainTab !== "news" || (activeNewsSubView !== "sports" && activeNewsSubView !== "all"))) {
