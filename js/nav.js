@@ -40,8 +40,20 @@ const Nav = {
       Auth.populateNav();
     } catch (err) {}
     try {
+      this._initAIAssistant();
+    } catch (err) {}
+    try {
       this.syncAccess();
     } catch (err) {}
+  },
+
+  _initAIAssistant() {
+    if (!window.AIAssistant && !document.getElementById('ai-assistant-script')) {
+      const s = document.createElement('script');
+      s.id = 'ai-assistant-script';
+      s.src = '../js/ai_assistant.js';
+      document.body.appendChild(s);
+    }
   },
 
   async _hideFamilyLinkIfNotAdmin() {

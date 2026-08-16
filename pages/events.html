@@ -236,7 +236,7 @@
         </div>
 
         <!-- Page Header -->
-        <div class="travel-header-row">
+        <div class="travel-header-row" style="flex-wrap: wrap; gap: 12px;">
           <div class="page-header" style="margin-bottom: 0">
             <h1 class="page-title">
               📅 <span>Etkinlikler & Haftalık Planlarım</span>
@@ -245,9 +245,17 @@
               Partiler, kamplar, maçlar ve arkadaşlarla buluşma takvimi
             </p>
           </div>
-          <button class="btn btn-primary" id="add-event-btn">
-            ＋ Yeni Etkinlik Ekle
-          </button>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-ghost" id="open-telegram-btn" style="border: 1px solid #38bdf8; color: #38bdf8;">
+              📲 Telegram Asistanı
+            </button>
+            <button type="button" class="btn btn-ghost" id="open-birthdays-btn" style="border: 1px solid #fbbf24; color: #fbbf24;">
+              🎂 Doğum Günleri
+            </button>
+            <button class="btn btn-primary" id="add-event-btn">
+              ＋ Yeni Etkinlik Ekle
+            </button>
+          </div>
         </div>
 
         <!-- Stats Bar -->
@@ -402,13 +410,110 @@
       </div>
     </div>
 
+    <!-- ===== TELEGRAM ASİSTANI MODALI ===== -->
+    <div class="modal-overlay" id="telegram-modal">
+      <div class="modal" style="max-width: 480px">
+        <div class="modal-header">
+          <div class="modal-title" style="display:flex; align-items:center; gap:8px;">
+            <span>📲</span> <span>Telegram Asistanı & Bildirimler</span>
+          </div>
+          <button class="modal-close">✕</button>
+        </div>
+        <div style="font-size: 13px; color: var(--text-secondary); line-height: 1.5; margin-bottom: 16px;">
+          Gezilerim, haftalık etkinliklerin, yaklaşan doğum günleri ve <b>günün Fenerbahçe maçları</b> doğrudan Telegram hesabına bildirim olarak gelir.
+        </div>
+
+        <form id="telegram-settings-form">
+          <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:18px;">
+            <div class="input-group">
+              <label class="input-label">Telegram Bot Token</label>
+              <input type="password" class="input-field" id="tg-bot-token" placeholder="Örn: 7123456789:AAH..." />
+              <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">@BotFather üzerinden aldığınız bot tokeni</div>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Telegram Chat ID (veya Kullanıcı ID)</label>
+              <input type="text" class="input-field" id="tg-chat-id" placeholder="Örn: 123456789" />
+              <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">@userinfobot üzerinden öğrenebileceğiniz ID'niz</div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: space-between; flex-wrap: wrap;">
+            <button type="button" class="btn btn-ghost" id="tg-test-send-btn" style="border: 1px solid #38bdf8; color: #38bdf8;">
+              ⚡ Günlük Özeti Şimdi Gönder
+            </button>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-ghost modal-close">Kapat</button>
+              <button type="submit" class="btn btn-primary">💾 Ayarları Kaydet</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ===== DOĞUM GÜNLERİ MODALI ===== -->
+    <div class="modal-overlay" id="birthdays-modal">
+      <div class="modal" style="max-width: 560px; max-height: 85vh; display:flex; flex-direction:column;">
+        <div class="modal-header">
+          <div class="modal-title" style="display:flex; align-items:center; gap:8px;">
+            <span>🎂</span> <span>Sevdiklerimin Doğum Günleri</span>
+          </div>
+          <button class="modal-close">✕</button>
+        </div>
+
+        <div style="overflow-y:auto; padding-right:4px; margin-bottom:14px; flex:1;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-size:12px; font-weight:700; color:var(--text-muted);">Kayıtlı Doğum Günleri</span>
+            <button type="button" class="btn btn-ghost" id="btn-show-add-bday" style="font-size:11px; padding:4px 10px; border:1px dashed #fbbf24; color:#fbbf24;">
+              ＋ Kişi Ekle
+            </button>
+          </div>
+
+          <!-- Add Birthday Form (Collapsible) -->
+          <form id="bday-add-form" style="display:none; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:12px; padding:14px; margin-bottom:14px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
+              <div class="input-group">
+                <label class="input-label">İsim *</label>
+                <input type="text" class="input-field" id="bday-name-input" placeholder="Örn: Can" required />
+              </div>
+              <div class="input-group">
+                <label class="input-label">Doğum Tarihi *</label>
+                <input type="date" class="input-field" id="bday-date-input" required />
+              </div>
+              <div class="input-group">
+                <label class="input-label">Yakınlık</label>
+                <input type="text" class="input-field" id="bday-rel-input" placeholder="Arkadaş, Kuzen..." />
+              </div>
+              <div class="input-group">
+                <label class="input-label">Hediye Fikirleri</label>
+                <input type="text" class="input-field" id="bday-gift-input" placeholder="Termos, kitap..." />
+              </div>
+              <div class="input-group" style="grid-column: 1/-1;">
+                <label class="input-label">Not</label>
+                <input type="text" class="input-field" id="bday-notes-input" placeholder="Ekstra not..." />
+              </div>
+            </div>
+            <div style="display:flex; justify-content:flex-end; gap:8px;">
+              <button type="button" class="btn btn-ghost" id="btn-cancel-add-bday" style="font-size:11px; padding:4px 10px;">İptal</button>
+              <button type="submit" class="btn btn-primary" style="font-size:11px; padding:4px 12px;">✓ Kaydet</button>
+            </div>
+          </form>
+
+          <!-- Birthday List Container -->
+          <div id="bday-items-list" style="display:flex; flex-direction:column; gap:8px;"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- Scripts -->
     <script src="../js/i18n.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
-    <script src="../js/nav.js"></script>
     <script src="../js/events_api.js"></script>
+    <script src="../js/birthdays_api.js"></script>
+    <script src="../js/telegram_service.js"></script>
+    <script src="../js/ai_assistant.js"></script>
+    <script src="../js/nav.js"></script>
 
     <script>
       let activeTimeFilter = "all";
@@ -416,6 +521,8 @@
       let allEvents = [];
 
       Modal.setup("event-modal");
+      Modal.setup("telegram-modal");
+      Modal.setup("birthdays-modal");
 
       function escapeHtml(str) {
         if (!str) return "";
@@ -729,6 +836,140 @@
         await window.EventsAPI.deleteEvent(id);
         if (window.Toast) Toast.success("Etkinlik silindi.");
         await renderEvents();
+      };
+
+      // ===== TELEGRAM ASİSTANI İŞLEMLERİ =====
+      document.getElementById("open-telegram-btn").addEventListener("click", () => {
+        const s = window.TelegramService ? window.TelegramService.getSettings() : {};
+        document.getElementById("tg-bot-token").value = s.botToken || "";
+        document.getElementById("tg-chat-id").value = s.chatId || "";
+        Modal.open("telegram-modal");
+      });
+
+      document.getElementById("telegram-settings-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const botToken = document.getElementById("tg-bot-token").value.replace(/\s+/g, '');
+        const chatId = document.getElementById("tg-chat-id").value.replace(/\s+/g, '');
+        if (window.TelegramService) {
+          window.TelegramService.saveSettings({ botToken, chatId, isAutoActive: true });
+        }
+        if (window.Toast) Toast.success("Telegram ayarları kaydedildi!");
+        Modal.close("telegram-modal");
+      });
+
+      document.getElementById("tg-test-send-btn").addEventListener("click", async () => {
+        const btn = document.getElementById("tg-test-send-btn");
+        const origText = btn.innerHTML;
+        btn.innerHTML = "⏳ Gönderiliyor...";
+        btn.disabled = true;
+
+        if (window.TelegramService) {
+          const res = await window.TelegramService.sendDailyDigest();
+          if (res.success) {
+            if (window.Toast) Toast.success("Günlük özet Telegram'a başarıyla gönderildi!");
+          } else {
+            if (window.Toast) Toast.error(res.error || "Gönderilemedi. Lütfen Bot Token ve Chat ID'nizi kontrol edin.");
+          }
+        }
+
+        btn.innerHTML = origText;
+        btn.disabled = false;
+      });
+
+      // ===== DOĞUM GÜNLERİ İŞLEMLERİ =====
+      async function renderBirthdaysList() {
+        const container = document.getElementById("bday-items-list");
+        if (!container || !window.BirthdaysAPI) return;
+
+        const list = await window.BirthdaysAPI.fetchBirthdays();
+        if (list.length === 0) {
+          container.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-muted); font-size:12px;">Henüz kayıtlı doğum günü yok.</div>`;
+          return;
+        }
+
+        const sorted = list.map(b => {
+          const calc = window.BirthdaysAPI.calculateNextBirthday(b.birth_date);
+          return { ...b, ...calc };
+        }).sort((a, b) => a.daysLeft - b.daysLeft);
+
+        container.innerHTML = sorted.map(item => `
+          <div style="background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:12px; padding:12px 14px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="font-weight:800; font-size:14px; color:var(--text-primary);">${escapeHtml(item.name)}</span>
+                <span style="font-size:11px; padding:2px 8px; border-radius:10px; background:rgba(251,191,36,0.15); color:#fbbf24; font-weight:700;">${item.nextAge}. Yaş</span>
+                ${item.relationship ? `<span style="font-size:10px; color:var(--text-muted);">(${escapeHtml(item.relationship)})</span>` : ''}
+              </div>
+              <div style="font-size:12px; color:var(--text-secondary); margin-top:3px;">
+                📅 <b>${item.formattedDate}</b> · <span style="color:${item.daysLeft <= 7 ? '#f87171' : '#34d399'}; font-weight:700;">${item.daysLeft === 0 ? '🔥 BUGÜN!' : (item.daysLeft === 1 ? '⚡ Yarın' : item.daysLeft + ' gün kaldı')}</span>
+              </div>
+              ${item.gift_ideas ? `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🎁 <i>${escapeHtml(item.gift_ideas)}</i></div>` : ''}
+            </div>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <button type="button" class="event-icon-btn" onclick="sendBdayAlertDirect('${item.id}')" title="Telegram'a Bildir">📲</button>
+              <button type="button" class="event-icon-btn delete" onclick="deleteBdayDirect('${item.id}')" title="Sil">🗑️</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      document.getElementById("open-birthdays-btn").addEventListener("click", () => {
+        document.getElementById("bday-add-form").style.display = "none";
+        renderBirthdaysList();
+        Modal.open("birthdays-modal");
+      });
+
+      document.getElementById("btn-show-add-bday").addEventListener("click", () => {
+        const f = document.getElementById("bday-add-form");
+        f.style.display = f.style.display === "none" ? "block" : "none";
+      });
+
+      document.getElementById("btn-cancel-add-bday").addEventListener("click", () => {
+        document.getElementById("bday-add-form").style.display = "none";
+      });
+
+      document.getElementById("bday-add-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("bday-name-input").value;
+        const birth_date = document.getElementById("bday-date-input").value;
+        const relationship = document.getElementById("bday-rel-input").value;
+        const gift_ideas = document.getElementById("bday-gift-input").value;
+        const notes = document.getElementById("bday-notes-input").value;
+
+        if (window.BirthdaysAPI) {
+          await window.BirthdaysAPI.addBirthday({ name, birth_date, relationship, gift_ideas, notes });
+          if (window.Toast) Toast.success("Doğum günü eklendi!");
+        }
+
+        document.getElementById("bday-add-form").reset();
+        document.getElementById("bday-add-form").style.display = "none";
+        await renderBirthdaysList();
+      });
+
+      window.deleteBdayDirect = async function(id) {
+        if (!confirm("Bu doğum gününü silmek istediğinize emin misiniz?")) return;
+        if (window.BirthdaysAPI) {
+          await window.BirthdaysAPI.deleteBirthday(id);
+          if (window.Toast) Toast.success("Doğum günü silindi.");
+          await renderBirthdaysList();
+        }
+      };
+
+      window.sendBdayAlertDirect = async function(id) {
+        if (!window.BirthdaysAPI || !window.TelegramService) return;
+        const list = await window.BirthdaysAPI.fetchBirthdays();
+        const item = list.find(b => b.id === id);
+        if (!item) return;
+
+        const calc = window.BirthdaysAPI.calculateNextBirthday(item.birth_date);
+        const fullItem = { ...item, ...calc };
+
+        const res = await window.TelegramService.sendBirthdayAlert(fullItem);
+        if (res.success) {
+          if (window.Toast) Toast.success(`${item.name} için Telegram bildirimi gönderildi!`);
+        } else {
+          if (window.Toast) Toast.error(res.error || "Telegram bildirimi gönderilemedi.");
+        }
       };
 
       // Initial Call

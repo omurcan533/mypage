@@ -505,28 +505,73 @@
           matchDateObj.setHours(0, 0, 0, 0);
 
           const isPast = matchDateObj < today;
+          const isPlayed = Boolean(m.scoreText && m.scoreText !== 'vs') || isPast;
           let isNext = false;
           let calculatedStatus = m.statusText;
+          let badgeType = "upcoming";
+          let badgeText = "📅 Planlandı";
+          let outcomeClass = "";
 
-          if (isPast) {
-            if (!m.scoreText || m.scoreText === 'vs') {
-              calculatedStatus = "✅ Oynandı";
+          if (isPlayed) {
+            let fbScore = 0;
+            let oppScore = 0;
+            let hasValidScore = false;
+
+            if (m.scoreText && m.scoreText !== 'vs') {
+              const parts = m.scoreText.split('-').map(s => parseInt(s.trim(), 10));
+              if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+                hasValidScore = true;
+                if (m.home === 'Fenerbahçe') {
+                  fbScore = parts[0];
+                  oppScore = parts[1];
+                } else {
+                  fbScore = parts[1];
+                  oppScore = parts[0];
+                }
+              }
+            }
+
+            if (hasValidScore) {
+              if (fbScore > oppScore) {
+                badgeType = "win";
+                badgeText = "✓ MAÇ SONU · GALİBİYET";
+                outcomeClass = "match-win";
+              } else if (fbScore < oppScore) {
+                badgeType = "loss";
+                badgeText = "✕ MAÇ SONU · MAĞLUBİYET";
+                outcomeClass = "match-loss";
+              } else {
+                badgeType = "draw";
+                badgeText = "• MAÇ SONU · BERABERE";
+                outcomeClass = "match-draw";
+              }
+            } else {
+              badgeType = "win";
+              badgeText = "✓ MAÇ SONU";
+              outcomeClass = "match-win";
             }
           } else if (!nextFound) {
             nextFound = true;
             isNext = true;
+            badgeType = "next";
             const diffTime = matchDateObj - today;
             const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
             if (diffDays <= 0) {
+              badgeText = "🔥 BUGÜN MAÇ GÜNÜ!";
               calculatedStatus = "🔥 Bugün Maç Var!";
             } else {
+              badgeText = `⏳ SIRADAKİ MAÇ (${diffDays} GÜN)`;
               calculatedStatus = `⏳ Sıradaki Maç (${diffDays} Gün)`;
             }
           }
 
           return {
             ...m,
+            isPlayed,
             isNext,
+            badgeType,
+            badgeText,
+            outcomeClass,
             statusText: calculatedStatus
           };
         });
@@ -560,25 +605,28 @@
             </div>
             <div class="fb-match-grid">
               ${dynamicFixtures.map(m => `
-                <div class="fb-match-item ${m.isNext ? 'next-up' : ''}">
+                <div class="fb-match-item ${m.isPlayed ? 'is-played ' + m.outcomeClass : ''} ${m.isNext ? 'next-up' : ''}">
                   <div class="fb-match-top">
                     <span class="fb-comp-tag ${m.compType}">${m.comp}</span>
-                    <span>${m.date} · ${m.day}</span>
+                    <span class="fb-match-status-badge badge-${m.badgeType}">${m.badgeText}</span>
                   </div>
                   <div class="fb-match-body">
                     <div class="fb-team-box home-team">
                       <span class="fb-team-icon">${Array.from(m.homeIcon || '').map(e => `<span class="emoji-dot">${e}</span>`).join('')}</span>
                       <span class="fb-team-name" style="${m.home === 'Fenerbahçe' ? 'color:#F3B200; font-weight:800;' : ''}">${m.home}</span>
                     </div>
-                    <div style="font-size:12px; font-weight:800; color:${m.scoreText && m.scoreText !== 'vs' ? '#F3B200' : 'var(--text-muted)'}; white-space:nowrap; padding:2px 6px; flex-shrink:0;">${m.scoreText || 'vs'}</div>
+                    ${m.isPlayed 
+                      ? `<div class="fb-score-pill played"><span class="score-val">${m.scoreText}</span><span class="score-ms-label">MAÇ SONU</span></div>`
+                      : `<div class="fb-score-pill pending"><span class="score-time">${m.day.split(' ')[1] || '21:30'}</span><span class="score-vs-label">VS</span></div>`
+                    }
                     <div class="fb-team-box away-team">
                       <span class="fb-team-name" style="${m.away === 'Fenerbahçe' ? 'color:#F3B200; font-weight:800;' : ''}">${m.away}</span>
                       <span class="fb-team-icon">${Array.from(m.awayIcon || '').map(e => `<span class="emoji-dot">${e}</span>`).join('')}</span>
                     </div>
                   </div>
-                  <div class="fb-match-top" style="margin-top:4px;">
+                  <div class="fb-match-top" style="margin-top:2px;">
                     <span class="fb-match-venue">🏟️ ${m.venue}</span>
-                    <span style="font-weight:700; color:${m.isNext ? '#F3B200' : 'var(--text-secondary)'}">${m.statusText}</span>
+                    <span style="font-weight:700; color:${m.isNext ? '#F3B200' : 'var(--text-secondary)'}">${m.date} · ${m.day}</span>
                   </div>
                 </div>
               `).join('')}

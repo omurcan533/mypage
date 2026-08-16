@@ -1281,6 +1281,7 @@
               <div class="wishlist-progress-bar-bg">
                 <div class="wishlist-progress-bar-fill" style="width: ${percent}%;"></div>
               </div>
+              <div class="wishlist-city-card-scroll-body">
           `;
 
           const districts = cityGroups[city];
@@ -1326,7 +1327,10 @@
             `;
           });
 
-          containerHtml += `</div>`;
+          containerHtml += `
+              </div>
+            </div>
+          `;
         });
 
         citiesContainer.innerHTML = containerHtml;

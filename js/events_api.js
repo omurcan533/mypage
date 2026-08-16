@@ -110,13 +110,25 @@ window.EventsAPI = {
           .select('*')
           .order('event_date', { ascending: true });
 
-        if (!error && data && data.length > 0) {
-          this._memoryCache = data;
-          this.saveLocalEvents(data);
-          return data;
+        if (!error && data) {
+          if (data.length > 0) {
+            console.log('✅ Supabase personal_events yüklendi:', data.length, 'etkinlik');
+            this._memoryCache = data;
+            this.saveLocalEvents(data);
+            return data;
+          } else {
+            // Tablo var ama boşsa başlangıç verilerini Supabase'e otomatik yazalım
+            console.log('⚡ Supabase personal_events tablosu boş, başlangıç verileri aktarılıyor...');
+            const local = this.getLocalEvents();
+            await window.supabaseClient.from('personal_events').insert(local);
+            this._memoryCache = local;
+            return local;
+          }
+        } else if (error) {
+          console.warn('⚠️ Supabase personal_events sorgu hatası (Tablo oluşturulmamış olabilir):', error.message);
         }
       } catch (err) {
-        console.warn('Supabase fetch personal_events error, using local fallback:', err);
+        console.warn('⚠️ Supabase fetch personal_events error, using local fallback:', err);
       }
     }
 

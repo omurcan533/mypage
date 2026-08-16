@@ -318,6 +318,10 @@
           <button class="modal-close">✕</button>
         </div>
 
+        <div id="day-modal-match-box"></div>
+        <div id="day-modal-events-list"></div>
+        <div id="day-modal-birthdays-list"></div>
+
         <div id="day-modal-habits-list"></div>
 
         <div class="day-modal-note" style="margin-top: 16px">
@@ -416,7 +420,7 @@
           </button>
           <button
             type="button"
-            class="btn btn-primary"
+            class="btn"
             id="confirm-delete-btn"
             style="background: var(--rose)"
           >
@@ -431,6 +435,10 @@
     <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/live_api.js"></script>
+    <script src="../js/events_api.js"></script>
+    <script src="../js/birthdays_api.js"></script>
+    <script src="../js/telegram_service.js"></script>
+    <script src="../js/ai_assistant.js"></script>
     <script src="../js/nav.js"></script>
     <script src="../js/habits.js?v=20260811_1"></script>
     <script>
@@ -695,20 +703,23 @@
       // ─── MONTHLY VIEW ───
       async function renderMonthly() {
         const habits = await HabitStore.getAll();
-
         const todayKey = DateUtils.today();
-
         const firstDay = DateUtils.firstDayOfMonth(state.year, state.month);
-
         const daysInMonth = DateUtils.daysInMonth(state.year, state.month);
+
+        let allPersonalEvents = [];
+        let allBirthdaysList = [];
+        if (window.EventsAPI) {
+          try { allPersonalEvents = await window.EventsAPI.fetchEvents(); } catch(e){}
+        }
+        if (window.BirthdaysAPI) {
+          try { allBirthdaysList = await window.BirthdaysAPI.fetchBirthdays(); } catch(e){}
+        }
 
         // Ayın başlangıç ve bitiş tarihleri
         const startKey = `${state.year}-${String(state.month + 1).padStart(2, "0")}-01`;
-
         const endKey = `${state.year}-${String(state.month + 1).padStart(2, "0")}-${String(daysInMonth).padStart(2, "0")}`;
 
-        // O ayın bütün completion kayıtlarını
-        // TEK sorguda getir
         const monthlyCompletions = await HabitStore.getCompletionsForDateRange(
           startKey,
           endKey,
@@ -718,9 +729,7 @@
 
         // Önceki ay günleri
         const prevMonth = state.month - 1 < 0 ? 11 : state.month - 1;
-
         const prevYear = state.month - 1 < 0 ? state.year - 1 : state.year;
-
         const prevDays = DateUtils.daysInMonth(prevYear, prevMonth);
 
         for (let i = firstDay - 1; i >= 0; i--) {
@@ -740,7 +749,6 @@
 
         // Sonraki ay
         const remaining = 42 - cells.length;
-
         for (let d = 1; d <= remaining; d++) {
           cells.push({
             day: d,
@@ -749,133 +757,67 @@
         }
 
         const html = `
-
         <div class="calendar-container animate-scale">
-
             <div class="calendar-weekdays">
-
                 ${DateUtils.DAYS.map(
                   (d) => `<div class="cal-weekday">${d}</div>`,
                 ).join("")}
-
             </div>
 
-
-            <div
-                class="calendar-grid"
-                id="cal-grid"
-            >
-
+            <div class="calendar-grid" id="cal-grid">
                 ${cells
                   .map((cell) => {
                     if (!cell.current) {
-                      return `
-                                <div class="cal-day other-month">
-
-                                    <div class="day-num">
-                                        ${cell.day}
-                                    </div>
-
-                                </div>
-                            `;
+                      return `<div class="cal-day other-month"><div class="day-num">${cell.day}</div></div>`;
                     }
 
                     const key = `${state.year}-${String(state.month + 1).padStart(2, "0")}-${String(cell.day).padStart(2, "0")}`;
-
                     const isToday = key === todayKey;
-
                     const comps = monthlyCompletions[key] || {};
-
                     const dayHabits = habits.filter((h) => HabitStore.isDueOnDate(h, key));
-
-                    const done = dayHabits.filter(
-                      (h) => comps[HabitStore._id(h.id)],
-                    ).length;
-
+                    const done = dayHabits.filter((h) => comps[HabitStore._id(h.id)]).length;
                     const total = dayHabits.length;
-
-                    const pct =
-                      total > 0 ? Math.round((done / total) * 100) : 0;
                     const isFullyCompleted = total > 0 && done === total;
                     const hasNote = Boolean(HabitStore.getNote(key));
+
+                    const dayEvts = allPersonalEvents.filter(e => e.event_date === key);
+                    const dayBdays = allBirthdaysList.filter(b => b.birth_date && b.birth_date.slice(5) === key.slice(5));
+                    const isFBMatch = (key === '2026-08-18' || key === '2026-08-22' || key === '2026-08-26' || key === '2026-08-30');
 
                     const dotsHtml = dayHabits
                       .slice(0, 3)
                       .map((h) => {
                         const isDone = !!comps[HabitStore._id(h.id)];
-
                         return `
-                                        <div class="day-habit-dot">
-
-                                            <div
-                                                class="dot"
-                                                style="
-                                                    background: ${
-                                                      isDone
-                                                        ? h.color
-                                                        : "rgba(255,255,255,0.15)"
-                                                    };
-                                                    opacity: ${
-                                                      isDone ? 1 : 0.5
-                                                    };
-                                                "
-                                            ></div>
-
-                                            <span
-                                                class="dot-label"
-                                                style="
-                                                    color: ${
-                                                      isDone
-                                                        ? "var(--text-secondary)"
-                                                        : "var(--text-muted)"
-                                                    };
-                                                "
-                                            >
-                                                ${h.name}
-                                            </span>
-
-                                        </div>
-                                    `;
+                          <div class="day-habit-dot">
+                            <div class="dot" style="background: ${isDone ? h.color : "rgba(255,255,255,0.15)"}; opacity: ${isDone ? 1 : 0.5};"></div>
+                            <span class="dot-label" style="color: ${isDone ? "var(--text-secondary)" : "var(--text-muted)"};">${h.name}</span>
+                          </div>
+                        `;
                       })
                       .join("");
 
                     return `
-                            <div
-                                class="cal-day${isToday ? " today" : ""}${isFullyCompleted ? " completed-day" : ""}"
-                                data-date="${key}"
-                                onclick="openDayModal('${key}')"
-                            >
+                      <div class="cal-day${isToday ? " today" : ""}${isFullyCompleted ? " completed-day" : ""}" data-date="${key}" onclick="openDayModal('${key}')">
+                        <div class="day-num">${cell.day}</div>
+                        
+                        <div class="day-badges-container" style="position:absolute; top:4px; right:4px; display:flex; gap:2px; align-items:center;">
+                          ${isFullyCompleted ? `<span class="day-complete-badge" title="Tüm alışkanlıklar tamamlandı" style="font-size:10px;">✓</span>` : ""}
+                          ${isFBMatch ? `<span title="⚽ Fenerbahçe Maçı" style="font-size:11px;">⚽</span>` : ""}
+                          ${dayBdays.length > 0 ? `<span title="🎂 Doğum Günü: ${dayBdays.map(b=>b.name).join(', ')}" style="font-size:11px;">🎂</span>` : ""}
+                          ${dayEvts.length > 0 ? `<span title="📅 Etkinlik: ${dayEvts.map(e=>e.title).join(', ')}" style="font-size:11px;">📅</span>` : ""}
+                          ${hasNote ? `<span class="day-note-badge" title="Günlük not var" style="font-size:10px;">📝</span>` : ""}
+                        </div>
 
-                                <div class="day-num">
-                                    ${cell.day}
-                                </div>
-
-                                ${isFullyCompleted ? `<div class="day-complete-badge" title="Tüm alışkanlıklar tamamlandı">✓</div>` : ""}
-                                ${hasNote ? `<div class="day-note-badge" title="Günlük not var">📝</div>` : ""}
-
-                                <div class="day-habits">
-                                    ${dotsHtml}
-                                </div>
-
-                                ${
-                                  total > 0
-                                    ? `
-                                            <div class="day-completion${isFullyCompleted ? " all-done" : ""}">
-                                                ${done}/${total}
-                                            </div>
-                                        `
-                                    : ""
-                                }
-
-                            </div>
-                        `;
+                        <div class="day-habits">${dotsHtml}</div>
+                        ${total > 0 ? `<div class="day-completion${isFullyCompleted ? " all-done" : ""}">${done}/${total}</div>` : ""}
+                      </div>
+                    `;
                   })
                   .join("")}
-
             </div>
-
         </div>
-    `;
+        `;
 
         document.getElementById("calendar-area").innerHTML = html;
       }
@@ -1090,6 +1032,91 @@
               `;
             })
             .join("");
+        }
+
+        // 1. Maç Kontrolü
+        const matchBox = document.getElementById("day-modal-match-box");
+        const matchMap = {
+          '2026-08-18': { home: 'Fenerbahçe', away: 'Lyon', time: '22:00', comp: 'UEFA Şampiyonlar Ligi Play-Off', venue: 'Ülker Stadyumu Kadıköy' },
+          '2026-08-22': { home: 'Fenerbahçe', away: 'Konyaspor', time: '21:30', comp: 'Trendyol Süper Lig 2. Hafta', venue: 'Ülker Stadyumu Kadıköy' },
+          '2026-08-26': { home: 'Lyon', away: 'Fenerbahçe', time: '22:00', comp: 'UEFA Şampiyonlar Ligi Play-Off Rövanş', venue: 'Groupama Stadium (Deplasman)' },
+          '2026-08-30': { home: 'Samsunspor', away: 'Fenerbahçe', time: '21:30', comp: 'Trendyol Süper Lig 3. Hafta', venue: 'Samsun 19 Mayıs (Deplasman)' }
+        };
+        const m = matchMap[dateKey];
+        if (m && matchBox) {
+          matchBox.innerHTML = `
+            <div style="background:linear-gradient(135deg, rgba(243,178,0,0.18), rgba(0,45,114,0.35)); border:1.5px solid #F3B200; border-radius:12px; padding:10px 14px; margin-bottom:12px;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <span style="font-size:10px; font-weight:800; color:#F3B200; text-transform:uppercase;">⚽ FENERBAHÇE MAÇ GÜNÜ</span>
+                <span style="font-size:11px; font-weight:800; color:#ffffff;">⏰ ${m.time}</span>
+              </div>
+              <div style="font-size:14px; font-weight:800; color:#ffffff;">${m.home} vs ${m.away}</div>
+              <div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🏟️ ${m.venue} · ${m.comp}</div>
+            </div>
+          `;
+        } else if (matchBox) {
+          matchBox.innerHTML = '';
+        }
+
+        // 2. Etkinlikler
+        const evtsContainer = document.getElementById("day-modal-events-list");
+        if (window.EventsAPI && evtsContainer) {
+          window.EventsAPI.fetchEvents().then(allEvts => {
+            const dayEvts = allEvts.filter(e => e.event_date === dateKey);
+            if (dayEvts.length > 0) {
+              evtsContainer.innerHTML = `
+                <div style="margin-bottom:12px;">
+                  <div class="input-label" style="margin-bottom:6px; color:var(--accent-light); font-size:12px;">📅 Günün Planları & Etkinlikleri</div>
+                  ${dayEvts.map(e => `
+                    <div style="background:rgba(255,255,255,0.04); border:1px solid var(--glass-border); border-radius:10px; padding:10px 12px; margin-bottom:6px;">
+                      <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-weight:700; font-size:13px; color:var(--text-primary);">${e.title}</span>
+                        <span style="font-size:10px; padding:2px 6px; border-radius:10px; background:rgba(99,102,241,0.2); color:#a5b4fc;">${e.category}</span>
+                      </div>
+                      <div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">
+                        ${e.event_time ? `⏰ <b>${e.event_time}</b> ` : ''}
+                        ${e.location ? `· 📍 ${e.location} ` : ''}
+                        ${e.with_whom ? `· 👥 ${e.with_whom}` : ''}
+                      </div>
+                      ${e.notes ? `<div style="font-size:11px; color:var(--text-muted); margin-top:4px; font-style:italic;">💡 ${e.notes}</div>` : ''}
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            } else {
+              evtsContainer.innerHTML = '';
+            }
+          });
+        }
+
+        // 3. Doğum Günleri
+        const bdaysContainer = document.getElementById("day-modal-birthdays-list");
+        if (window.BirthdaysAPI && bdaysContainer) {
+          window.BirthdaysAPI.fetchBirthdays().then(allBdays => {
+            const dayBdays = allBdays.filter(b => b.birth_date && b.birth_date.slice(5) === dateKey.slice(5));
+            if (dayBdays.length > 0) {
+              bdaysContainer.innerHTML = `
+                <div style="margin-bottom:12px;">
+                  <div class="input-label" style="margin-bottom:6px; color:#fbbf24; font-size:12px;">🎂 Doğum Günleri</div>
+                  ${dayBdays.map(b => {
+                    const calc = window.BirthdaysAPI.calculateNextBirthday(b.birth_date);
+                    return `
+                      <div style="background:linear-gradient(135deg, rgba(251,191,36,0.12), rgba(255,255,255,0.02)); border:1px solid rgba(251,191,36,0.3); border-radius:10px; padding:10px 12px; margin-bottom:6px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                          <span style="font-weight:800; font-size:13px; color:#fbbf24;">🎉 ${b.name}</span>
+                          <span style="font-size:11px; font-weight:700; color:var(--text-secondary);">${calc.nextAge}. Yaş</span>
+                        </div>
+                        ${b.gift_ideas ? `<div style="font-size:11px; color:var(--text-secondary); margin-top:4px;">🎁 <b>Hediye:</b> ${b.gift_ideas}</div>` : ''}
+                        ${b.notes ? `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">💡 ${b.notes}</div>` : ''}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `;
+            } else {
+              bdaysContainer.innerHTML = '';
+            }
+          });
         }
 
         const noteInput = document.getElementById("day-modal-note-input");
