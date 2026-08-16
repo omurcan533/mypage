@@ -49,7 +49,7 @@ const Nav = {
     if (window.Auth && typeof window.Auth.canManageContent === 'function') {
       isAdmin = await window.Auth.canManageContent();
     }
-    document.querySelectorAll('a[href*="family.html"]').forEach(link => {
+    document.querySelectorAll('a[href*="family.html"], a[href*="events.html"]').forEach(link => {
       const li = link.closest('li');
       if (li) li.style.display = isAdmin ? '' : 'none';
       else link.style.display = isAdmin ? '' : 'none';
@@ -196,6 +196,7 @@ const Nav = {
     this._updateAdminAccessButton();
     this._updateLogoutButton();
     this._updateUserInfoCard();
+    this._updateTopHeaderControls();
   },
 
   _updateLogoutButton() {
@@ -232,7 +233,9 @@ const Nav = {
       // Strip extension for comparison
       const linkFile = (hrefAttr.split('/').filter(Boolean).pop() || '').toLowerCase().replace(/\.html$/, '');
 
-      if (linkFile && linkFile === currentFile) {
+      const isMatch = (linkFile && linkFile === currentFile) || (currentFile === 'events' && linkFile === 'travels');
+
+      if (isMatch) {
         link.classList.add('active');
         link.setAttribute('aria-current', 'page');
         if (link.parentElement?.tagName === 'LI') {
@@ -310,7 +313,10 @@ const Nav = {
   },
 
   _ensureTopHeaderControls() {
-    if (document.getElementById('top-controls-bar')) return;
+    if (document.getElementById('top-controls-bar')) {
+      this._updateTopHeaderControls();
+      return;
+    }
 
     const bar = document.createElement('div');
     bar.id = 'top-controls-bar';
@@ -324,11 +330,9 @@ const Nav = {
     const isLiveActive = localStorage.getItem('oyp_fb_live_active') === 'true';
 
     bar.innerHTML = `
-      ${isAdmin ? `
-        <button type="button" class="top-control-btn ${isLiveActive ? 'live-active' : ''}" id="top-live-toggle-btn" title="Fenerbahçe Canlı Skor Gösterimini Yönet (Sadece Admin)">
-          ⚽ <span class="btn-text-full">Skor: ${isLiveActive ? 'AÇIK' : 'KAPALI'}</span><span class="btn-text-short">${isLiveActive ? 'AÇIK' : 'KAPALI'}</span>
-        </button>
-      ` : ''}
+      <button type="button" class="top-control-btn ${isLiveActive ? 'live-active' : ''}" id="top-live-toggle-btn" title="Fenerbahçe Canlı Skor Gösterimini Yönet (Sadece Admin)" style="display: ${isAdmin ? 'inline-flex' : 'none'};">
+        ⚽ <span class="btn-text-full">Skor: ${isLiveActive ? 'AÇIK' : 'KAPALI'}</span><span class="btn-text-short">${isLiveActive ? 'AÇIK' : 'KAPALI'}</span>
+      </button>
       <button type="button" class="top-control-btn" id="top-theme-btn" title="Tema Değiştir">
         <span id="top-theme-icon">${isLight ? '🌙' : '☀️'}</span>
       </button>
@@ -338,7 +342,7 @@ const Nav = {
       <button type="button" class="top-control-btn ${isAdmin ? 'admin-active' : ''}" id="top-admin-btn" title="${isAdmin ? 'Admin Erişimi Açık' : 'Admin Girişi'}">
         ${isAdmin ? '✅ <span class="btn-text-full">Admin</span><span class="btn-text-short">Admin</span>' : '🔐 <span class="btn-text-full">Giriş</span><span class="btn-text-short">Giriş</span>'}
       </button>
-      ${isAdmin ? `<button type="button" class="top-control-btn top-logout-btn" id="top-logout-btn" title="Çıkış Yap">🚪 <span class="btn-text-full">Çıkış</span><span class="btn-text-short">Çıkış</span></button>` : ''}
+      <button type="button" class="top-control-btn top-logout-btn" id="top-logout-btn" title="Çıkış Yap" style="display: ${isAdmin ? 'inline-flex' : 'none'};">🚪 <span class="btn-text-full">Çıkış</span><span class="btn-text-short">Çıkış</span></button>
     `;
 
     document.body.appendChild(bar);
@@ -367,30 +371,57 @@ const Nav = {
       if (label) label.textContent = curLang === 'tr' ? 'EN' : 'TR';
     });
 
-    const adminBtn = document.getElementById('top-admin-btn');
-    if (adminBtn && !isAdmin) {
-      adminBtn.addEventListener('click', () => {
+    document.getElementById('top-admin-btn').addEventListener('click', () => {
+      const isNowAdmin = window.Auth && window.Auth.canAccessHabits();
+      if (!isNowAdmin) {
         this.openAdminAccessModal();
-      });
+      }
+    });
+
+    document.getElementById('top-logout-btn').addEventListener('click', () => {
+      this.confirmLogout();
+    });
+
+    document.getElementById('top-live-toggle-btn').addEventListener('click', () => {
+      const cur = localStorage.getItem('oyp_fb_live_active') === 'true';
+      const nextVal = cur ? 'false' : 'true';
+      localStorage.setItem('oyp_fb_live_active', nextVal);
+      window.dispatchEvent(new Event('fblive:changed'));
+      this._updateLiveScoreBanner();
+      this.saveLiveScoreStateToSupabase(nextVal);
+      this._updateTopHeaderControls();
+    });
+  },
+
+  _updateTopHeaderControls() {
+    const bar = document.getElementById('top-controls-bar');
+    if (!bar) return;
+
+    const isAdmin = window.Auth && window.Auth.canAccessHabits();
+
+    // 1. Admin Butonu Durumu
+    const adminBtn = document.getElementById('top-admin-btn');
+    if (adminBtn) {
+      adminBtn.className = `top-control-btn ${isAdmin ? 'admin-active' : ''}`;
+      adminBtn.title = isAdmin ? 'Admin Erişimi Açık' : 'Admin Girişi';
+      adminBtn.innerHTML = isAdmin 
+        ? '✅ <span class="btn-text-full">Admin</span><span class="btn-text-short">Admin</span>' 
+        : '🔐 <span class="btn-text-full">Giriş</span><span class="btn-text-short">Giriş</span>';
     }
 
+    // 2. Çıkış Butonu
     const logoutBtn = document.getElementById('top-logout-btn');
     if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
-        this.confirmLogout();
-      });
+      logoutBtn.style.display = isAdmin ? 'inline-flex' : 'none';
     }
 
+    // 3. Canlı Skor Yönetim Butonu
     const liveBtn = document.getElementById('top-live-toggle-btn');
     if (liveBtn) {
-      liveBtn.addEventListener('click', () => {
-        const cur = localStorage.getItem('oyp_fb_live_active') === 'true';
-        const nextVal = cur ? 'false' : 'true';
-        localStorage.setItem('oyp_fb_live_active', nextVal);
-        window.dispatchEvent(new Event('fblive:changed'));
-        this._updateLiveScoreBanner();
-        this.saveLiveScoreStateToSupabase(nextVal);
-      });
+      const isLiveActive = localStorage.getItem('oyp_fb_live_active') === 'true';
+      liveBtn.className = `top-control-btn ${isLiveActive ? 'live-active' : ''}`;
+      liveBtn.innerHTML = `⚽ <span class="btn-text-full">Skor: ${isLiveActive ? 'AÇIK' : 'KAPALI'}</span><span class="btn-text-short">${isLiveActive ? 'AÇIK' : 'KAPALI'}</span>`;
+      liveBtn.style.display = isAdmin ? 'inline-flex' : 'none';
     }
   },
 
@@ -449,9 +480,9 @@ const Nav = {
         venue: 'Eryaman Stadyumu (Ankara)'
       },
       {
-        dateStr: '19 Ağustos 2026',
+        dateStr: '18 Ağustos 2026',
         time: '22:00',
-        dayStr: 'Çarşamba 22:00',
+        dayStr: 'Salı 22:00',
         comp: 'UEFA Şampiyonlar Ligi Play-Off',
         home: 'Fenerbahçe', homeIcon: '💛💙',
         away: 'Lyon', awayIcon: '🔵🔴',
@@ -774,10 +805,18 @@ const Nav = {
         if (e.target === overlay) Modal.close('logout-confirm-modal');
       });
 
-      document.getElementById('logout-confirm-btn').addEventListener('click', () => {
-        Modal.close('logout-confirm-modal');
+      document.getElementById('logout-confirm-btn').addEventListener('click', async () => {
+        const btn = document.getElementById('logout-confirm-btn');
+        if (btn) {
+          btn.textContent = 'Çıkış yapılıyor...';
+          btn.disabled = true;
+        }
         if (window.Auth && typeof window.Auth.logout === 'function') {
-          window.Auth.logout();
+          await window.Auth.logout();
+        } else {
+          localStorage.removeItem('site-habits-access');
+          localStorage.removeItem('site-admin-access');
+          window.location.reload();
         }
       });
     }
@@ -799,12 +838,12 @@ const Nav = {
           </div>
           <form id="admin-access-form" class="admin-access-form">
             <div class="input-group" style="margin-bottom: 12px;">
-              <label class="input-label">E-posta</label>
-              <input type="email" class="input-field" id="admin-access-email" placeholder="ornek@email.com" required />
+              <label class="input-label">Kullanıcı Adı</label>
+              <input type="text" class="input-field" id="admin-access-email" placeholder="omur" required autocomplete="username" />
             </div>
             <div class="input-group" style="margin-bottom: 14px;">
               <label class="input-label">Şifre</label>
-              <input type="password" class="input-field" id="admin-access-password" placeholder="••••••••" required />
+              <input type="password" class="input-field" id="admin-access-password" placeholder="yılmaz" required autocomplete="current-password" />
             </div>
             <div class="admin-access-error" id="admin-access-error"></div>
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">

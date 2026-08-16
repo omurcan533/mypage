@@ -15,6 +15,14 @@ const LOGS_KEY = "oyp_habit_logs";
 const NOTES_KEY = "oyp_day_notes";
 const HABITS_KEY = "oyp_habits";
 
+const INITIAL_DEFAULT_HABITS = [
+  { id: "h_1", name: "Kitap Okuma (30 dk)", icon: "📚", color: "#6c63ff", frequency: "daily" },
+  { id: "h_2", name: "Kodlama / Proje Geliştirme", icon: "💻", color: "#38bdf8", frequency: "daily" },
+  { id: "h_3", name: "Spor & Egzersiz", icon: "🏃", color: "#10b981", frequency: "daily" },
+  { id: "h_4", name: "Su Tüketimi (2.5L)", icon: "💧", color: "#06b6d4", frequency: "daily" },
+  { id: "h_5", name: "İngilizce Pratiği", icon: "🌍", color: "#f59e0b", frequency: "daily" }
+];
+
 function dedupeHabits(habits) {
   if (!Array.isArray(habits)) return [];
   const map = new Map();
@@ -44,14 +52,25 @@ const HabitStore = {
 
   getHabits() {
     try {
-      return dedupeHabits(JSON.parse(localStorage.getItem(HABITS_KEY)) || []);
+      const raw = localStorage.getItem(HABITS_KEY);
+      if (!raw) {
+        localStorage.setItem(HABITS_KEY, JSON.stringify(INITIAL_DEFAULT_HABITS));
+        return INITIAL_DEFAULT_HABITS;
+      }
+      const parsed = dedupeHabits(JSON.parse(raw) || []);
+      if (parsed.length === 0) {
+        localStorage.setItem(HABITS_KEY, JSON.stringify(INITIAL_DEFAULT_HABITS));
+        return INITIAL_DEFAULT_HABITS;
+      }
+      return parsed;
     } catch {
-      return [];
+      return INITIAL_DEFAULT_HABITS;
     }
   },
 
   saveHabits(habits) {
-    localStorage.setItem(HABITS_KEY, JSON.stringify(dedupeHabits(habits)));
+    const list = dedupeHabits(habits);
+    localStorage.setItem(HABITS_KEY, JSON.stringify(list.length > 0 ? list : INITIAL_DEFAULT_HABITS));
   },
 
   async _migrateLogs(oldId, newId, userId) {
@@ -93,82 +112,62 @@ const HabitStore = {
       try {
         const user = window.Auth ? await window.Auth.getUser() : null;
 
-        if (user && window.supabaseClient) {
+        if (window.supabaseClient) {
+          // Log ve not sorguları
+          let logsQuery = window.supabaseClient.from("habit_logs").select("*");
+          let notesQuery = window.supabaseClient.from("day_notes").select("*");
+
+          if (user && user.id && user.id !== "admin_local") {
+            logsQuery = logsQuery.eq("user_id", user.id);
+            notesQuery = notesQuery.eq("user_id", user.id);
+          }
+
           const [habitsRes, logsRes, notesRes] = await Promise.all([
             window.supabaseClient
               .from("habits")
               .select("*")
               .order("created_at", { ascending: true }),
-            window.supabaseClient
-              .from("habit_logs")
-              .select("*")
-              .eq("user_id", user.id),
-            window.supabaseClient
-              .from("day_notes")
-              .select("*")
-              .eq("user_id", user.id)
+            logsQuery,
+            notesQuery
           ]);
 
-          if (!habitsRes.error && habitsRes.data) {
+          if (!habitsRes.error && habitsRes.data && habitsRes.data.length > 0) {
             let sbHabits = dedupeHabits(habitsRes.data);
-
-            const local = this.getHabits();
-            const unpushed = local.filter((h) => !isUuid(h.id));
-            if (unpushed.length > 0) {
-              for (const item of unpushed) {
-                const existing = sbHabits.find((sb) => sb.name && sb.name.trim().toLowerCase() === (item.name || "").trim().toLowerCase());
-                if (existing) {
-                  await this._migrateLogs(item.id, existing.id, user.id);
-                  continue;
-                }
-
-                const newId = generateUUID();
-                const dbPayload = {
-                  id: newId,
-                  name: item.name,
-                  icon: item.icon || "⭐",
-                  color: item.color || "#6c63ff",
-                  frequency: item.frequency || "daily",
-                  user_id: user.id
-                };
-                const { data: insData, error: insErr } = await window.supabaseClient
-                  .from("habits")
-                  .insert([dbPayload])
-                  .select();
-                if (!insErr && insData && insData.length > 0) {
-                  sbHabits.push(insData[0]);
-                  await this._migrateLogs(item.id, newId, user.id);
-                }
-              }
-              sbHabits = dedupeHabits(sbHabits);
-            }
             this.saveHabits(sbHabits);
+          } else {
+            const currentHabits = this.getHabits();
+            if (currentHabits && currentHabits.length > 0) {
+              this.saveHabits(currentHabits);
+            }
           }
 
-          if (!logsRes.error && logsRes.data) {
-            const freshLogsMap = {};
+          if (!logsRes.error && logsRes.data && logsRes.data.length > 0) {
+            const mergedLogs = this.getLogs();
             const validHabitIds = new Set(this.getHabits().map((h) => String(h.id)));
             logsRes.data.forEach((row) => {
               const d = row.completed_date;
               const hid = String(row.habit_id);
-              if (d && hid && validHabitIds.has(hid)) {
-                if (!freshLogsMap[d]) freshLogsMap[d] = {};
-                freshLogsMap[d][hid] = true;
+              if (d && hid) {
+                if (!mergedLogs[d]) mergedLogs[d] = {};
+                mergedLogs[d][hid] = true;
               }
             });
-            this.saveLogs(freshLogsMap);
+            this.saveLogs(mergedLogs);
           }
 
-          if (!notesRes.error && notesRes.data) {
-            const freshNotesMap = {};
+          if (!notesRes.error && notesRes.data && notesRes.data.length > 0) {
+            let notesMap = {};
+            try {
+              notesMap = JSON.parse(localStorage.getItem(NOTES_KEY)) || {};
+            } catch (e) {}
             notesRes.data.forEach((row) => {
               const d = row.note_date;
               const content = row.content;
               if (d && content && content.trim()) {
-                freshNotesMap[d] = content.trim();
+                notesMap[d] = content.trim();
               }
             });
-            localStorage.setItem(NOTES_KEY, JSON.stringify(freshNotesMap));
+            localStorage.setItem(NOTES_KEY, JSON.stringify(notesMap));
           }
 
           _hasSyncedInitialData = true;

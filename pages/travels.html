@@ -13,6 +13,7 @@
     <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
     <link rel="sitemap" type="application/xml" title="Sitemap" href="../sitemap.xml" />
     <link rel="stylesheet" href="../css/style.css" />
+    <link rel="stylesheet" href="../css/events.css" />
     <style>
       .travel-header-row {
         display: flex;
@@ -393,6 +394,16 @@
           </div>
         </div>
 
+        <!-- Geziler & Etkinlikler Tab Switcher -->
+        <div class="travel-events-tabs" id="travel-events-tab-bar">
+          <a href="travels.html" class="te-tab-btn active">
+            ✈️ Gezilerim
+          </a>
+          <a href="events.html" class="te-tab-btn" id="travel-tab-events">
+            📅 Etkinlikler & Planlarım <span class="te-tab-badge-lock">Admin</span>
+          </a>
+        </div>
+
         <div class="travel-header-row">
           <div class="page-header" style="margin-bottom: 0">
             <h1 class="page-title">
@@ -438,18 +449,18 @@
 
         <div id="travels-container"></div>
 
-        <!-- Admin-Only Travel Wishlist (Gezilecek Yerler & Şehir Haritam) -->
+        <!-- Travel Wishlist (Gezilecek Yerler & Şehir Haritam) — herkes görebilir, sadece admin düzenleyebilir -->
         <div id="admin-travel-wishlist-section" class="wishlist-section" style="display: none;">
           <div class="wishlist-header-row">
             <div>
               <h2 class="wishlist-title">
-                📍 Gezilecek Yerler & Şehir Haritam <span class="wishlist-badge-admin">Admin Özel</span>
+                📍 Gezilecek Yerler & Şehir Haritam
               </h2>
               <p class="page-subtitle" style="margin-top: 2px;">
                 Şehir şehir, semt semt gitmek istediğim mekanlar ve seyahat istek listem
               </p>
             </div>
-            <button type="button" class="btn btn-primary" id="add-wishlist-item-btn">
+            <button type="button" class="btn btn-primary" id="add-wishlist-item-btn" style="display: none;">
               ＋ Yeni Yer Ekle
             </button>
           </div>
@@ -1156,6 +1167,13 @@
           return;
         }
       });
+
+      async function syncTravelAccess() {
+        const isAdmin = window.Auth && (await window.Auth.canManageContent());
+        const addTravelBtn = document.getElementById("add-travel-btn");
+        if (addTravelBtn) addTravelBtn.style.display = isAdmin ? "inline-flex" : "none";
+      }
+
       (async () => {
         await syncTravelAccess();
         await renderTravels();
@@ -1190,13 +1208,13 @@
         const section = document.getElementById("admin-travel-wishlist-section");
         if (!section) return;
 
+        // Bölüm herkese görünür; admin kontrolü sadece düzenleme için
         const isAdmin = window.Auth && window.Auth.canAccessHabits();
-        if (!isAdmin) {
-          section.style.display = "none";
-          return;
-        }
-
         section.style.display = "block";
+
+        // "Yeni Yer Ekle" butonunu sadece admin görür
+        const addBtn = document.getElementById("add-wishlist-item-btn");
+        if (addBtn) addBtn.style.display = isAdmin ? "inline-flex" : "none";
 
         allWishlistItems = await window.TravelWishlistAPI.fetchItems();
 
@@ -1237,7 +1255,8 @@
         if (Object.keys(cityGroups).length === 0) {
           citiesContainer.innerHTML = `
             <div style="grid-column: 1 / -1; text-align: center; padding: 40px 20px; color: var(--text-muted);">
-              📍 Henüz gezilecek yer eklenmemiş. Yukarıdaki <b>"＋ Yeni Yer Ekle"</b> butonuna basarak ilk mekanınızı ekleyebilirsiniz.
+              📍 Henüz gezilecek yer eklenmemiş.
+              ${isAdmin ? '<b>"＋ Yeni Yer Ekle"</b> butonuna basarak ilk mekanınızı ekleyebilirsiniz.' : ''}
             </div>
           `;
           return;
@@ -1275,9 +1294,19 @@
             `;
 
             districts[district].forEach(item => {
+              // Checkbox: sadece admin tıklayabilir
+              const checkboxClick = isAdmin ? `onclick="toggleWishlistVisited('${item.id}')"` : '';
+              const checkboxCursor = isAdmin ? '' : 'style="cursor: default; opacity: 0.6;"';
+              // Düzenleme/silme butonları: sadece admin görür
+              const adminActions = isAdmin ? `
+                  <div class="wishlist-actions">
+                    <button type="button" class="wishlist-icon-btn" onclick="openEditWishlistModal('${item.id}')" title="Düzenle">✏️</button>
+                    <button type="button" class="wishlist-icon-btn delete" onclick="deleteWishlistItem('${item.id}')" title="Sil">🗑️</button>
+                  </div>` : '';
+
               containerHtml += `
                 <div class="wishlist-item-row ${item.is_visited ? 'visited' : ''}" data-id="${item.id}">
-                  <div class="wishlist-checkbox" title="${item.is_visited ? 'Gidildi olarak işaretlendi' : 'Gidilecek yer'}" onclick="toggleWishlistVisited('${item.id}')"></div>
+                  <div class="wishlist-checkbox" title="${item.is_visited ? 'Gidildi' : 'Gidilecek'}" ${checkboxClick} ${checkboxCursor}></div>
                   <div class="wishlist-item-content">
                     <div class="wishlist-place-title">${escapeHtml(item.place_name)}</div>
                     <div class="wishlist-meta-bar">
@@ -1286,10 +1315,7 @@
                     </div>
                     ${item.note ? `<div class="wishlist-note-text">💡 ${escapeHtml(item.note)}</div>` : ''}
                   </div>
-                  <div class="wishlist-actions">
-                    <button type="button" class="wishlist-icon-btn" onclick="openEditWishlistModal('${item.id}')" title="Düzenle">✏️</button>
-                    <button type="button" class="wishlist-icon-btn delete" onclick="deleteWishlistItem('${item.id}')" title="Sil">🗑️</button>
-                  </div>
+                  ${adminActions}
                 </div>
               `;
             });
