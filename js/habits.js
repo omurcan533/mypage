@@ -16,28 +16,88 @@ const NOTES_KEY = "oyp_day_notes";
 const HABITS_KEY = "oyp_habits";
 
 const INITIAL_DEFAULT_HABITS = [
-  { id: "h_1", name: "Kitap Okuma (30 dk)", icon: "📚", color: "#6c63ff", frequency: "daily" },
+  { id: "h_1", name: "Kitap Oku", icon: "📚", color: "#6c63ff", frequency: "daily" },
   { id: "h_2", name: "Kodlama / Proje Geliştirme", icon: "💻", color: "#38bdf8", frequency: "daily" },
   { id: "h_3", name: "Spor & Egzersiz", icon: "🏃", color: "#10b981", frequency: "daily" },
   { id: "h_4", name: "Su Tüketimi (2.5L)", icon: "💧", color: "#06b6d4", frequency: "daily" },
   { id: "h_5", name: "İngilizce Pratiği", icon: "🌍", color: "#f59e0b", frequency: "daily" }
 ];
 
+function getHabitDedupKey(name) {
+  if (!name) return "";
+  let clean = name.trim().toLowerCase();
+  // Turkish character normalization
+  clean = clean.replace(/İ/g, 'i').replace(/I/g, 'ı').replace(/ı/g, 'i').replace(/ğ/g, 'g').replace(/ü/g, 'u').replace(/ş/g, 's').replace(/ö/g, 'o').replace(/ç/g, 'c');
+  // Remove parenthetical details like (30 dk), (30dk), (2.5L), etc.
+  clean = clean.replace(/\s*\([^)]*\)/g, '').trim();
+  // Strip punctuation and extra spaces
+  clean = clean.replace(/[^\w\s]/g, '').replace(/\s+/g, ' ').trim();
+  
+  if (clean.includes("kitap") && (clean.includes("oku") || clean.includes("okuma") || clean.includes("book"))) {
+    return "kitap_oku";
+  }
+  if (clean.includes("kodlama") || clean.includes("yazilim") || clean.includes("proje")) {
+    return "kodlama";
+  }
+  if (clean.includes("spor") || clean.includes("egzersiz") || clean.includes("fit")) {
+    return "spor";
+  }
+  if (clean.includes("su") && (clean.includes("ic") || clean.includes("tuketim") || clean.includes("su"))) {
+    return "su_tuketimi";
+  }
+  if (clean.includes("ingilizce") || clean.includes("english")) {
+    return "ingilizce";
+  }
+  return clean;
+}
+
 function dedupeHabits(habits) {
   if (!Array.isArray(habits)) return [];
   const map = new Map();
+  const duplicateIdMap = {}; // duplicateId -> primaryId
+
   for (const h of habits) {
     if (!h || !h.name) continue;
-    const key = (h.name || "").trim().toLowerCase();
+    const key = getHabitDedupKey(h.name);
     const existing = map.get(key);
     if (!existing) {
       map.set(key, h);
     } else {
+      // If one is UUID and the other is local id (like h_1), prefer UUID
       if (!isUuid(existing.id) && isUuid(h.id)) {
+        duplicateIdMap[String(existing.id)] = String(h.id);
         map.set(key, h);
+      } else {
+        duplicateIdMap[String(h.id)] = String(existing.id);
       }
     }
   }
+
+  // Merge any logs from duplicate IDs to the primary ID
+  try {
+    const rawLogs = localStorage.getItem(LOGS_KEY);
+    if (rawLogs && Object.keys(duplicateIdMap).length > 0) {
+      const logs = JSON.parse(rawLogs);
+      let changed = false;
+      Object.keys(logs).forEach((dateKey) => {
+        const day = logs[dateKey];
+        if (day) {
+          Object.keys(day).forEach((hid) => {
+            if (duplicateIdMap[hid]) {
+              const targetId = duplicateIdMap[hid];
+              day[targetId] = true;
+              delete day[hid];
+              changed = true;
+            }
+          });
+        }
+      });
+      if (changed) {
+        localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
+      }
+    }
+  } catch (e) {}
+
   return Array.from(map.values());
 }
 
@@ -62,6 +122,8 @@ const HabitStore = {
         localStorage.setItem(HABITS_KEY, JSON.stringify(INITIAL_DEFAULT_HABITS));
         return INITIAL_DEFAULT_HABITS;
       }
+      // Re-save deduplicated version to keep storage clean
+      localStorage.setItem(HABITS_KEY, JSON.stringify(parsed));
       return parsed;
     } catch {
       return INITIAL_DEFAULT_HABITS;
@@ -132,7 +194,38 @@ const HabitStore = {
           ]);
 
           if (!habitsRes.error && habitsRes.data && habitsRes.data.length > 0) {
-            let sbHabits = dedupeHabits(habitsRes.data);
+            // Find duplicate IDs to clean up in Supabase
+            const seenKeys = new Map();
+            const duplicateIdsToDelete = [];
+
+            habitsRes.data.forEach((h) => {
+              const key = getHabitDedupKey(h.name);
+              const prev = seenKeys.get(key);
+              if (!prev) {
+                seenKeys.set(key, h);
+              } else {
+                if (!isUuid(prev.id) && isUuid(h.id)) {
+                  duplicateIdsToDelete.push(prev.id);
+                  seenKeys.set(key, h);
+                } else {
+                  duplicateIdsToDelete.push(h.id);
+                }
+              }
+            });
+
+            // Asynchronously delete duplicate rows in Supabase if logged in
+            if (user && user.id && duplicateIdsToDelete.length > 0) {
+              duplicateIdsToDelete.forEach(async (dId) => {
+                try {
+                  if (isUuid(dId)) {
+                    await window.supabaseClient.from("habit_logs").delete().eq("habit_id", dId);
+                    await window.supabaseClient.from("habits").delete().eq("id", dId);
+                  }
+                } catch (err) {}
+              });
+            }
+
+            let sbHabits = dedupeHabits(Array.from(seenKeys.values()));
             this.saveHabits(sbHabits);
           } else {
             const currentHabits = this.getHabits();

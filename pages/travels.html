@@ -10,7 +10,14 @@
         document.documentElement.setAttribute('data-theme', t);
       })();
     </script>
+    <link rel="icon" type="image/png" sizes="48x48" href="../favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="../favicon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="../favicon-512x512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
     <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="manifest" href="../site.webmanifest" />
     <link rel="sitemap" type="application/xml" title="Sitemap" href="../sitemap.xml" />
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/events.css" />
@@ -710,7 +717,8 @@
     <div class="modal-overlay" id="wishlist-detail-modal">
       <div class="modal" style="max-width: 520px; padding: 0; overflow: hidden; border-radius: 32px;">
         <div id="wishlist-detail-cover" style="position: relative; width: 100%; height: 260px; overflow: hidden; background: rgba(0,0,0,0.3); display: none;">
-          <img id="wishlist-detail-img" src="" alt="" style="width: 100%; height: 100%; object-fit: cover;" />
+          <img id="wishlist-detail-img" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; cursor: zoom-in;" onclick="openPhotoLightbox(event)" title="Tam ekran görüntülemek için tıklayın" />
+          <button type="button" class="wishlist-detail-fullscreen-btn" onclick="openPhotoLightbox(event)" title="Fotoğrafı Tam Ekran Gör">⛶ Tam Ekran</button>
           <button type="button" class="modal-close" style="position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border-radius: 50%; width: 32px; height: 32px; color: white; display: flex; align-items: center; justify-content: center; z-index: 10; border: none; cursor: pointer; font-size: 14px;">✕</button>
         </div>
         <div id="wishlist-detail-header-fallback" class="modal-header" style="display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--glass-border);">
@@ -762,6 +770,15 @@
             <button type="submit" class="btn btn-primary">✓ Kaydet</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- Fullscreen Photo Lightbox Modal -->
+    <div class="modal-overlay lightbox-overlay" id="photo-lightbox-modal">
+      <div style="position: relative; max-width: 94vw; max-height: 92vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <button type="button" class="modal-close lightbox-close-btn" style="position: absolute; top: -14px; right: -14px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.25); color: white; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; transition: transform 0.2s ease;">✕</button>
+        <img id="photo-lightbox-img" src="" alt="" style="max-width: 90vw; max-height: 82vh; object-fit: contain; border-radius: 20px; box-shadow: 0 25px 70px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.12);" />
+        <div id="photo-lightbox-caption" style="margin-top: 14px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.15); padding: 8px 22px; border-radius: var(--radius-pill); color: white; font-size: 14px; font-weight: 600; text-align: center; max-width: 90vw;"></div>
       </div>
     </div>
 
@@ -1103,7 +1120,7 @@
                   : "";
 
                 const bannerContent = t.image
-                  ? `<img class="travel-card-img" src="${escapeHtml(t.image)}" alt="${escapeHtml(t.city)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                  ? `<img class="travel-card-img" src="${escapeHtml(t.image)}" alt="${escapeHtml(t.city)}" loading="lazy" style="cursor: zoom-in;" onclick="openPhotoLightbox(event, '${escapeHtml(t.image)}', '${escapeHtml(t.city)}, ${escapeHtml(t.country)} (${t.flag || "🌍"})')" title="Tam ekran görmek için tıklayın" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                      <div class="travel-card-fallback" style="display:none; width:100%; height:100%; align-items:center; justify-content:center;">
                        <span class="flag">${t.flag || "🌍"}</span>
                      </div>
@@ -1353,6 +1370,7 @@
       Modal.setup("wishlist-modal");
       Modal.setup("wishlist-detail-modal");
       Modal.setup("city-cover-modal");
+      Modal.setup("photo-lightbox-modal");
 
       let activeWishlistCity = "all";
       let allWishlistItems = [];
@@ -1429,7 +1447,7 @@
 
           const bannerHtml = cityImage
             ? `<div class="wishlist-city-banner">
-                 <img class="wishlist-city-img" src="${escapeHtml(cityImage)}" alt="${escapeHtml(city)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                 <img class="wishlist-city-img" src="${escapeHtml(cityImage)}" alt="${escapeHtml(city)}" loading="lazy" style="cursor: zoom-in;" onclick="openPhotoLightbox(event, '${escapeHtml(cityImage)}', '📍 ${escapeHtml(city)}')" title="Tam ekran görmek için tıklayın" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                  <div class="wishlist-city-banner-fallback" style="display:none;">📍</div>
                  ${editCityCoverBtn}
                </div>`
@@ -1567,12 +1585,16 @@
       });
 
       // Open Wishlist Item Detail Modal (Mekan Detay Penceresi - Büyük Fotoğraf)
+      let currentWishlistDetailItem = null;
+
       window.openWishlistDetailModal = function(id, e) {
         if (e && (e.target.closest('.wishlist-checkbox') || e.target.closest('.wishlist-actions') || e.target.closest('a'))) {
           return;
         }
         const item = allWishlistItems.find(i => i.id === id);
         if (!item) return;
+
+        currentWishlistDetailItem = item;
 
         const coverEl = document.getElementById("wishlist-detail-cover");
         const coverImg = document.getElementById("wishlist-detail-img");
@@ -1619,6 +1641,31 @@
         }
 
         Modal.open("wishlist-detail-modal");
+      };
+
+      // Fullscreen Photo Lightbox Modal Handler
+      window.openPhotoLightbox = function(e, customSrc, customCaption) {
+        if (e) e.stopPropagation();
+        const src = customSrc || (currentWishlistDetailItem && currentWishlistDetailItem.image) || (document.getElementById("wishlist-detail-img") ? document.getElementById("wishlist-detail-img").src : "");
+        if (!src) return;
+
+        const caption = customCaption !== undefined
+          ? customCaption
+          : (currentWishlistDetailItem ? `${currentWishlistDetailItem.place_name} • ${currentWishlistDetailItem.city} / ${currentWishlistDetailItem.district}` : "");
+
+        const imgEl = document.getElementById("photo-lightbox-img");
+        imgEl.src = src;
+        imgEl.alt = caption;
+
+        const capEl = document.getElementById("photo-lightbox-caption");
+        if (caption) {
+          capEl.textContent = caption;
+          capEl.style.display = "block";
+        } else {
+          capEl.style.display = "none";
+        }
+
+        Modal.open("photo-lightbox-modal");
       };
 
       // Toggle Visited Checkbox

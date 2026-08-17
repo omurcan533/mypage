@@ -2495,6 +2495,46 @@ html.light-theme .footer-bottom {
   transform: scale(1.03);
 }
 
+.wishlist-detail-fullscreen-btn {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: white;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 10;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: var(--transition);
+  opacity: 0.9;
+}
+.wishlist-detail-fullscreen-btn:hover {
+  opacity: 1;
+  background: rgba(108, 99, 255, 0.9);
+  border-color: var(--accent);
+  transform: scale(1.05);
+}
+
+.lightbox-overlay {
+  z-index: 3000 !important;
+  background: rgba(0, 0, 0, 0.92) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
+.lightbox-close-btn:hover {
+  background: rgba(239, 68, 68, 0.85) !important;
+  border-color: transparent !important;
+  transform: scale(1.1);
+}
+
 .wishlist-city-content-wrap {
   padding: 16px 20px 20px;
   display: flex;
