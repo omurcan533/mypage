@@ -163,22 +163,29 @@
         </div>
 
         <!-- Main Section Header -->
+        <!-- Main Section Header -->
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
           <div>
             <h2 class="page-title" style="font-size: 24px; margin-bottom: 4px;">🎮 Eğlence & Kültür Panosu</h2>
             <p class="page-subtitle">Sekmeler arasında geçiş yaparak farklı kategorileri keşfedin</p>
           </div>
-          <button type="button" class="btn btn-primary" id="add-media-btn" style="display: none;">
-            ＋ İçerik Ekle
-          </button>
+          <div style="display: flex; gap: 10px; align-items: center;">
+            <button type="button" class="btn btn-primary" id="add-youtube-btn" style="display: none; background: linear-gradient(135deg, #ef4444, #dc2626); border: none;">
+              ＋ YouTube Videosu Ekle
+            </button>
+            <button type="button" class="btn btn-primary" id="add-media-btn" style="display: none;">
+              ＋ İçerik Ekle
+            </button>
+          </div>
         </div>
 
         <!-- Main Category Tabs (Draggable & Reorderable) -->
         <div class="media-tab-bar" id="main-media-tabs">
+          <button type="button" class="media-tab-btn active" data-tab="youtube" draggable="true">📺 YouTube & Videolar</button>
           <button type="button" class="media-tab-btn" data-tab="movies_tv" draggable="true">🎬 Filmler & Diziler</button>
           <button type="button" class="media-tab-btn" data-tab="games" draggable="true">🎮 Oyunlar</button>
           <button type="button" class="media-tab-btn" data-tab="trivia" draggable="true">💡 Genel Kültür</button>
-          <button type="button" class="media-tab-btn active" data-tab="news" draggable="true">📰 Haberler</button>
+          <button type="button" class="media-tab-btn" data-tab="news" draggable="true">📰 Haberler</button>
         </div>
 
         <!-- Sub View Switcher (for Movies & TV Shows) -->
@@ -190,6 +197,16 @@
           <button type="button" class="sub-view-btn" data-sub="completed">✅ Tamamlananlar</button>
         </div>
 
+        <!-- Sub View Switcher (for YouTube) -->
+        <div class="sub-view-bar" id="youtube-sub-view-bar" style="display: none;">
+          <button type="button" class="sub-view-btn active" data-yt-sub="all">📺 Tüm Videolar</button>
+          <button type="button" class="sub-view-btn" data-yt-sub="tech">💻 Yazılım & Yapay Zeka</button>
+          <button type="button" class="sub-view-btn" data-yt-sub="music">🎵 Müzik & Lofi</button>
+          <button type="button" class="sub-view-btn" data-yt-sub="podcast">🎙️ Podcast & Sohbet</button>
+          <button type="button" class="sub-view-btn" data-yt-sub="science">🌌 Bilim & Belgesel</button>
+          <button type="button" class="sub-view-btn" data-yt-sub="sports">⚽ Spor & FB</button>
+        </div>
+
         <!-- Sub View Switcher (for News) -->
         <div class="sub-view-bar" id="news-sub-view-bar" style="display: flex;">
           <button type="button" class="sub-view-btn" data-news-sub="all">📰 Tüm Haberler</button>
@@ -198,6 +215,9 @@
           <button type="button" class="sub-view-btn" data-news-sub="general">🌍 Gündem</button>
           <button type="button" class="sub-view-btn" data-news-sub="markets">📈 Borsa & Piyasalar</button>
         </div>
+
+        <!-- YouTube Cinema Player Container -->
+        <div id="youtube-player-container" style="display: none;"></div>
 
         <!-- Borsa & Finans Piyasası Container -->
         <div id="finance-market-container" style="display: none;"></div>
@@ -265,6 +285,51 @@
       </div>
     </div>
 
+    <!-- YouTube Video Add Modal -->
+    <div class="modal-overlay" id="youtube-modal">
+      <div class="modal" style="max-width: 520px; border-radius: 32px;">
+        <div class="modal-header">
+          <div class="modal-title" id="youtube-modal-title">📺 Yeni YouTube Videosu Ekle</div>
+          <button class="modal-close" type="button">✕</button>
+        </div>
+        <form id="youtube-form">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
+            <div class="input-group" style="grid-column: 1/-1;">
+              <label class="input-label">YouTube Video Linki veya Video ID *</label>
+              <input type="text" class="input-field" id="youtube-url-input" placeholder="Örn: https://www.youtube.com/watch?v=jfKfPfyJRdk veya jfKfPfyJRdk" required />
+            </div>
+            <div class="input-group" style="grid-column: 1/-1;">
+              <label class="input-label">Video Başlığı *</label>
+              <input type="text" class="input-field" id="youtube-title-input" placeholder="Örn: Yapay Zeka Devrimi ve Geleceğimiz" required />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Kanal / Kaynak Adı</label>
+              <input type="text" class="input-field" id="youtube-channel-input" placeholder="Örn: Barış Özcan, Lofi Girl..." />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Kategori</label>
+              <select class="input-field" id="youtube-category-input">
+                <option value="tech">💻 Yazılım & Yapay Zeka</option>
+                <option value="music">🎵 Müzik & Lofi</option>
+                <option value="podcast">🎙️ Podcast & Sohbet</option>
+                <option value="science">🌌 Bilim & Belgesel</option>
+                <option value="sports">⚽ Spor & FB</option>
+                <option value="general">🎬 Genel / Eğlence</option>
+              </select>
+            </div>
+            <div class="input-group" style="grid-column: 1/-1;">
+              <label class="input-label">Kısa Not veya Açıklama (Opsiyonel)</label>
+              <textarea class="input-field" id="youtube-note-input" rows="2" placeholder="Video hakkında kısa not..." style="resize: vertical;"></textarea>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="btn btn-ghost modal-close modal-close-btn">İptal</button>
+            <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #ef4444, #dc2626); border: none;">✓ Videoyu Ekle</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
@@ -275,6 +340,17 @@
     <script>
       Nav.init();
       Modal.setup("media-modal");
+      Modal.setup("youtube-modal");
+
+      function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
 
       const MEDIA_KEY = "oyp_media_items";
 
@@ -464,9 +540,278 @@
       ];
 
       let allMedia = [];
-      let activeMainTab = "news";
+      let activeMainTab = "youtube";
       let activeSubView = "all";
       let activeNewsSubView = "sports";
+      let activeYouTubeSubView = "all";
+      let currentPlayingVideoId = "";
+      let allYouTubeVideos = [];
+
+      const YOUTUBE_KEY = "oyp_youtube_videos";
+      const DEFAULT_YOUTUBE_VIDEOS = [
+        {
+          id: "yt-1",
+          videoId: "6lTzO2NqK50",
+          title: "Next-generation AI: Gemini 1.5 Architecture & Reasoning",
+          channel: "Google",
+          category: "tech",
+          note: "Yapay zeka modellerinin çok modlu kavrayış ve geniş bağlam pencereleri üzerine derinlemesine bakış.",
+        },
+        {
+          id: "yt-2",
+          videoId: "m9kC0w1r28c",
+          title: "James Webb Teleskobu ile Evrenin En Erken Dönemlerine Yolculuk",
+          channel: "Barış Özcan",
+          category: "science",
+          note: "Kozmik şafak, ilk galaksilerin doğuşu ve uzayın derinliklerindeki büyüleyici keşifler.",
+        },
+        {
+          id: "yt-3",
+          videoId: "4xDzrJKXOOY",
+          title: "Lofi Hip Hop Radio 📚 - Relax / Study / Code Chill Beats",
+          channel: "Lofi Girl",
+          category: "music",
+          note: "Kod yazarken, odaklanırken veya kitap okurken dinlenebilecek kesintisiz lo-fi akışı.",
+        },
+        {
+          id: "yt-4",
+          videoId: "fHI8X485M61",
+          title: "Synthwave Radio 🌌 - Chill synth / retro beats to code to",
+          channel: "Lofi Girl / Synthwave Boy",
+          category: "music",
+          note: "Gece kod geliştirme ve proje çalışmaları için retro-fütüristik synthwave müzikleri.",
+        },
+        {
+          id: "yt-5",
+          videoId: "aircAruvnKk",
+          title: "But what is a neural network? | Deep learning, chapter 1",
+          channel: "3Blue1Brown",
+          category: "tech",
+          note: "Yapay sinir ağlarının matematiksel ve görsel olarak en berrak anlatımı.",
+        },
+        {
+          id: "yt-6",
+          videoId: "vXf6hO0_Yio",
+          title: "Sam Altman: OpenAI, GPT-5, Sora, and AGI | Lex Fridman Podcast",
+          channel: "Lex Fridman",
+          category: "podcast",
+          note: "Yapay zeka modellerinin geleceği ve teknolojik dönüşüm üzerine vizyoner sohbet.",
+        },
+        {
+          id: "yt-7",
+          videoId: "s6zR2T9vn2c",
+          title: "Fenerbahçe SK — Unutulmaz Avrupa Zaferleri & Kadıköy Atmosferi",
+          channel: "Fenerbahçe SK",
+          category: "sports",
+          note: "Sarı-Lacivertli kulübün tarihi zaferleri ve Kadıköy'deki muazzam tribün atmosferi.",
+        }
+      ];
+
+      function getLocalYouTubeVideos() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(YOUTUBE_KEY));
+          if (Array.isArray(saved) && saved.length > 0) {
+            const cleaned = saved.filter(v => v.videoId !== "jfKfPfyJRdk");
+            return cleaned.length > 0 ? cleaned : [...DEFAULT_YOUTUBE_VIDEOS];
+          }
+        } catch (e) {}
+        return [...DEFAULT_YOUTUBE_VIDEOS];
+      }
+
+      function saveLocalYouTubeVideos(videos) {
+        localStorage.setItem(YOUTUBE_KEY, JSON.stringify(videos));
+      }
+
+      function extractYouTubeId(url) {
+        if (!url) return "";
+        url = url.trim();
+        if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : "";
+      }
+
+      function renderYouTubePlayer(forceVideoId, autoPlay = false) {
+        const container = document.getElementById("youtube-player-container");
+        if (!container) return;
+
+        if (activeMainTab !== "youtube") {
+          container.style.display = "none";
+          return;
+        }
+
+        const fallbackId = (allYouTubeVideos.length > 0 && allYouTubeVideos[0].videoId) ? allYouTubeVideos[0].videoId : "6lTzO2NqK50";
+        const vidId = forceVideoId || currentPlayingVideoId || fallbackId;
+        currentPlayingVideoId = vidId;
+
+        const currentVideo = allYouTubeVideos.find(v => v.videoId === vidId) || (allYouTubeVideos.length > 0 ? allYouTubeVideos[0] : {
+          videoId: vidId,
+          title: "Seçilen YouTube Videosu",
+          channel: "YouTube",
+          category: "general",
+          note: ""
+        });
+
+        const categoryNames = {
+          tech: "💻 Yazılım & AI",
+          music: "🎵 Müzik & Lofi",
+          podcast: "🎙️ Podcast & Sohbet",
+          science: "🌌 Bilim & Uzay",
+          sports: "⚽ Spor & FB",
+          general: "🎬 Video"
+        };
+        const catBadge = categoryNames[currentVideo.category] || "📺 YouTube";
+
+        container.style.display = "block";
+        container.innerHTML = `
+          <div class="youtube-player-section">
+            <div class="youtube-player-top">
+              <div class="youtube-title-group">
+                <div class="youtube-icon-badge">▶</div>
+                <div>
+                  <div class="youtube-main-title">
+                    <span>${escapeHtml(currentVideo.title)}</span>
+                  </div>
+                  <div class="youtube-main-sub">
+                    <span>Kanal: <strong>${escapeHtml(currentVideo.channel || "YouTube")}</strong></span> • 
+                    <span style="color:#ef4444; font-weight:700;">${catBadge}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="youtube-actions">
+                <a href="https://www.youtube.com/watch?v=${vidId}" target="_blank" rel="noopener noreferrer" class="youtube-quick-btn" title="YouTube'da Aç">
+                  <span>↗</span> <span>YouTube'da Aç</span>
+                </a>
+              </div>
+            </div>
+
+            <div class="youtube-frame-wrapper">
+              <iframe 
+                src="https://www.youtube-nocookie.com/embed/${vidId}?autoplay=${autoPlay ? 1 : 0}&rel=0&modestbranding=1" 
+                title="${escapeHtml(currentVideo.title)}" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen>
+              </iframe>
+            </div>
+
+            <div class="youtube-player-meta">
+              <div class="youtube-video-info-box">
+                <div class="youtube-video-info-title">⚡ Seçili Video: ${escapeHtml(currentVideo.title)}</div>
+                ${currentVideo.note ? `<div style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-top:4px;">${escapeHtml(currentVideo.note)}</div>` : ''}
+              </div>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <button type="button" class="youtube-quick-btn" onclick="playNextPrevYouTube(-1)" title="Önceki Video">⏮ Önceki</button>
+                <button type="button" class="youtube-quick-btn" onclick="playNextPrevYouTube(1)" title="Sonraki Video">Sonraki ⏭</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      window.playYouTubeVideo = function(videoId, e) {
+        if (e && e.target.closest('.yt-delete-btn')) return;
+        currentPlayingVideoId = videoId;
+        renderYouTubePlayer(videoId, true);
+        renderYouTubeGrid();
+        const container = document.getElementById("youtube-player-container");
+        if (container) {
+          container.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      };
+
+      window.playNextPrevYouTube = function(direction) {
+        const filtered = getFilteredYouTubeVideos();
+        if (filtered.length === 0) return;
+        const currentIdx = filtered.findIndex(v => v.videoId === currentPlayingVideoId);
+        let nextIdx = currentIdx + direction;
+        if (nextIdx < 0) nextIdx = filtered.length - 1;
+        if (nextIdx >= filtered.length) nextIdx = 0;
+        playYouTubeVideo(filtered[nextIdx].videoId);
+      };
+
+      function getFilteredYouTubeVideos() {
+        if (activeYouTubeSubView === "all") return allYouTubeVideos;
+        return allYouTubeVideos.filter(v => v.category === activeYouTubeSubView);
+      }
+
+      window.deleteYouTubeVideo = async function(id, e) {
+        if (e) e.stopPropagation();
+        const targetVideo = allYouTubeVideos.find(v => v.id === id);
+        const videoTitle = targetVideo ? targetVideo.title : "bu videoyu";
+
+        const confirmed = window.Confirm
+          ? await window.Confirm.show({
+              title: "Videoyu Sil",
+              message: `"${videoTitle}" adlı YouTube videosunu listenizden kaldırmak istediğinize emin misiniz?`,
+              confirmText: "🗑 Evet, Sil",
+              cancelText: "İptal",
+              danger: true
+            })
+          : confirm(`"${videoTitle}" adlı videoyu silmek istediğinize emin misiniz?`);
+
+        if (!confirmed) return;
+
+        allYouTubeVideos = allYouTubeVideos.filter(v => v.id !== id);
+        saveLocalYouTubeVideos(allYouTubeVideos);
+        if (window.Toast) Toast.success("Video listenizden kaldırıldı.");
+        if (allYouTubeVideos.length > 0 && currentPlayingVideoId === (targetVideo ? targetVideo.videoId : "")) {
+          currentPlayingVideoId = allYouTubeVideos[0].videoId;
+        }
+        renderMedia();
+      };
+
+      function renderYouTubeGrid() {
+        const grid = document.getElementById("media-cards-grid");
+        if (!grid) return;
+
+        const canManage = window.Auth && typeof window.Auth.canAccessHabits === 'function' ? window.Auth.canAccessHabits() : false;
+        const filtered = getFilteredYouTubeVideos();
+
+        if (filtered.length === 0) {
+          grid.innerHTML = `
+            <div class="empty-state" style="grid-column:1/-1; padding:60px 20px;">
+              <div class="empty-icon">📺</div>
+              <div class="empty-title">Bu Kategoride Video Bulunamadı</div>
+              <div class="empty-sub">Farklı bir kategori seçebilir veya yeni bir YouTube videosu ekleyebilirsiniz.</div>
+            </div>
+          `;
+          return;
+        }
+
+        const categoryLabels = {
+          tech: "💻 Yazılım & AI",
+          music: "🎵 Müzik",
+          podcast: "🎙️ Podcast",
+          science: "🌌 Bilim",
+          sports: "⚽ Spor",
+          general: "🎬 Video"
+        };
+
+        grid.innerHTML = filtered.map(v => {
+          const isPlaying = v.videoId === currentPlayingVideoId;
+          const catLabel = categoryLabels[v.category] || "📺 Video";
+          const deleteBtn = canManage ? `<button type="button" class="yt-delete-btn" onclick="deleteYouTubeVideo('${v.id}', event)" title="Videoyu Sil">🗑 Sil</button>` : '';
+
+          return `
+            <div class="youtube-card ${isPlaying ? 'active-playing' : ''}" onclick="playYouTubeVideo('${v.videoId}', event)">
+              <div class="youtube-card-thumb-wrap">
+                <img class="youtube-card-thumb" src="https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg" alt="${escapeHtml(v.title)}" loading="lazy" />
+                <div class="youtube-play-overlay">
+                  <div class="youtube-play-icon">▶</div>
+                </div>
+                <span class="youtube-card-category-tag">${catLabel}</span>
+                ${isPlaying ? `<span class="youtube-playing-badge">▶ Oynatılıyor</span>` : ''}
+              </div>
+              <div class="youtube-card-title" title="${escapeHtml(v.title)}">${escapeHtml(v.title)}</div>
+              ${v.note ? `<div style="font-size:12px; color:var(--text-muted); line-height:1.4; margin-bottom:10px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${escapeHtml(v.note)}</div>` : ''}
+              <div class="youtube-card-channel">
+                <span style="font-weight:600; color:var(--text-secondary);">📺 ${escapeHtml(v.channel || 'YouTube')}</span>
+                ${deleteBtn}
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
 
       function getLocalMedia() {
         try {
@@ -483,7 +828,9 @@
       async function syncMediaAccess() {
         const canManage = await Auth.canManageContent();
         const addBtn = document.getElementById("add-media-btn");
-        if (addBtn) addBtn.style.display = canManage ? "inline-flex" : "none";
+        const addYtBtn = document.getElementById("add-youtube-btn");
+        if (addBtn) addBtn.style.display = canManage && activeMainTab !== "youtube" ? "inline-flex" : "none";
+        if (addYtBtn) addYtBtn.style.display = canManage && activeMainTab === "youtube" ? "inline-flex" : "none";
       }
 
       function parseTurkishDate(str) {
@@ -702,16 +1049,35 @@
         const grid = document.getElementById("media-cards-grid");
         const moviesSubBar = document.getElementById("movies-sub-view-bar");
         const newsSubBar = document.getElementById("news-sub-view-bar");
+        const youtubeSubBar = document.getElementById("youtube-sub-view-bar");
+        const ytPlayerContainer = document.getElementById("youtube-player-container");
+
+        syncMediaAccess();
 
         if (activeMainTab === "movies_tv") {
           moviesSubBar.style.display = "flex";
           newsSubBar.style.display = "none";
+          youtubeSubBar.style.display = "none";
+          ytPlayerContainer.style.display = "none";
         } else if (activeMainTab === "news") {
           moviesSubBar.style.display = "none";
           newsSubBar.style.display = "flex";
+          youtubeSubBar.style.display = "none";
+          ytPlayerContainer.style.display = "none";
+        } else if (activeMainTab === "youtube") {
+          moviesSubBar.style.display = "none";
+          newsSubBar.style.display = "none";
+          youtubeSubBar.style.display = "flex";
+          renderFenerbahceFixture();
+          renderFinanceMarketContainer();
+          renderYouTubePlayer();
+          renderYouTubeGrid();
+          return;
         } else {
           moviesSubBar.style.display = "none";
           newsSubBar.style.display = "none";
+          youtubeSubBar.style.display = "none";
+          ytPlayerContainer.style.display = "none";
         }
 
         renderFenerbahceFixture();
@@ -795,6 +1161,15 @@
         renderMedia();
       });
 
+      document.getElementById("youtube-sub-view-bar").addEventListener("click", (e) => {
+        const btn = e.target.closest(".sub-view-btn");
+        if (!btn) return;
+        document.querySelectorAll("#youtube-sub-view-bar .sub-view-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        activeYouTubeSubView = btn.dataset.ytSub;
+        renderYouTubeGrid();
+      });
+
       document.getElementById("news-sub-view-bar").addEventListener("click", (e) => {
         const btn = e.target.closest(".sub-view-btn");
         if (!btn) return;
@@ -809,6 +1184,54 @@
         document.getElementById("media-form").reset();
         document.getElementById("edit-media-id").value = "";
         Modal.open("media-modal");
+      });
+
+      document.getElementById("add-youtube-btn").addEventListener("click", () => {
+        document.getElementById("youtube-form").reset();
+        Modal.open("youtube-modal");
+      });
+
+      document.getElementById("youtube-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        setButtonLoading(submitBtn, true, "Ekleniyor...");
+
+        try {
+          const urlInput = document.getElementById("youtube-url-input").value.trim();
+          const title = document.getElementById("youtube-title-input").value.trim();
+          const channel = document.getElementById("youtube-channel-input").value.trim() || "YouTube";
+          const category = document.getElementById("youtube-category-input").value;
+          const note = document.getElementById("youtube-note-input").value.trim();
+
+          const videoId = extractYouTubeId(urlInput);
+          if (!videoId) {
+            if (window.Toast) Toast.error("Geçerli bir YouTube linki veya Video ID giriniz.");
+            else alert("Geçerli bir YouTube linki veya Video ID giriniz.");
+            return;
+          }
+
+          const newVideo = {
+            id: "yt-" + Date.now(),
+            videoId,
+            title,
+            channel,
+            category,
+            note
+          };
+
+          allYouTubeVideos.unshift(newVideo);
+          saveLocalYouTubeVideos(allYouTubeVideos);
+
+          if (window.Toast) Toast.success("YouTube videosu başarıyla eklendi!");
+          Modal.close("youtube-modal");
+          currentPlayingVideoId = videoId;
+          renderMedia();
+        } catch (err) {
+          console.error("YouTube save error:", err);
+          if (window.Toast) Toast.error("Video eklenirken bir hata oluştu.");
+        } finally {
+          setButtonLoading(submitBtn, false);
+        }
       });
 
       document.getElementById("media-category").addEventListener("change", (e) => {
@@ -921,7 +1344,17 @@
                 container.appendChild(btnMap[tabKey]);
               }
             });
+            Object.keys(btnMap).forEach(k => {
+              if (!saved.includes(k)) {
+                container.appendChild(btnMap[k]);
+              }
+            });
           }
+          // Ensure the active tab button matches activeMainTab
+          document.querySelectorAll("#main-media-tabs .media-tab-btn").forEach(btn => {
+            if (btn.dataset.tab === activeMainTab) btn.classList.add("active");
+            else btn.classList.remove("active");
+          });
         } catch (e) {}
       }
 
@@ -1016,6 +1449,12 @@
         setupDragAndDrop();
         await syncMediaAccess();
         allMedia = getLocalMedia();
+        allYouTubeVideos = getLocalYouTubeVideos();
+        if (allYouTubeVideos.length > 0) {
+          currentPlayingVideoId = allYouTubeVideos[0].videoId;
+        }
+
+        renderMedia();
 
         if (window.FenerbahceNewsAPI) {
           try {
@@ -1023,11 +1462,10 @@
             if (Array.isArray(realNews) && realNews.length > 0) {
               const nonNews = allMedia.filter(x => x.category !== "news");
               allMedia = [...realNews, ...nonNews];
+              renderMedia();
             }
           } catch (err) {}
         }
-
-        renderMedia();
       })();
 
       window.addEventListener("auth:changed", syncMediaAccess);

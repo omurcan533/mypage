@@ -808,12 +808,12 @@
                       <div class="cal-day${isToday ? " today" : ""}${isFullyCompleted ? " completed-day" : ""}" data-date="${key}" onclick="openDayModal('${key}')">
                         <div class="day-num">${cell.day}</div>
                         
-                        <div class="day-badges-container" style="position:absolute; top:4px; right:4px; display:flex; gap:2px; align-items:center;">
-                          ${isFullyCompleted ? `<span class="day-complete-badge" title="Tüm alışkanlıklar tamamlandı" style="font-size:10px;">✓</span>` : ""}
-                          ${isFBMatch ? `<span title="⚽ Fenerbahçe Maçı" style="font-size:11px;">⚽</span>` : ""}
-                          ${dayBdays.length > 0 ? `<span title="🎂 Doğum Günü: ${dayBdays.map(b=>b.name).join(', ')}" style="font-size:11px;">🎂</span>` : ""}
-                          ${dayEvts.length > 0 ? `<span title="📅 Etkinlik: ${dayEvts.map(e=>e.title).join(', ')}" style="font-size:11px;">📅</span>` : ""}
-                          ${hasNote ? `<span class="day-note-badge" title="Günlük not var" style="font-size:10px;">📝</span>` : ""}
+                        <div class="day-badges-container">
+                          ${isFullyCompleted ? `<span class="day-complete-badge" title="Tüm alışkanlıklar tamamlandı">✓</span>` : ""}
+                          ${isFBMatch ? `<span class="day-match-badge" title="⚽ Fenerbahçe Maçı">⚽</span>` : ""}
+                          ${dayBdays.length > 0 ? `<span class="day-bday-badge" title="🎂 Doğum Günü: ${dayBdays.map(b=>b.name).join(', ')}">🎂</span>` : ""}
+                          ${dayEvts.length > 0 ? `<span class="day-evt-badge" title="📅 Etkinlik: ${dayEvts.map(e=>e.title).join(', ')}">📅</span>` : ""}
+                          ${hasNote ? `<span class="day-note-badge" title="📝 Günlük Not Alındı">📝</span>` : ""}
                         </div>
 
                         <div class="day-habits">${dotsHtml}</div>
