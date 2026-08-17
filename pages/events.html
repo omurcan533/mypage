@@ -569,7 +569,7 @@
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
         if (diffDays < 0) {
-          return { text: `${Math.abs(diffDays)} gün önceydi`, cls: "" };
+          return { text: `${Math.abs(diffDays)} gün önceydi`, cls: "past" };
         } else if (diffDays === 0) {
           return { text: "🔥 Bugün!", cls: "urgent" };
         } else if (diffDays === 1) {
@@ -744,8 +744,10 @@
                   type="button"
                   class="event-check-btn ${item.is_completed ? 'is-done' : ''}"
                   onclick="toggleEventCompleted('${item.id}')"
+                  title="${item.is_completed ? 'Tamamlanmadı olarak geri al' : 'Tamamlandı olarak işaretle'}"
                 >
-                  ${item.is_completed ? '↩ Geri Al' : '✓ Tamamlandı'}
+                  <span class="check-icon">${item.is_completed ? '✓' : '○'}</span>
+                  <span>${item.is_completed ? 'Tamamlandı' : 'Tamamla'}</span>
                 </button>
                 <div class="event-sub-actions">
                   <button type="button" class="event-icon-btn" onclick="openEditEventModal('${item.id}')" title="Düzenle">

@@ -257,6 +257,12 @@
 .event-countdown-badge.done {
   background: rgba(16, 185, 129, 0.15);
   color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.event-countdown-badge.past {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-muted);
 }
 
 .event-title {
@@ -311,25 +317,74 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 12px;
-  border-radius: var(--radius-md);
-  background: rgba(16, 185, 129, 0.1);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.2);
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  border: 1px solid var(--glass-border);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.event-check-btn .check-icon {
+  font-size: 13px;
+  color: var(--text-muted);
+  transition: all 0.2s ease;
 }
 
 .event-check-btn:hover {
-  background: rgba(16, 185, 129, 0.2);
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.35);
+  transform: translateY(-1px);
+}
+
+.event-check-btn:hover .check-icon {
+  color: #34d399;
 }
 
 .event-check-btn.is-done {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-muted);
-  border-color: var(--glass-border);
+  background: rgba(16, 185, 129, 0.18);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.4);
+  font-weight: 700;
+}
+
+.event-check-btn.is-done .check-icon {
+  color: #34d399;
+}
+
+.event-check-btn.is-done:hover {
+  background: rgba(239, 68, 68, 0.12);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+[data-theme="light"] .event-check-btn,
+html[data-theme="light"] .event-check-btn,
+body.light-theme .event-check-btn {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--text-secondary);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+[data-theme="light"] .event-check-btn:hover,
+html[data-theme="light"] .event-check-btn:hover,
+body.light-theme .event-check-btn:hover {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+[data-theme="light"] .event-check-btn.is-done,
+html[data-theme="light"] .event-check-btn.is-done,
+body.light-theme .event-check-btn.is-done {
+  background: rgba(16, 185, 129, 0.15);
+  color: #047857;
+  border-color: rgba(16, 185, 129, 0.45);
 }
 
 .event-sub-actions {
