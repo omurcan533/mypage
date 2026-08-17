@@ -83,7 +83,7 @@
       }
 
       .travel-card-banner {
-        height: 120px;
+        height: 140px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -103,6 +103,34 @@
         position: relative;
         z-index: 1;
         filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+      }
+
+      .travel-card-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s ease;
+        position: relative;
+        z-index: 1;
+      }
+
+      .travel-card:hover .travel-card-img {
+        transform: scale(1.06);
+      }
+
+      .travel-badge-flag {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        font-size: 16px;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(8px);
+        padding: 3px 8px;
+        border-radius: var(--radius-pill);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        z-index: 2;
+        line-height: 1;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
       }
 
       .travel-card-body {
@@ -478,7 +506,7 @@
 
     <!-- Add/Edit Travel Modal -->
     <div class="modal-overlay" id="travel-modal">
-      <div class="modal" style="max-width: 500px">
+      <div class="modal" style="max-width: 520px; border-radius: 32px;">
         <div class="modal-header">
           <div class="modal-title" id="travel-modal-title">✈️ Yeni Gezi</div>
           <button class="modal-close">✕</button>
@@ -574,6 +602,24 @@
               />
             </div>
             <div class="input-group" style="grid-column: 1/-1">
+              <label class="input-label">Fotoğraf / Kapak Görseli URL (İsteğe Bağlı)</label>
+              <input
+                type="url"
+                class="input-field"
+                id="travel-image"
+                placeholder="https://... (Fotoğraf linki, boş bırakılırsa dünya/bayrak ikonu görünür)"
+              />
+            </div>
+            <div class="input-group" style="grid-column: 1/-1">
+              <label class="input-label">Gezi Linki / Harita / Blog (İsteğe Bağlı)</label>
+              <input
+                type="url"
+                class="input-field"
+                id="travel-link"
+                placeholder="https://... (Detay, harita veya albüm bağlantısı)"
+              />
+            </div>
+            <div class="input-group" style="grid-column: 1/-1">
               <label class="input-label">Not / Anı</label>
               <textarea
                 class="input-field"
@@ -605,7 +651,7 @@
 
     <!-- Add/Edit Wishlist Item Modal -->
     <div class="modal-overlay" id="wishlist-modal">
-      <div class="modal" style="max-width: 460px">
+      <div class="modal" style="max-width: 500px; border-radius: 32px;">
         <div class="modal-header">
           <div class="modal-title" id="wishlist-modal-title">📍 Yeni Yer Ekle</div>
           <button class="modal-close">✕</button>
@@ -644,6 +690,10 @@
               <input type="url" class="input-field" id="wishlist-link" placeholder="https://maps.google.com/..." />
             </div>
           </div>
+          <div class="input-group" style="margin-bottom: 14px;">
+            <label class="input-label">Fotoğraf / Şehir Görseli URL (İsteğe Bağlı)</label>
+            <input type="url" class="input-field" id="wishlist-image" placeholder="https://... (Şehir veya mekan fotoğrafı linki)" />
+          </div>
           <div class="input-group" style="margin-bottom: 18px;">
             <label class="input-label">Not / Tüyolar</label>
             <textarea class="input-field" id="wishlist-note" rows="2" placeholder="Örn: Akşamüstü kahvesi harika, rezervasyon gerekebilir."></textarea>
@@ -651,6 +701,65 @@
           <div style="display: flex; gap: 10px; justify-content: flex-end">
             <button type="button" class="btn btn-ghost modal-close">İptal</button>
             <button type="submit" class="btn btn-primary" id="save-wishlist-submit-btn">✓ Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Wishlist Item Detail Modal -->
+    <div class="modal-overlay" id="wishlist-detail-modal">
+      <div class="modal" style="max-width: 520px; padding: 0; overflow: hidden; border-radius: 32px;">
+        <div id="wishlist-detail-cover" style="position: relative; width: 100%; height: 260px; overflow: hidden; background: rgba(0,0,0,0.3); display: none;">
+          <img id="wishlist-detail-img" src="" alt="" style="width: 100%; height: 100%; object-fit: cover;" />
+          <button type="button" class="modal-close" style="position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border-radius: 50%; width: 32px; height: 32px; color: white; display: flex; align-items: center; justify-content: center; z-index: 10; border: none; cursor: pointer; font-size: 14px;">✕</button>
+        </div>
+        <div id="wishlist-detail-header-fallback" class="modal-header" style="display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--glass-border);">
+          <div class="modal-title" id="wishlist-detail-title-fallback">📍 Mekan Detayı</div>
+          <button class="modal-close">✕</button>
+        </div>
+        <div style="padding: 22px 24px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;">
+            <span id="wishlist-detail-category" class="wishlist-category-tag" style="font-size: 12px; padding: 4px 12px;"></span>
+            <span id="wishlist-detail-status" class="book-status-badge" style="position: static; font-size: 11px; padding: 4px 12px; font-weight: 700;"></span>
+          </div>
+          <h2 id="wishlist-detail-place" style="font-size: 22px; font-weight: 800; color: var(--text-primary); margin: 0 0 6px; line-height: 1.3;"></h2>
+          <div id="wishlist-detail-location" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px; display: flex; align-items: center; gap: 6px;">
+            📍 <span id="wishlist-detail-city-district"></span>
+          </div>
+          <div id="wishlist-detail-note-wrap" style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 20px;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-light); margin-bottom: 4px;">💡 Notlar & Tüyolar</div>
+            <div id="wishlist-detail-note" style="font-size: 13px; color: var(--text-primary); line-height: 1.6;"></div>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center;">
+            <button type="button" class="btn btn-ghost modal-close">Kapat</button>
+            <a id="wishlist-detail-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: 13px; padding: 8px 18px;">
+              🗺️ Google Haritalar'da Aç ↗
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit City Cover Modal -->
+    <div class="modal-overlay" id="city-cover-modal">
+      <div class="modal" style="max-width: 460px; border-radius: 32px;">
+        <div class="modal-header">
+          <div class="modal-title" id="city-cover-modal-title">📷 Şehir Fotoğrafını Değiştir</div>
+          <button class="modal-close">✕</button>
+        </div>
+        <form id="city-cover-form">
+          <input type="hidden" id="city-cover-name" />
+          <div class="input-group" style="margin-bottom: 16px;">
+            <label class="input-label" id="city-cover-input-label">Fotoğraf URL</label>
+            <input type="url" class="input-field" id="city-cover-url-input" placeholder="https://images.unsplash.com/..." required />
+            <div style="font-size: 11px; color: var(--text-muted); margin-top: 6px;">
+              İpucu: Unsplash veya doğrudan görsel linki yapıştırabilirsiniz.
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="btn btn-ghost modal-close">İptal</button>
+            <button type="button" class="btn btn-outline" id="city-cover-reset-btn" style="font-size:12px;">Sıfırla</button>
+            <button type="submit" class="btn btn-primary">✓ Kaydet</button>
           </div>
         </form>
       </div>
@@ -726,6 +835,16 @@
         }
       ];
 
+      function escapeHtml(str) {
+        if (!str) return "";
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
       async function getTravels() {
         let supabaseTravels = null;
         try {
@@ -740,6 +859,8 @@
               dateStart: t.date_start || t.dateStart || "",
               dateEnd: t.date_end || t.dateEnd || "",
               note: t.note || "",
+              image: t.image || t.image_url || t.photo || t.cover_url || "",
+              link: t.link || t.url || "",
             }));
           }
         } catch (e) {
@@ -764,6 +885,8 @@
                 rating: item.rating || 5,
                 color: item.color || "#6c63ff",
                 note: item.note || null,
+                image: item.image || null,
+                link: item.link || null,
                 tags: item.tags || [],
                 user_id: user.id
               };
@@ -777,6 +900,8 @@
                   dateStart: insData[0].date_start || insData[0].dateStart || "",
                   dateEnd: insData[0].date_end || insData[0].dateEnd || "",
                   note: insData[0].note || "",
+                  image: insData[0].image || insData[0].image_url || item.image || "",
+                  link: insData[0].link || insData[0].url || item.link || "",
                 };
                 supabaseTravels.unshift(synced);
               }
@@ -830,6 +955,8 @@
           rating: td.rating || 5,
           color: td.color || "#6c63ff",
           note: td.note || null,
+          image: td.image || null,
+          link: td.link || null,
           tags: td.tags || [],
         };
 
@@ -884,6 +1011,8 @@
               dateStart: savedTravel.date_start || savedTravel.dateStart || "",
               dateEnd: savedTravel.date_end || savedTravel.dateEnd || "",
               note: savedTravel.note || "",
+              image: savedTravel.image || savedTravel.image_url || td.image || "",
+              link: savedTravel.link || savedTravel.url || td.link || "",
             }
           : null;
 
@@ -973,16 +1102,40 @@
                     </div>`
                   : "";
 
+                const bannerContent = t.image
+                  ? `<img class="travel-card-img" src="${escapeHtml(t.image)}" alt="${escapeHtml(t.city)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                     <div class="travel-card-fallback" style="display:none; width:100%; height:100%; align-items:center; justify-content:center;">
+                       <span class="flag">${t.flag || "🌍"}</span>
+                     </div>
+                     <span class="travel-badge-flag">${t.flag || "🌍"}</span>`
+                  : `<span class="flag">${t.flag || "🌍"}</span>`;
+
+                const linkMarkup = t.link
+                  ? `<div style="margin-top: 10px;">
+                       <a href="${escapeHtml(t.link)}" target="_blank" rel="noopener noreferrer" class="quick-link" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; padding:3px 10px; border-radius:var(--radius-pill); text-decoration:none;">
+                         🔗 <span>Gezi Linki / Harita ↗</span>
+                       </a>
+                     </div>`
+                  : "";
+
                 if (currentTravelViewMode === "compact") {
+                  const compactThumb = t.image
+                    ? `<div style="width:38px; height:38px; border-radius:8px; overflow:hidden; flex-shrink:0;">
+                         <img src="${escapeHtml(t.image)}" alt="${escapeHtml(t.city)}" style="width:100%; height:100%; object-fit:cover;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                         <div style="display:none; width:100%; height:100%; align-items:center; justify-content:center; font-size:20px; background:rgba(255,255,255,0.05);">${t.flag || "🌍"}</div>
+                       </div>`
+                    : `<span style="font-size:22px;">${t.flag || "🌍"}</span>`;
+
                   return `<div class="travel-card compact-card" style="border-left: 4px solid ${t.color || "#6c63ff"};">
                     <div style="display:flex; align-items:center; gap:12px; flex:1;">
-                      <span style="font-size:22px;">${t.flag || "🌍"}</span>
+                      ${compactThumb}
                       <div>
-                        <div style="font-weight:700; font-size:15px; color:var(--text-primary);">${t.city} ${t.flag || ""}</div>
-                        <div style="font-size:12px; color:var(--text-secondary);">${t.country} • ${monthStr || "Ziyaret tarihi yok"}</div>
+                        <div style="font-weight:700; font-size:15px; color:var(--text-primary);">${escapeHtml(t.city)} ${t.flag || ""}</div>
+                        <div style="font-size:12px; color:var(--text-secondary);">${escapeHtml(t.country)} • ${monthStr || "Ziyaret tarihi yok"}</div>
                       </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:16px;">
+                      ${t.link ? `<a href="${escapeHtml(t.link)}" target="_blank" rel="noopener noreferrer" class="quick-link" style="font-size:11px; padding:3px 8px; border-radius:var(--radius-pill);">🔗 Link ↗</a>` : ''}
                       <div class="travel-rating">${stars}</div>
                       ${actionsMarkup}
                     </div>
@@ -991,14 +1144,15 @@
 
                 return `<div class="travel-card">
           <div class="travel-card-banner" style="background: linear-gradient(135deg, ${t.color || "#6c63ff"}44, ${t.color || "#6c63ff"}11);">
-            <span class="flag">${t.flag || "🌍"}</span>
+            ${bannerContent}
           </div>
           <div class="travel-card-body">
-            <div class="travel-city">${t.city} ${t.flag || "🌍"}</div>
-            <div class="travel-country">${t.country}</div>
+            <div class="travel-city">${escapeHtml(t.city)} ${t.image ? '' : (t.flag || "🌍")}</div>
+            <div class="travel-country">${escapeHtml(t.country)}</div>
             <div class="travel-rating">${stars}</div>
             ${monthStr ? `<div class="travel-date">📅 Ziyaret: ${monthStr}</div>` : ""}
-            ${t.note ? `<div class="travel-note">${t.note}</div>` : ""}
+            ${linkMarkup}
+            ${t.note ? `<div class="travel-note">${escapeHtml(t.note)}</div>` : ""}
             ${tags ? `<div class="travel-tags">${tags}</div>` : ""}
           </div>
           ${actionsMarkup}
@@ -1032,6 +1186,8 @@
         document.getElementById("travel-date-end").value = t.dateEnd || "";
         document.getElementById("travel-rating").value = t.rating || 5;
         document.getElementById("travel-color").value = t.color || "#6c63ff";
+        document.getElementById("travel-image").value = t.image || t.image_url || "";
+        document.getElementById("travel-link").value = t.link || "";
         document.getElementById("travel-note").value = t.note || "";
         document.getElementById("travel-tags").value = (t.tags || []).join(
           ", ",
@@ -1094,6 +1250,8 @@
           document.getElementById("travel-flag").value = "🌍";
           document.getElementById("travel-rating").value = 5;
           document.getElementById("travel-color").value = "#6c63ff";
+          document.getElementById("travel-image").value = "";
+          document.getElementById("travel-link").value = "";
           Modal.open("travel-modal");
         });
 
@@ -1119,6 +1277,8 @@
             dateEnd: document.getElementById("travel-date-end").value,
             rating: parseInt(document.getElementById("travel-rating").value),
             color: document.getElementById("travel-color").value,
+            image: document.getElementById("travel-image").value.trim(),
+            link: document.getElementById("travel-link").value.trim(),
             note: document.getElementById("travel-note").value.trim(),
             tags: document
               .getElementById("travel-tags")
@@ -1191,18 +1351,11 @@
 
       /* ===== TRAVEL WISHLIST JS LOGIC ===== */
       Modal.setup("wishlist-modal");
+      Modal.setup("wishlist-detail-modal");
+      Modal.setup("city-cover-modal");
 
       let activeWishlistCity = "all";
       let allWishlistItems = [];
-
-      function escapeHtml(str) {
-        if (!str) return '';
-        return String(str)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      }
 
       async function renderWishlist() {
         const section = document.getElementById("admin-travel-wishlist-section");
@@ -1267,21 +1420,40 @@
           const cityAllItems = allWishlistItems.filter(i => i.city === city);
           const visitedCount = cityAllItems.filter(i => i.is_visited).length;
           const percent = cityAllItems.length > 0 ? Math.round((visitedCount / cityAllItems.length) * 100) : 0;
+          
+          // Şehir kapağı: Şehre özel sabit 1 fotoğraf
+          const cityImage = window.TravelWishlistAPI.getCityCover(city) || cityAllItems.find(i => i.image && i.image.trim())?.image || "";
+          const editCityCoverBtn = isAdmin
+            ? `<button type="button" class="wishlist-city-edit-cover-btn" onclick="openCityCoverModal('${escapeHtml(city)}')" title="Şehir Kapağını Değiştir">📷 Fotoğrafı Değiştir</button>`
+            : '';
+
+          const bannerHtml = cityImage
+            ? `<div class="wishlist-city-banner">
+                 <img class="wishlist-city-img" src="${escapeHtml(cityImage)}" alt="${escapeHtml(city)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                 <div class="wishlist-city-banner-fallback" style="display:none;">📍</div>
+                 ${editCityCoverBtn}
+               </div>`
+            : `<div class="wishlist-city-banner">
+                 <div class="wishlist-city-banner-fallback">📍</div>
+                 ${editCityCoverBtn}
+               </div>`;
 
           containerHtml += `
             <div class="wishlist-city-card">
-              <div class="wishlist-city-head">
-                <div class="wishlist-city-name">
-                  📍 <span>${escapeHtml(city)}</span>
+              ${bannerHtml}
+              <div class="wishlist-city-content-wrap">
+                <div class="wishlist-city-head">
+                  <div class="wishlist-city-name">
+                    📍 <span>${escapeHtml(city)}</span>
+                  </div>
+                  <div style="font-size: 12px; font-weight: 700; color: var(--text-secondary);">
+                    ${visitedCount}/${cityAllItems.length} (${percent}%)
+                  </div>
                 </div>
-                <div style="font-size: 12px; font-weight: 700; color: var(--text-secondary);">
-                  ${visitedCount}/${cityAllItems.length} (${percent}%)
+                <div class="wishlist-progress-bar-bg">
+                  <div class="wishlist-progress-bar-fill" style="width: ${percent}%;"></div>
                 </div>
-              </div>
-              <div class="wishlist-progress-bar-bg">
-                <div class="wishlist-progress-bar-fill" style="width: ${percent}%;"></div>
-              </div>
-              <div class="wishlist-city-card-scroll-body">
+                <div class="wishlist-city-card-scroll-body">
           `;
 
           const districts = cityGroups[city];
@@ -1296,23 +1468,29 @@
 
             districts[district].forEach(item => {
               // Checkbox: sadece admin tıklayabilir
-              const checkboxClick = isAdmin ? `onclick="toggleWishlistVisited('${item.id}')"` : '';
+              const checkboxClick = isAdmin ? `onclick="toggleWishlistVisited('${item.id}', event)"` : '';
               const checkboxCursor = isAdmin ? '' : 'style="cursor: default; opacity: 0.6;"';
+              const itemThumb = item.image
+                ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.place_name)}" style="width:28px; height:28px; border-radius:6px; object-fit:cover; flex-shrink:0;" onerror="this.style.display='none';" />`
+                : '';
               // Düzenleme/silme butonları: sadece admin görür
               const adminActions = isAdmin ? `
                   <div class="wishlist-actions">
-                    <button type="button" class="wishlist-icon-btn" onclick="openEditWishlistModal('${item.id}')" title="Düzenle">✏️</button>
-                    <button type="button" class="wishlist-icon-btn delete" onclick="deleteWishlistItem('${item.id}')" title="Sil">🗑️</button>
+                    <button type="button" class="wishlist-icon-btn" onclick="openEditWishlistModal('${item.id}', event)" title="Düzenle">✏️</button>
+                    <button type="button" class="wishlist-icon-btn delete" onclick="deleteWishlistItem('${item.id}', event)" title="Sil">🗑️</button>
                   </div>` : '';
 
               containerHtml += `
-                <div class="wishlist-item-row ${item.is_visited ? 'visited' : ''}" data-id="${item.id}">
+                <div class="wishlist-item-row ${item.is_visited ? 'visited' : ''}" data-id="${item.id}" onclick="openWishlistDetailModal('${item.id}', event)">
                   <div class="wishlist-checkbox" title="${item.is_visited ? 'Gidildi' : 'Gidilecek'}" ${checkboxClick} ${checkboxCursor}></div>
                   <div class="wishlist-item-content">
-                    <div class="wishlist-place-title">${escapeHtml(item.place_name)}</div>
+                    <div style="display:flex; align-items:center; gap:8px;">
+                      ${itemThumb}
+                      <div class="wishlist-place-title">${escapeHtml(item.place_name)}</div>
+                    </div>
                     <div class="wishlist-meta-bar">
                       <span class="wishlist-category-tag">${escapeHtml(item.category)}</span>
-                      ${item.link ? `<a href="${escapeHtml(item.link)}" target="_blank" class="quick-link" style="padding: 1px 6px; font-size: 10px;">🗺️ Harita ↗</a>` : ''}
+                      ${item.link ? `<a href="${escapeHtml(item.link)}" target="_blank" rel="noopener noreferrer" class="quick-link" onclick="event.stopPropagation()" style="padding: 1px 6px; font-size: 10px;">🗺️ Harita ↗</a>` : ''}
                     </div>
                     ${item.note ? `<div class="wishlist-note-text">💡 ${escapeHtml(item.note)}</div>` : ''}
                   </div>
@@ -1328,6 +1506,7 @@
           });
 
           containerHtml += `
+                </div>
               </div>
             </div>
           `;
@@ -1348,6 +1527,7 @@
       document.getElementById("add-wishlist-item-btn").addEventListener("click", () => {
         document.getElementById("wishlist-form").reset();
         document.getElementById("edit-wishlist-id").value = "";
+        document.getElementById("wishlist-image").value = "";
         document.getElementById("wishlist-modal-title").textContent = "📍 Yeni Yer Ekle";
         Modal.open("wishlist-modal");
       });
@@ -1355,34 +1535,102 @@
       // Form submit handler
       document.getElementById("wishlist-form").addEventListener("submit", async (e) => {
         e.preventDefault();
+        const submitBtn = document.getElementById("save-wishlist-submit-btn") || e.target.querySelector('[type="submit"]');
         const editId = document.getElementById("edit-wishlist-id").value;
-        const city = document.getElementById("wishlist-city").value;
-        const district = document.getElementById("wishlist-district").value;
-        const place_name = document.getElementById("wishlist-place").value;
-        const category = document.getElementById("wishlist-category").value;
-        const link = document.getElementById("wishlist-link").value;
-        const note = document.getElementById("wishlist-note").value;
+        setButtonLoading(submitBtn, true, editId ? "Güncelleniyor..." : "Kaydediliyor...");
 
-        if (editId) {
-          await window.TravelWishlistAPI.updateItem(editId, { city, district, place_name, category, link, note });
-          if (window.Toast) Toast.success("Mekan güncellendi!");
-        } else {
-          await window.TravelWishlistAPI.addItem({ city, district, place_name, category, link, note });
-          if (window.Toast) Toast.success("Mekan istek listesine eklendi!");
+        try {
+          const city = document.getElementById("wishlist-city").value.trim();
+          const district = document.getElementById("wishlist-district").value.trim();
+          const place_name = document.getElementById("wishlist-place").value.trim();
+          const category = document.getElementById("wishlist-category").value;
+          const link = document.getElementById("wishlist-link").value.trim();
+          const image = document.getElementById("wishlist-image").value.trim();
+          const note = document.getElementById("wishlist-note").value.trim();
+
+          if (editId) {
+            await window.TravelWishlistAPI.updateItem(editId, { city, district, place_name, category, link, image, note });
+            if (window.Toast) Toast.success("Mekan güncellendi!");
+          } else {
+            await window.TravelWishlistAPI.addItem({ city, district, place_name, category, link, image, note });
+            if (window.Toast) Toast.success("Mekan istek listesine eklendi!");
+          }
+
+          Modal.close("wishlist-modal");
+          await renderWishlist();
+        } catch (err) {
+          console.error("Wishlist save error:", err);
+          if (window.Toast) Toast.error("Kayıt sırasında bir hata oluştu.");
+        } finally {
+          setButtonLoading(submitBtn, false);
         }
-
-        Modal.close("wishlist-modal");
-        await renderWishlist();
       });
 
+      // Open Wishlist Item Detail Modal (Mekan Detay Penceresi - Büyük Fotoğraf)
+      window.openWishlistDetailModal = function(id, e) {
+        if (e && (e.target.closest('.wishlist-checkbox') || e.target.closest('.wishlist-actions') || e.target.closest('a'))) {
+          return;
+        }
+        const item = allWishlistItems.find(i => i.id === id);
+        if (!item) return;
+
+        const coverEl = document.getElementById("wishlist-detail-cover");
+        const coverImg = document.getElementById("wishlist-detail-img");
+        const headerFallback = document.getElementById("wishlist-detail-header-fallback");
+
+        if (item.image && item.image.trim()) {
+          coverImg.src = item.image.trim();
+          coverImg.alt = item.place_name;
+          coverEl.style.display = "block";
+          headerFallback.style.display = "none";
+        } else {
+          coverEl.style.display = "none";
+          headerFallback.style.display = "flex";
+        }
+
+        document.getElementById("wishlist-detail-place").textContent = item.place_name;
+        document.getElementById("wishlist-detail-city-district").textContent = `${item.city} / ${item.district}`;
+        document.getElementById("wishlist-detail-category").textContent = item.category || "📍 Mekan";
+
+        const statusBadge = document.getElementById("wishlist-detail-status");
+        if (item.is_visited) {
+          statusBadge.className = "book-status-badge status-completed";
+          statusBadge.textContent = "✅ Ziyaret Edildi";
+        } else {
+          statusBadge.className = "book-status-badge status-want_to_read";
+          statusBadge.textContent = "📌 Gezilecek Yer";
+        }
+
+        const noteWrap = document.getElementById("wishlist-detail-note-wrap");
+        const noteEl = document.getElementById("wishlist-detail-note");
+        if (item.note && item.note.trim()) {
+          noteEl.textContent = item.note.trim();
+          noteWrap.style.display = "block";
+        } else {
+          noteWrap.style.display = "none";
+        }
+
+        const linkBtn = document.getElementById("wishlist-detail-link");
+        if (item.link && item.link.trim()) {
+          linkBtn.href = item.link.trim();
+          linkBtn.style.display = "inline-flex";
+        } else {
+          linkBtn.style.display = "none";
+        }
+
+        Modal.open("wishlist-detail-modal");
+      };
+
       // Toggle Visited Checkbox
-      window.toggleWishlistVisited = async function(id) {
+      window.toggleWishlistVisited = async function(id, e) {
+        if (e) e.stopPropagation();
         await window.TravelWishlistAPI.toggleVisited(id);
         await renderWishlist();
       };
 
       // Open Edit Modal
-      window.openEditWishlistModal = function(id) {
+      window.openEditWishlistModal = function(id, e) {
+        if (e) e.stopPropagation();
         const item = allWishlistItems.find(i => i.id === id);
         if (!item) return;
 
@@ -1392,18 +1640,64 @@
         document.getElementById("wishlist-place").value = item.place_name;
         document.getElementById("wishlist-category").value = item.category || "☕ Kafe";
         document.getElementById("wishlist-link").value = item.link || "";
+        document.getElementById("wishlist-image").value = item.image || item.image_url || "";
         document.getElementById("wishlist-note").value = item.note || "";
         document.getElementById("wishlist-modal-title").textContent = "✏️ Mekanı Düzenle";
         Modal.open("wishlist-modal");
       };
 
       // Delete Item
-      window.deleteWishlistItem = async function(id) {
-        if (!confirm("Bu mekanı listenizden silmek istediğinize emin misiniz?")) return;
+      window.deleteWishlistItem = async function(id, e) {
+        if (e) e.stopPropagation();
+        const item = allWishlistItems.find(i => i.id === id);
+        const name = item ? `"${item.place_name}"` : "bu mekanı";
+        const confirmed = window.Confirm
+          ? await window.Confirm.show({
+              title: "Mekanı Sil",
+              message: `${name} listenizden silmek istediğinize emin misiniz?`,
+              confirmText: "🗑 Evet, Sil",
+              cancelText: "İptal",
+              danger: true
+            })
+          : confirm(`${name} listenizden silmek istediğinize emin misiniz?`);
+        if (!confirmed) return;
         await window.TravelWishlistAPI.deleteItem(id);
-        if (window.Toast) Toast.success("Mekan silindi.");
+        if (window.Toast) Toast.info("Mekan silindi.");
         await renderWishlist();
       };
+
+      // City Cover Modal Logic
+      window.openCityCoverModal = function(cityName) {
+        const current = window.TravelWishlistAPI.getCityCover(cityName);
+        document.getElementById("city-cover-name").value = cityName;
+        document.getElementById("city-cover-modal-title").textContent = `📷 ${cityName} Fotoğrafını Değiştir`;
+        document.getElementById("city-cover-url-input").value = current || "";
+        Modal.open("city-cover-modal");
+      };
+
+      const cityCoverForm = document.getElementById("city-cover-form");
+      if (cityCoverForm) {
+        cityCoverForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const cityName = document.getElementById("city-cover-name").value.trim();
+          const url = document.getElementById("city-cover-url-input").value.trim();
+          window.TravelWishlistAPI.setCityCover(cityName, url);
+          Modal.close("city-cover-modal");
+          if (window.Toast) Toast.success(`${cityName} kapak fotoğrafı güncellendi!`);
+          renderWishlist();
+        });
+      }
+
+      const cityCoverResetBtn = document.getElementById("city-cover-reset-btn");
+      if (cityCoverResetBtn) {
+        cityCoverResetBtn.addEventListener("click", () => {
+          const cityName = document.getElementById("city-cover-name").value.trim();
+          window.TravelWishlistAPI.setCityCover(cityName, "");
+          Modal.close("city-cover-modal");
+          if (window.Toast) Toast.info(`${cityName} kapak fotoğrafı varsayılana sıfırlandı.`);
+          renderWishlist();
+        });
+      }
     </script>
   </body>
 </html>

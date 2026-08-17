@@ -576,7 +576,7 @@
                   required
                 ></textarea>
               </div>
-              <button type="submit" class="send-btn">
+              <button type="submit" class="send-btn" id="contact-submit-btn">
                 <span id="send-btn-text" data-i18n="contact_btn_send"
                   >📨 Mesaj Gönder</span
                 >
@@ -585,16 +585,18 @@
                 id="form-success"
                 style="
                   display: none;
-                  padding: 14px;
+                  padding: 16px;
                   border-radius: 12px;
-                  background: rgba(52, 211, 153, 0.08);
-                  border: 1px solid rgba(52, 211, 153, 0.2);
+                  background: rgba(52, 211, 153, 0.12);
+                  border: 1px solid rgba(52, 211, 153, 0.3);
                   font-size: 13px;
                   color: var(--emerald);
+                  line-height: 1.5;
                   text-align: center;
                 "
               >
-                ✅ Mesajın iletildi! En kısa sürede yanıt vereceğim.
+                🎉 <strong>Mesajınız başarıyla iletildi!</strong><br />
+                E-postanız <code style="color: var(--text-primary); font-weight: 700;">yilmazomurcan@gmail.com</code> adresine ulaştırıldı. En kısa sürede dönüş yapacağım.
               </div>
             </form>
 
@@ -607,13 +609,12 @@
                 border: 1px solid rgba(108, 99, 255, 0.15);
                 border-radius: var(--radius-md);
                 font-size: 12px;
-                color: var(--text-muted);
+                color: var(--text-secondary);
                 line-height: 1.6;
               "
             >
-              💡 <strong style="color: var(--accent-light)">Not:</strong> Form
-              şu an mailto bağlantısı kullanıyor. EmailJS entegrasyonu
-              kurulduktan sonra direkt gönderim aktif olacak.
+              💡 <strong style="color: var(--accent-light)">Doğrudan İletişim:</strong> Gönderdiğiniz mesajlar anında
+              <strong style="color: var(--text-primary)">yilmazomurcan@gmail.com</strong> gelen kutusuna ve bağlı asistan bildirim sistemine iletilir.
             </div>
           </div>
         </div>
@@ -625,45 +626,111 @@
     <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/live_api.js"></script>
+    <script src="../js/telegram_service.js"></script>
     <script src="../js/nav.js"></script>
     <script>
       Nav.init();
 
-        document
-          .getElementById("contact-form")
-          .addEventListener("submit", async function (e) {
-            e.preventDefault();
-            const submitBtn = document.querySelector("#contact-form button[type='submit']");
-            setButtonLoading(submitBtn, true, "Gönderiliyor...");
+      document
+        .getElementById("contact-form")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const submitBtn = document.getElementById("contact-submit-btn") || e.target.querySelector("button[type='submit']");
+          setButtonLoading(submitBtn, true, "Gönderiliyor...");
 
-            const name = document.getElementById("cf-name").value.trim();
-            const email = document.getElementById("cf-email").value.trim();
-            const subject = document.getElementById("cf-subject").value.trim();
-            const message = document.getElementById("cf-message").value.trim();
+          const name = document.getElementById("cf-name").value.trim();
+          const email = document.getElementById("cf-email").value.trim();
+          const subject = document.getElementById("cf-subject").value.trim();
+          const message = document.getElementById("cf-message").value.trim();
 
-            try {
+          const TARGET_EMAIL = "yilmazomurcan@gmail.com";
+          let emailSentDirectly = false;
+
+          // 1. Doğrudan E-posta Gönderimi (FormSubmit AJAX API)
+          try {
+            const response = await fetch(`https://formsubmit.co/ajax/${TARGET_EMAIL}`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+              },
+              body: JSON.stringify({
+                name: name,
+                email: email,
+                _subject: `[İletişim Formu] ${subject} - ${name}`,
+                message: message,
+                _replyto: email,
+                _template: "table"
+              })
+            });
+
+            if (response.ok) {
+              emailSentDirectly = true;
+            }
+          } catch (fetchErr) {
+            console.warn("Direct formsubmit fetch note:", fetchErr);
+          }
+
+          // 2. Supabase / Yerel Yedekleme
+          try {
+            if (window.supabaseClient) {
               const { error } = await window.supabaseClient
                 .from("contact_messages")
                 .insert([{ name, email, subject, message }]);
               if (error) {
-                console.warn("Supabase contact_messages save note:", error.message);
-              } else {
-                console.log("Contact message saved to Supabase successfully.");
+                console.warn("Supabase contact_messages note:", error.message);
               }
-            } catch (err) {
-              console.warn("Supabase contact form submission exception:", err);
             }
+          } catch (err) {
+            console.warn("Supabase contact note:", err);
+          }
 
-            const mailtoLink = `mailto:info@omurcanyilmaz.com?subject=${encodeURIComponent(subject + " - " + name)}&body=${encodeURIComponent("Gönderen: " + name + "\nE-posta: " + email + "\n\n" + message)}`;
-            window.location.href = mailtoLink;
+          // Yerel depolamaya da yedekle
+          try {
+            const localMsgs = JSON.parse(localStorage.getItem("oyp_contact_messages") || "[]");
+            localMsgs.unshift({ name, email, subject, message, created_at: new Date().toISOString() });
+            localStorage.setItem("oyp_contact_messages", JSON.stringify(localMsgs.slice(0, 50)));
+          } catch (e) {}
 
-            document.getElementById("form-success").style.display = "block";
-            setTimeout(() => {
-              document.getElementById("form-success").style.display = "none";
-              setButtonLoading(submitBtn, false);
-              document.getElementById("contact-form").reset();
-            }, 3000);
-          });
+          // 3. Telegram Anlık Bildirimi (Eğer servis yapılandırılmışsa)
+          if (window.TelegramService && window.TelegramService.isConfigured()) {
+            try {
+              const tgMsg = `📬 <b>YENİ İLETİŞİM MESAJI ALINDI!</b>\n\n👤 <b>Gönderen:</b> ${name}\n📧 <b>E-posta:</b> ${email}\n📌 <b>Konu:</b> ${subject}\n\n💬 <b>Mesaj:</b>\n${message}\n\n📧 <i>yilmazomurcan@gmail.com adresine de iletildi.</i>`;
+              await window.TelegramService.sendMessage(tgMsg);
+            } catch (tgErr) {
+              console.warn("Telegram contact notify note:", tgErr);
+            }
+          }
+
+          // 4. Sonuç ve Geribildirim
+          const successBox = document.getElementById("form-success");
+          if (emailSentDirectly) {
+            successBox.innerHTML = `
+              🎉 <strong>Mesajınız başarıyla iletildi!</strong><br />
+              E-postanız <code style="color: var(--text-primary); font-weight: 700;">${TARGET_EMAIL}</code> adresine ulaştırıldı. En kısa sürede dönüş yapacağım.
+            `;
+            if (window.Toast) Toast.success("Mesajınız başarıyla gönderildi!");
+          } else {
+            const mailtoLink = `mailto:${TARGET_EMAIL}?subject=${encodeURIComponent(subject + " - " + name)}&body=${encodeURIComponent("Gönderen: " + name + "\nE-posta: " + email + "\n\n" + message)}`;
+            successBox.innerHTML = `
+              ✅ <strong>Mesajınız kaydedildi!</strong><br />
+              <a href="${mailtoLink}" style="color: var(--accent-light); text-decoration: underline; font-weight: 600;">E-posta istemciniz üzerinden de göndermek için tıklayabilirsiniz ↗</a>
+            `;
+            if (window.Toast) Toast.info("Mesajınız kaydedildi.");
+          }
+
+          successBox.style.display = "block";
+          document.getElementById("contact-form").reset();
+
+          setTimeout(() => {
+            setButtonLoading(submitBtn, false);
+          }, 600);
+
+          setTimeout(() => {
+            successBox.style.display = "none";
+          }, 7000);
+        });
+
       window.addEventListener("languageChanged", () => {
         if (typeof render === "function") render();
         else if (typeof init === "function") init();

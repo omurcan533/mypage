@@ -5,6 +5,15 @@
 
 const STORAGE_KEY = 'oyp_travel_wishlist';
 
+const DEFAULT_CITY_COVERS = {
+  "antalya": "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&auto=format&fit=crop&q=80",
+  "istanbul": "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800&auto=format&fit=crop&q=80",
+  "roma": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop&q=80",
+  "rome": "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop&q=80",
+  "izmir": "https://images.unsplash.com/photo-1589802829985-817e51171b92?w=800&auto=format&fit=crop&q=80",
+  "ankara": "https://images.unsplash.com/photo-1584646098378-0874589d76b1?w=800&auto=format&fit=crop&q=80"
+};
+
 const INITIAL_WISHLIST = [
   {
     id: 'w1',
@@ -14,6 +23,7 @@ const INITIAL_WISHLIST = [
     category: '☕ Kafe',
     note: 'Tarihi kahve fincanları ve antika konsepti',
     link: 'https://maps.google.com/?q=Velvet+Cafe+Balat',
+    image: 'https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=600&auto=format&fit=crop&q=80',
     is_visited: true,
     created_at: new Date().toISOString()
   },
@@ -25,6 +35,7 @@ const INITIAL_WISHLIST = [
     category: '📸 Manzara',
     note: 'Gün batımında nehir kenarı çay & manzara',
     link: 'https://maps.google.com/?q=Anadolu+Hisarı',
+    image: '',
     is_visited: false,
     created_at: new Date().toISOString()
   },
@@ -36,17 +47,43 @@ const INITIAL_WISHLIST = [
     category: '🌳 Park',
     note: 'Çimlerde akşamüstü açık hava dinlenmesi',
     link: 'https://maps.google.com/?q=Moda+Çay+Bahçesi',
+    image: '',
     is_visited: true,
     created_at: new Date().toISOString()
   },
   {
     id: 'w4',
+    city: 'Antalya',
+    district: 'Kaleiçi',
+    place_name: 'The Sudd Coffee Kaleiçi',
+    category: '☕ Kafe',
+    note: 'Tarihi Kaleiçi sokaklarında nitelikli 3. nesil kahve',
+    link: 'https://maps.google.com/?q=The+Sudd+Coffee+Kaleici+Antalya',
+    image: 'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=800&auto=format&fit=crop&q=80',
+    is_visited: true,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'w5',
+    city: 'Antalya',
+    district: 'Muratpaşa',
+    place_name: 'Aşağı Düden Şelalesi Seyir Terası',
+    category: '📸 Manzara',
+    note: 'Denize dökülen şelale manzarası ve gün batımı parkı',
+    link: 'https://maps.google.com/?q=Duden+Waterfalls+Antalya',
+    image: 'https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&auto=format&fit=crop&q=80',
+    is_visited: false,
+    created_at: new Date().toISOString()
+  },
+  {
+    id: 'w6',
     city: 'Roma',
     district: 'Trastevere',
     place_name: 'Tonnarello Restoran',
     category: '🍕 Restoran',
     note: 'Taze el yapımı Cacio e Pepe makarna',
     link: 'https://maps.google.com/?q=Tonnarello+Rome',
+    image: 'https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop&q=80',
     is_visited: false,
     created_at: new Date().toISOString()
   }
@@ -54,6 +91,30 @@ const INITIAL_WISHLIST = [
 
 window.TravelWishlistAPI = {
   _memoryCache: null,
+
+  getCityCover(cityName) {
+    if (!cityName) return "";
+    const norm = cityName.toLowerCase().trim();
+    try {
+      const custom = JSON.parse(localStorage.getItem('oyp_city_covers') || '{}');
+      if (custom[norm]) return custom[norm];
+    } catch {}
+    if (DEFAULT_CITY_COVERS[norm]) return DEFAULT_CITY_COVERS[norm];
+    return "";
+  },
+
+  setCityCover(cityName, imageUrl) {
+    if (!cityName) return;
+    const norm = cityName.toLowerCase().trim();
+    try {
+      const custom = JSON.parse(localStorage.getItem('oyp_city_covers') || '{}');
+      if (imageUrl) custom[norm] = imageUrl.trim();
+      else delete custom[norm];
+      localStorage.setItem('oyp_city_covers', JSON.stringify(custom));
+    } catch (e) {
+      console.warn("Error setting city cover:", e);
+    }
+  },
 
   getLocalItems() {
     try {
@@ -112,6 +173,7 @@ window.TravelWishlistAPI = {
       category: itemData.category || '☕ Kafe',
       note: (itemData.note || '').trim(),
       link: (itemData.link || '').trim(),
+      image: (itemData.image || itemData.image_url || '').trim(),
       is_visited: false
     };
 
@@ -126,6 +188,7 @@ window.TravelWishlistAPI = {
             category: newItem.category,
             note: newItem.note,
             link: newItem.link,
+            image: newItem.image || null,
             is_visited: newItem.is_visited
           }])
           .select();

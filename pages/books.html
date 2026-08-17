@@ -21,7 +21,15 @@
       .books-stat-icon{font-size:26px;flex-shrink:0;}
       .books-stat-value{font-size:24px;font-weight:800;color:var(--text-primary);line-height:1;}
       .books-stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;}
-      .books-filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:28px;}
+      .books-controls-row{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:28px;}
+      .books-search-wrap{position:relative;flex:1;min-width:260px;max-width:380px;}
+      .books-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);pointer-events:none;}
+      .books-search-input{width:100%;padding:10px 36px 10px 38px;background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-pill);font-size:13px;font-weight:500;color:var(--text-primary);font-family:inherit;outline:none;transition:var(--transition);}
+      .books-search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);background:var(--bg-card-hover);}
+      .books-search-input::placeholder{color:var(--text-muted);}
+      .books-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:var(--text-muted);font-size:11px;display:none;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);}
+      .books-search-clear:hover{background:rgba(255,255,255,.2);color:var(--text-primary);}
+      .books-filter-bar{display:flex;gap:8px;flex-wrap:wrap;}
       .book-filter-btn{padding:8px 18px;border-radius:var(--radius-pill);font-size:13px;font-weight:600;border:1px solid var(--glass-border);background:var(--bg-card);color:var(--text-muted);cursor:pointer;transition:var(--transition);}
       .book-filter-btn:hover{border-color:var(--glass-border-hover);color:var(--text-primary);}
       .book-filter-btn.active{background:rgba(108,99,255,.15);border-color:var(--accent);color:var(--accent-light);}
@@ -84,7 +92,11 @@
       .g3{background:linear-gradient(135deg,#2c1810,#d97706);}
       .g4{background:linear-gradient(135deg,#1a0533,#7c3aed);}
       .g5{background:linear-gradient(135deg,#0f2027,#2c5364);}
-      @media(max-width:900px){.books-stats{grid-template-columns:1fr 1fr;}}
+      @media(max-width:900px){
+        .books-stats{grid-template-columns:1fr 1fr;}
+        .books-controls-row{flex-direction:column;align-items:stretch;}
+        .books-search-wrap{max-width:100%;}
+      }
       @media(max-width:640px){
         .books-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
         #book-detail-modal .modal{
@@ -192,12 +204,26 @@
           <div class="books-stat-card"><div class="books-stat-icon">🔵</div><div><div class="books-stat-value" id="stat-reading">0</div><div class="books-stat-label">Okunuyor</div></div></div>
           <div class="books-stat-card"><div class="books-stat-icon">📌</div><div><div class="books-stat-value" id="stat-want">0</div><div class="books-stat-label">Okunacak</div></div></div>
         </div>
-        <div class="books-filter-bar">
-          <button class="book-filter-btn active" data-filter="all">📚 Tümü</button>
-          <button class="book-filter-btn" data-filter="completed">✅ Tamamlandı</button>
-          <button class="book-filter-btn" data-filter="reading">🔵 Okunuyor</button>
-          <button class="book-filter-btn" data-filter="want_to_read">📌 Okunacak</button>
-          <button class="book-filter-btn" data-filter="favorite">❤️ Favoriler</button>
+        <div class="books-controls-row">
+          <div class="books-search-wrap">
+            <span class="books-search-icon">🔍</span>
+            <input
+              type="text"
+              id="book-search-input"
+              class="books-search-input"
+              placeholder="Kitap ismi veya yazar ara..."
+              autocomplete="off"
+              aria-label="Kitap ismi veya yazar ara"
+            />
+            <button type="button" id="book-search-clear" class="books-search-clear" title="Aramayı Temizle">✕</button>
+          </div>
+          <div class="books-filter-bar">
+            <button class="book-filter-btn active" data-filter="all">📚 Tümü</button>
+            <button class="book-filter-btn" data-filter="completed">✅ Tamamlandı</button>
+            <button class="book-filter-btn" data-filter="reading">🔵 Okunuyor</button>
+            <button class="book-filter-btn" data-filter="want_to_read">📌 Okunacak</button>
+            <button class="book-filter-btn" data-filter="favorite">❤️ Favoriler</button>
+          </div>
         </div>
         <div class="books-grid" id="books-grid">
           <div class="books-empty"><div class="books-empty-icon">📚</div><div class="books-empty-title">Yükleniyor...</div></div>
@@ -626,15 +652,88 @@
         want_to_read: ['status-want_to_read', '📌 Okunacak']
       };
 
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function normalizeSearchText(str) {
+        if (!str) return '';
+        return String(str)
+          .toLocaleLowerCase('tr')
+          .replace(/ğ/g, 'g')
+          .replace(/ü/g, 'u')
+          .replace(/ş/g, 's')
+          .replace(/ı/g, 'i')
+          .replace(/ö/g, 'o')
+          .replace(/ç/g, 'c')
+          .trim();
+      }
+
+      function matchesQuery(book, query) {
+        if (!query) return true;
+        const qNorm = normalizeSearchText(query);
+        const qDirect = String(query).toLocaleLowerCase('tr').trim();
+        
+        const title = book.title || '';
+        const author = book.author || '';
+        const genre = book.genre || '';
+
+        const titleDirect = title.toLocaleLowerCase('tr');
+        const authorDirect = author.toLocaleLowerCase('tr');
+        const genreDirect = genre.toLocaleLowerCase('tr');
+
+        const titleNorm = normalizeSearchText(title);
+        const authorNorm = normalizeSearchText(author);
+        const genreNorm = normalizeSearchText(genre);
+
+        return titleDirect.includes(qDirect) ||
+               authorDirect.includes(qDirect) ||
+               genreDirect.includes(qDirect) ||
+               titleNorm.includes(qNorm) ||
+               authorNorm.includes(qNorm) ||
+               genreNorm.includes(qNorm);
+      }
+
+      function highlightMatch(text, query) {
+        if (!text) return '';
+        const safe = escapeHtml(text);
+        if (!query || !query.trim()) return safe;
+        const cleanQuery = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        try {
+          const regex = new RegExp(`(${cleanQuery})`, 'gi');
+          return safe.replace(regex, '<mark style="background:rgba(108,99,255,0.35);color:inherit;padding:0 2px;border-radius:3px;">$1</mark>');
+        } catch {
+          return safe;
+        }
+      }
+
       function starsHtml(r) {
         return '<div class="book-stars">' + [1,2,3,4,5].map(i => '<span class="star ' + (i<=r?'filled':'empty') + '">' + (i<=r?'★':'☆') + '</span>').join('') + '</div>';
       }
 
       let currentBookViewMode = 'grid';
+      let bookSearchQuery = '';
 
-      function renderBooks(books) {
+      function renderBooks(books, query = '') {
         const grid = document.getElementById('books-grid');
         if (!books.length) {
+          if (query) {
+            grid.className = 'books-grid';
+            grid.innerHTML = `
+              <div class="books-empty">
+                <div class="books-empty-icon">🔍</div>
+                <div class="books-empty-title">"${escapeHtml(query)}" ile eşleşen kitap bulunamadı</div>
+                <div class="books-empty-sub">Farklı bir arama terimi deneyebilir veya kategorileri kontrol edebilirsiniz.</div>
+                <button type="button" class="btn btn-outline" onclick="clearBookSearch()" style="margin-top:16px; border-radius:var(--radius-pill); font-size:12px; padding:6px 18px; cursor:pointer;">✕ Aramayı Temizle</button>
+              </div>`;
+            return;
+          }
           grid.innerHTML = '<div class="books-empty"><div class="books-empty-icon">📚</div><div class="books-empty-title">Henüz kitap yok</div><div class="books-empty-sub">' + (isAdmin ? 'İlk kitabını ekle!' : 'Yakında kitaplar eklenecek.') + '</div></div>';
           return;
         }
@@ -645,9 +744,11 @@
           const [sc, st] = STATUS_MAP[b.status] || STATUS_MAP.completed;
           const gc = GRADS[i % 6];
           const cov = b.cover_url
-            ? '<img class="book-cover-img" src="' + b.cover_url + '" alt="' + b.title.replace(/"/g, '&quot;') + '" loading="lazy" onerror="bookImgError(this)"><div class="book-cover-ph ' + gc + '" style="display:none">📚<div class="bip">' + b.title + '</div></div>'
-            : '<div class="book-cover-ph ' + gc + '">📚<div class="bip">' + b.title + '</div></div>';
-          const safeTitle = (b.title || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+            ? '<img class="book-cover-img" src="' + b.cover_url + '" alt="' + escapeHtml(b.title) + '" loading="lazy" onerror="bookImgError(this)"><div class="book-cover-ph ' + gc + '" style="display:none">📚<div class="bip">' + escapeHtml(b.title) + '</div></div>'
+            : '<div class="book-cover-ph ' + gc + '">📚<div class="bip">' + escapeHtml(b.title) + '</div></div>';
+          const safeTitle = escapeHtml(b.title || '');
+          const highlightedTitle = highlightMatch(b.title, query);
+          const highlightedAuthor = highlightMatch(b.author, query);
           const af = isAdmin
             ? '<div class="book-card-footer"><button class="book-admin-btn book-edit-btn" data-id="' + b.id + '">✏️ Düzenle</button><button class="book-admin-btn danger book-delete-btn" data-id="' + b.id + '" data-title="' + safeTitle + '">🗑 Sil</button></div>'
             : '';
@@ -656,8 +757,8 @@
             return '<div class="book-card compact-card book-card-clickable" data-id="' + b.id + '">'
               + '<div style="display:flex;align-items:center;gap:12px;flex:1;">'
               + '<div class="book-cover" style="width:36px;height:36px;font-size:18px;display:flex;align-items:center;justify-content:center;">📚</div>'
-              + '<div><div style="font-weight:700;font-size:15px;color:var(--text-primary);">' + b.title + (b.is_favorite ? ' ❤️' : '') + '</div>'
-              + '<div style="font-size:12px;color:var(--text-secondary);">&mdash; ' + b.author + (b.genre ? ' • ' + b.genre : '') + '</div></div>'
+              + '<div><div style="font-weight:700;font-size:15px;color:var(--text-primary);">' + highlightedTitle + (b.is_favorite ? ' ❤️' : '') + '</div>'
+              + '<div style="font-size:12px;color:var(--text-secondary);">&mdash; ' + highlightedAuthor + (b.genre ? ' • ' + escapeHtml(b.genre) : '') + '</div></div>'
               + '</div>'
               + '<div style="display:flex;align-items:center;gap:14px;">'
               + '<span class="book-status-badge ' + sc + '" style="position:static;">' + st + '</span>'
@@ -671,11 +772,11 @@
             + '<div class="book-status-badge ' + sc + '">' + st + '</div>'
             + (b.is_favorite ? '<div class="book-fav-badge">❤️</div>' : '')
             + '</div><div class="book-card-body">'
-            + '<div class="book-title">' + b.title + '</div>'
-            + '<div class="book-author">&mdash; ' + b.author + '</div>'
-            + (b.genre ? '<div class="book-genre-pill">' + b.genre + '</div>' : '')
+            + '<div class="book-title">' + highlightedTitle + '</div>'
+            + '<div class="book-author">&mdash; ' + highlightedAuthor + '</div>'
+            + (b.genre ? '<div class="book-genre-pill">' + escapeHtml(b.genre) + '</div>' : '')
             + (b.rating ? starsHtml(b.rating) : '')
-            + (b.review ? '<div class="book-review-preview">' + b.review + '</div>' : '')
+            + (b.review ? '<div class="book-review-preview">' + escapeHtml(b.review) + '</div>' : '')
             + '</div>' + af + '</div>';
         }).join('');
       }
@@ -691,7 +792,12 @@
         let f = [...allBooks];
         if (activeFilter === 'favorite') f = f.filter(b => b.is_favorite);
         else if (activeFilter !== 'all') f = f.filter(b => b.status === activeFilter);
-        renderBooks(f);
+
+        if (bookSearchQuery) {
+          f = f.filter(b => matchesQuery(b, bookSearchQuery));
+        }
+
+        renderBooks(f, bookSearchQuery);
       }
 
       async function loadBooks() {
@@ -971,6 +1077,55 @@
           activeFilter = btn.dataset.filter;
           applyFilter();
         });
+      });
+
+      const searchInput = document.getElementById('book-search-input');
+      const searchClearBtn = document.getElementById('book-search-clear');
+
+      if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+          bookSearchQuery = e.target.value.trim();
+          if (searchClearBtn) {
+            searchClearBtn.style.display = e.target.value ? 'flex' : 'none';
+          }
+          applyFilter();
+        });
+      }
+
+      function clearBookSearch() {
+        bookSearchQuery = '';
+        if (searchInput) {
+          searchInput.value = '';
+          searchInput.focus();
+        }
+        if (searchClearBtn) {
+          searchClearBtn.style.display = 'none';
+        }
+        applyFilter();
+      }
+
+      if (searchClearBtn) {
+        searchClearBtn.addEventListener('click', clearBookSearch);
+      }
+
+      window.clearBookSearch = clearBookSearch;
+
+      // '/' tuşuna basınca doğrudan aramaya odaklan
+      document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement !== searchInput && !['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName)) {
+          e.preventDefault();
+          if (searchInput) {
+            searchInput.focus();
+            searchInput.select();
+          }
+        }
+        if (e.key === 'Escape' && document.activeElement === searchInput) {
+          if (bookSearchQuery) {
+            clearBookSearch();
+          } else {
+            searchInput.blur();
+          }
+        }
       });
 
       window.editBook = editBook;

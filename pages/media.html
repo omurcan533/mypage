@@ -856,27 +856,38 @@
 
       document.getElementById("media-form").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const title = document.getElementById("media-title").value.trim();
-        const category = document.getElementById("media-category").value;
-        const subType = document.getElementById("media-sub-type").value;
-        const status = document.getElementById("media-status").value;
-        const rating = parseInt(document.getElementById("media-rating").value) || 5;
-        const note = document.getElementById("media-note").value.trim();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        setButtonLoading(submitBtn, true, "Kaydediliyor...");
 
-        const newItem = {
-          id: "m-" + Date.now(),
-          title,
-          category,
-          subType,
-          status,
-          rating,
-          note,
-        };
+        try {
+          const title = document.getElementById("media-title").value.trim();
+          const category = document.getElementById("media-category").value;
+          const subType = document.getElementById("media-sub-type").value;
+          const status = document.getElementById("media-status").value;
+          const rating = parseInt(document.getElementById("media-rating").value) || 5;
+          const note = document.getElementById("media-note").value.trim();
 
-        allMedia.unshift(newItem);
-        await saveMediaToSupabase(allMedia);
-        Modal.close("media-modal");
-        renderMedia();
+          const newItem = {
+            id: "m-" + Date.now(),
+            title,
+            category,
+            subType,
+            status,
+            rating,
+            note,
+          };
+
+          allMedia.unshift(newItem);
+          await saveMediaToSupabase(allMedia);
+          if (window.Toast) Toast.success("Medya kaydedildi!");
+          Modal.close("media-modal");
+          renderMedia();
+        } catch (err) {
+          console.error("Media save error:", err);
+          if (window.Toast) Toast.error("Kayıt sırasında hata oluştu.");
+        } finally {
+          setButtonLoading(submitBtn, false);
+        }
       });
 
       loadMediaFromSupabase();

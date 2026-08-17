@@ -616,10 +616,12 @@
       // Gate Login Handler
       document.getElementById("gate-login-form").addEventListener("submit", async (e) => {
         e.preventDefault();
+        const btn = e.target.querySelector('button[type="submit"]');
         const username = document.getElementById("gate-email").value.trim();
         const password = document.getElementById("gate-password").value;
         const errEl = document.getElementById("gate-error");
-        errEl.textContent = "Giriş yapılıyor...";
+        errEl.textContent = "";
+        setButtonLoading(btn, true, "Giriş yapılıyor...");
 
         try {
           const res = await window.Auth.login(username, password);
@@ -628,9 +630,11 @@
             window.location.reload();
           } else {
             errEl.textContent = "E-posta veya şifre hatalı.";
+            setButtonLoading(btn, false);
           }
         } catch (err) {
           errEl.textContent = "Giriş hatası: " + err.message;
+          setButtonLoading(btn, false);
         }
       });
 
@@ -782,29 +786,39 @@
       // Form Submit
       document.getElementById("event-form").addEventListener("submit", async (e) => {
         e.preventDefault();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
         const editId = document.getElementById("edit-event-id").value;
-        const title = document.getElementById("event-title-input").value;
-        const category = document.getElementById("event-category-input").value;
-        const event_date = document.getElementById("event-date-input").value;
-        const event_time = document.getElementById("event-time-input").value;
-        const location = document.getElementById("event-location-input").value;
-        const with_whom = document.getElementById("event-with-input").value;
-        const notes = document.getElementById("event-notes-input").value;
+        setButtonLoading(submitBtn, true, editId ? "Güncelleniyor..." : "Kaydediliyor...");
 
-        if (editId) {
-          await window.EventsAPI.updateEvent(editId, {
-            title, category, event_date, event_time, location, with_whom, notes
-          });
-          if (window.Toast) Toast.success("Etkinlik güncellendi!");
-        } else {
-          await window.EventsAPI.addEvent({
-            title, category, event_date, event_time, location, with_whom, notes
-          });
-          if (window.Toast) Toast.success("Yeni etkinlik eklendi!");
+        try {
+          const title = document.getElementById("event-title-input").value;
+          const category = document.getElementById("event-category-input").value;
+          const event_date = document.getElementById("event-date-input").value;
+          const event_time = document.getElementById("event-time-input").value;
+          const location = document.getElementById("event-location-input").value;
+          const with_whom = document.getElementById("event-with-input").value;
+          const notes = document.getElementById("event-notes-input").value;
+
+          if (editId) {
+            await window.EventsAPI.updateEvent(editId, {
+              title, category, event_date, event_time, location, with_whom, notes
+            });
+            if (window.Toast) Toast.success("Etkinlik güncellendi!");
+          } else {
+            await window.EventsAPI.addEvent({
+              title, category, event_date, event_time, location, with_whom, notes
+            });
+            if (window.Toast) Toast.success("Yeni etkinlik eklendi!");
+          }
+
+          Modal.close("event-modal");
+          await renderEvents();
+        } catch (err) {
+          console.error("Event save error:", err);
+          if (window.Toast) Toast.error("Etkinlik kaydedilirken hata oluştu.");
+        } finally {
+          setButtonLoading(submitBtn, false);
         }
-
-        Modal.close("event-modal");
-        await renderEvents();
       });
 
       // Toggle Complete
@@ -832,9 +846,20 @@
 
       // Delete Event
       window.deleteEventItem = async function (id) {
-        if (!confirm("Bu etkinliği silmek istediğinize emin misiniz?")) return;
+        const item = allEvents.find(e => e.id === id);
+        const name = item ? `"${item.title}"` : "bu etkinliği";
+        const confirmed = window.Confirm
+          ? await window.Confirm.show({
+              title: "Etkinliği Sil",
+              message: `${name} silmek istediğinize emin misiniz?`,
+              confirmText: "🗑 Evet, Sil",
+              cancelText: "İptal",
+              danger: true
+            })
+          : confirm(`${name} silmek istediğinize emin misiniz?`);
+        if (!confirmed) return;
         await window.EventsAPI.deleteEvent(id);
-        if (window.Toast) Toast.success("Etkinlik silindi.");
+        if (window.Toast) Toast.info("Etkinlik silindi.");
         await renderEvents();
       };
 
@@ -848,32 +873,37 @@
 
       document.getElementById("telegram-settings-form").addEventListener("submit", (e) => {
         e.preventDefault();
-        const botToken = document.getElementById("tg-bot-token").value.replace(/\s+/g, '');
-        const chatId = document.getElementById("tg-chat-id").value.replace(/\s+/g, '');
-        if (window.TelegramService) {
-          window.TelegramService.saveSettings({ botToken, chatId, isAutoActive: true });
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        setButtonLoading(submitBtn, true, "Kaydediliyor...");
+        try {
+          const botToken = document.getElementById("tg-bot-token").value.replace(/\s+/g, '');
+          const chatId = document.getElementById("tg-chat-id").value.replace(/\s+/g, '');
+          if (window.TelegramService) {
+            window.TelegramService.saveSettings({ botToken, chatId, isAutoActive: true });
+          }
+          if (window.Toast) Toast.success("Telegram ayarları kaydedildi!");
+          Modal.close("telegram-modal");
+        } finally {
+          setButtonLoading(submitBtn, false);
         }
-        if (window.Toast) Toast.success("Telegram ayarları kaydedildi!");
-        Modal.close("telegram-modal");
       });
 
       document.getElementById("tg-test-send-btn").addEventListener("click", async () => {
         const btn = document.getElementById("tg-test-send-btn");
-        const origText = btn.innerHTML;
-        btn.innerHTML = "⏳ Gönderiliyor...";
-        btn.disabled = true;
+        setButtonLoading(btn, true, "Gönderiliyor...");
 
-        if (window.TelegramService) {
-          const res = await window.TelegramService.sendDailyDigest();
-          if (res.success) {
-            if (window.Toast) Toast.success("Günlük özet Telegram'a başarıyla gönderildi!");
-          } else {
-            if (window.Toast) Toast.error(res.error || "Gönderilemedi. Lütfen Bot Token ve Chat ID'nizi kontrol edin.");
+        try {
+          if (window.TelegramService) {
+            const res = await window.TelegramService.sendDailyDigest();
+            if (res && res.success) {
+              if (window.Toast) Toast.success("Günlük özet Telegram'a başarıyla gönderildi!");
+            } else {
+              if (window.Toast) Toast.error((res && res.error) || "Gönderilemedi. Lütfen Bot Token ve Chat ID'nizi kontrol edin.");
+            }
           }
+        } finally {
+          setButtonLoading(btn, false);
         }
-
-        btn.innerHTML = origText;
-        btn.disabled = false;
       });
 
       // ===== DOĞUM GÜNLERİ İŞLEMLERİ =====
@@ -906,7 +936,7 @@
               ${item.gift_ideas ? `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🎁 <i>${escapeHtml(item.gift_ideas)}</i></div>` : ''}
             </div>
             <div style="display:flex; gap:6px; align-items:center;">
-              <button type="button" class="event-icon-btn" onclick="sendBdayAlertDirect('${item.id}')" title="Telegram'a Bildir">📲</button>
+              <button type="button" class="event-icon-btn" onclick="sendBdayAlertDirect('${item.id}', this)" title="Telegram'a Bildir">📲</button>
               <button type="button" class="event-icon-btn delete" onclick="deleteBdayDirect('${item.id}')" title="Sil">🗑️</button>
             </div>
           </div>
@@ -930,45 +960,80 @@
 
       document.getElementById("bday-add-form").addEventListener("submit", async (e) => {
         e.preventDefault();
-        const name = document.getElementById("bday-name-input").value;
-        const birth_date = document.getElementById("bday-date-input").value;
-        const relationship = document.getElementById("bday-rel-input").value;
-        const gift_ideas = document.getElementById("bday-gift-input").value;
-        const notes = document.getElementById("bday-notes-input").value;
+        const submitBtn = e.target.querySelector('button[type="submit"]');
+        setButtonLoading(submitBtn, true, "Kaydediliyor...");
 
-        if (window.BirthdaysAPI) {
-          await window.BirthdaysAPI.addBirthday({ name, birth_date, relationship, gift_ideas, notes });
-          if (window.Toast) Toast.success("Doğum günü eklendi!");
+        try {
+          const name = document.getElementById("bday-name-input").value;
+          const birth_date = document.getElementById("bday-date-input").value;
+          const relationship = document.getElementById("bday-rel-input").value;
+          const gift_ideas = document.getElementById("bday-gift-input").value;
+          const notes = document.getElementById("bday-notes-input").value;
+
+          if (window.BirthdaysAPI) {
+            await window.BirthdaysAPI.addBirthday({ name, birth_date, relationship, gift_ideas, notes });
+            if (window.Toast) Toast.success("Doğum günü eklendi!");
+          }
+
+          document.getElementById("bday-add-form").reset();
+          document.getElementById("bday-add-form").style.display = "none";
+          await renderBirthdaysList();
+        } catch (err) {
+          console.error("Birthday save error:", err);
+          if (window.Toast) Toast.error("Doğum günü eklenirken hata oluştu.");
+        } finally {
+          setButtonLoading(submitBtn, false);
         }
-
-        document.getElementById("bday-add-form").reset();
-        document.getElementById("bday-add-form").style.display = "none";
-        await renderBirthdaysList();
       });
 
       window.deleteBdayDirect = async function(id) {
-        if (!confirm("Bu doğum gününü silmek istediğinize emin misiniz?")) return;
+        const list = window.BirthdaysAPI ? await window.BirthdaysAPI.fetchBirthdays() : [];
+        const item = list.find(b => b.id === id);
+        const name = item ? `"${item.name}"` : "bu doğum gününü";
+        const confirmed = window.Confirm
+          ? await window.Confirm.show({
+              title: "Doğum Gününü Sil",
+              message: `${name} kaydını silmek istediğinize emin misiniz?`,
+              confirmText: "🗑 Evet, Sil",
+              cancelText: "İptal",
+              danger: true
+            })
+          : confirm(`${name} silmek istediğinize emin misiniz?`);
+        if (!confirmed) return;
         if (window.BirthdaysAPI) {
           await window.BirthdaysAPI.deleteBirthday(id);
-          if (window.Toast) Toast.success("Doğum günü silindi.");
+          if (window.Toast) Toast.info("Doğum günü silindi.");
           await renderBirthdaysList();
         }
       };
 
-      window.sendBdayAlertDirect = async function(id) {
+      window.sendBdayAlertDirect = async function(id, btnEl) {
         if (!window.BirthdaysAPI || !window.TelegramService) return;
         const list = await window.BirthdaysAPI.fetchBirthdays();
         const item = list.find(b => b.id === id);
         if (!item) return;
 
-        const calc = window.BirthdaysAPI.calculateNextBirthday(item.birth_date);
-        const fullItem = { ...item, ...calc };
+        const origHtml = btnEl ? btnEl.innerHTML : "";
+        if (btnEl) {
+          btnEl.disabled = true;
+          btnEl.innerHTML = "⏳";
+        }
 
-        const res = await window.TelegramService.sendBirthdayAlert(fullItem);
-        if (res.success) {
-          if (window.Toast) Toast.success(`${item.name} için Telegram bildirimi gönderildi!`);
-        } else {
-          if (window.Toast) Toast.error(res.error || "Telegram bildirimi gönderilemedi.");
+        try {
+          const calc = window.BirthdaysAPI.calculateNextBirthday(item.birth_date);
+          const fullItem = { ...item, ...calc };
+
+          const res = await window.TelegramService.sendBirthdayAlert(fullItem);
+          if (res.success) {
+            if (window.Toast) Toast.success(`${item.name} için Telegram bildirimi gönderildi!`);
+          } else {
+            if (window.Toast) Toast.error(res.error || "Telegram bildirimi gönderilemedi.");
+          }
+        } finally {
+          if (btnEl) {
+            btnEl.disabled = false;
+            btnEl.innerHTML = origHtml;
+          }
         }
       };
 

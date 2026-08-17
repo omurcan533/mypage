@@ -59,35 +59,35 @@ function setupEventListeners() {
       
       if (!date || !meal) return;
       const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = "Kaydediliyor...";
-      submitBtn.disabled = true;
+      setButtonLoading(submitBtn, true, editingDinnerId ? "Güncelleniyor..." : "Kaydediliyor...");
 
-      let error;
-      if (editingDinnerId) {
-        const res = await window.supabaseClient
-          .from('family_dinners')
-          .update({ date, meal })
-          .eq('id', editingDinnerId);
-        error = res.error;
-      } else {
-        const res = await window.supabaseClient
-          .from('family_dinners')
-          .insert([{ date, meal }]);
-        error = res.error;
-      }
-      
-      submitBtn.textContent = originalText;
-      submitBtn.disabled = false;
-
-      if(!error) {
-        editingDinnerId = null;
-        e.target.reset();
-        closeModal('dinner-modal');
-        renderDinners();
-      } else {
-        console.error("Dinner Submit Error:", error);
-        alert("Kayıt sırasında bir hata oluştu: " + error.message);
+      try {
+        let error;
+        if (editingDinnerId) {
+          const res = await window.supabaseClient
+            .from('family_dinners')
+            .update({ date, meal })
+            .eq('id', editingDinnerId);
+          error = res.error;
+        } else {
+          const res = await window.supabaseClient
+            .from('family_dinners')
+            .insert([{ date, meal }]);
+          error = res.error;
+        }
+        
+        if (!error) {
+          editingDinnerId = null;
+          e.target.reset();
+          closeModal('dinner-modal');
+          if (window.Toast) Toast.success("Yemek kaydedildi!");
+          renderDinners();
+        } else {
+          console.error("Dinner Submit Error:", error);
+          if (window.Toast) Toast.error("Kayıt sırasında bir hata oluştu: " + error.message);
+        }
+      } finally {
+        setButtonLoading(submitBtn, false);
       }
     });
   }
@@ -102,35 +102,35 @@ function setupEventListeners() {
       
       if (!text) return;
       const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = "Kaydediliyor...";
-      submitBtn.disabled = true;
+      setButtonLoading(submitBtn, true, editingBoardId ? "Güncelleniyor..." : "Kaydediliyor...");
 
-      let error;
-      if (editingBoardId) {
-        const res = await window.supabaseClient
-          .from('family_board')
-          .update({ type, text })
-          .eq('id', editingBoardId);
-        error = res.error;
-      } else {
-        const res = await window.supabaseClient
-          .from('family_board')
-          .insert([{ type, text, completed: false }]);
-        error = res.error;
-      }
-      
-      submitBtn.textContent = originalText;
-      submitBtn.disabled = false;
-
-      if (!error) {
-        editingBoardId = null;
-        e.target.reset();
-        closeModal('board-modal');
-        renderBoard();
-      } else {
-        console.error("Board Submit Error:", error);
-        alert("Kayıt sırasında bir hata oluştu: " + error.message);
+      try {
+        let error;
+        if (editingBoardId) {
+          const res = await window.supabaseClient
+            .from('family_board')
+            .update({ type, text })
+            .eq('id', editingBoardId);
+          error = res.error;
+        } else {
+          const res = await window.supabaseClient
+            .from('family_board')
+            .insert([{ type, text, completed: false }]);
+          error = res.error;
+        }
+        
+        if (!error) {
+          editingBoardId = null;
+          e.target.reset();
+          closeModal('board-modal');
+          if (window.Toast) Toast.success("Pano notu kaydedildi!");
+          renderBoard();
+        } else {
+          console.error("Board Submit Error:", error);
+          if (window.Toast) Toast.error("Kayıt sırasında bir hata oluştu: " + error.message);
+        }
+      } finally {
+        setButtonLoading(submitBtn, false);
       }
     });
   }
@@ -149,36 +149,36 @@ function setupEventListeners() {
       
       if (!year || !place) return;
       const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = "Kaydediliyor...";
-      submitBtn.disabled = true;
+      setButtonLoading(submitBtn, true, editingTravelId ? "Güncelleniyor..." : "Kaydediliyor...");
 
-      let error;
-      const payload = { year: parseInt(year), month, place, location, companions, details };
-      if (editingTravelId) {
-        const res = await window.supabaseClient
-          .from('family_travels')
-          .update(payload)
-          .eq('id', editingTravelId);
-        error = res.error;
-      } else {
-        const res = await window.supabaseClient
-          .from('family_travels')
-          .insert([payload]);
-        error = res.error;
-      }
-      
-      submitBtn.textContent = originalText;
-      submitBtn.disabled = false;
-
-      if (!error) {
-        editingTravelId = null;
-        e.target.reset();
-        closeModal('travel-modal');
-        renderTravels();
-      } else {
-        console.error("Travel Submit Error:", error);
-        alert("Kayıt sırasında bir hata oluştu: " + error.message);
+      try {
+        let error;
+        const payload = { year: parseInt(year), month, place, location, companions, details };
+        if (editingTravelId) {
+          const res = await window.supabaseClient
+            .from('family_travels')
+            .update(payload)
+            .eq('id', editingTravelId);
+          error = res.error;
+        } else {
+          const res = await window.supabaseClient
+            .from('family_travels')
+            .insert([payload]);
+          error = res.error;
+        }
+        
+        if (!error) {
+          editingTravelId = null;
+          e.target.reset();
+          closeModal('travel-modal');
+          if (window.Toast) Toast.success("Gezi planı kaydedildi!");
+          renderTravels();
+        } else {
+          console.error("Travel Submit Error:", error);
+          if (window.Toast) Toast.error("Kayıt sırasında bir hata oluştu: " + error.message);
+        }
+      } finally {
+        setButtonLoading(submitBtn, false);
       }
     });
   }
@@ -193,24 +193,24 @@ function setupEventListeners() {
       
       if (!name || !birthdate) return;
       const submitBtn = e.target.querySelector('button[type="submit"]');
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = "Kaydediliyor...";
-      submitBtn.disabled = true;
+      setButtonLoading(submitBtn, true, "Kaydediliyor...");
 
-      const { error } = await window.supabaseClient
-        .from('family_birthdays')
-        .insert([{ name, birthdate }]);
-      
-      submitBtn.textContent = originalText;
-      submitBtn.disabled = false;
-
-      if (!error) {
-        e.target.reset();
-        closeModal('birthday-modal');
-        renderBirthdays();
-      } else {
-        console.error("Birthday Insert Error:", error);
-        alert("Kayıt sırasında bir hata oluştu: " + error.message);
+      try {
+        const { error } = await window.supabaseClient
+          .from('family_birthdays')
+          .insert([{ name, birthdate }]);
+        
+        if (!error) {
+          e.target.reset();
+          closeModal('birthday-modal');
+          if (window.Toast) Toast.success("Doğum günü eklendi!");
+          renderBirthdays();
+        } else {
+          console.error("Birthday Insert Error:", error);
+          if (window.Toast) Toast.error("Kayıt sırasında bir hata oluştu: " + error.message);
+        }
+      } finally {
+        setButtonLoading(submitBtn, false);
       }
     });
   }

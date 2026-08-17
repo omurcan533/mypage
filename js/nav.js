@@ -877,22 +877,25 @@ const Nav = {
         const errorEl = document.getElementById('admin-access-error');
 
         errorEl.textContent = '';
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Giriş yapılıyor...';
+        setButtonLoading(submitBtn, true, 'Giriş yapılıyor...');
 
-        const ok = await Auth.login(email, password);
+        try {
+          const ok = await Auth.login(email, password);
 
-        if (!ok) {
-          errorEl.textContent = 'E-posta veya şifre hatalı.';
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Giriş Yap';
-          return;
+          if (!ok) {
+            errorEl.textContent = 'E-posta veya şifre hatalı.';
+            setButtonLoading(submitBtn, false);
+            return;
+          }
+
+          Modal.close('admin-access-modal');
+          this.syncAccess();
+
+          window.location.reload();
+        } catch (err) {
+          errorEl.textContent = 'Giriş yapılırken bir hata oluştu.';
+          setButtonLoading(submitBtn, false);
         }
-
-        Modal.close('admin-access-modal');
-        this.syncAccess();
-
-        window.location.reload();
       });
     }
 
@@ -1038,7 +1041,7 @@ const Confirm = {
         modalOverlay.className = 'modal-overlay';
         modalOverlay.style.zIndex = '999999';
         modalOverlay.innerHTML = `
-          <div class="modal-card" style="max-width: 400px; text-align: center; padding: 28px 24px; border: 1px solid var(--glass-border); background: var(--bg-card); backdrop-filter: blur(20px); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg);">
+          <div class="modal-card" style="max-width: 400px; text-align: center; padding: 28px 24px; border: 1px solid var(--glass-border); background: var(--bg-secondary); backdrop-filter: blur(20px); border-radius: 32px; box-shadow: var(--shadow-lg);">
             <div id="confirm-modal-icon" style="font-size: 44px; margin-bottom: 12px; filter: drop-shadow(0 4px 12px rgba(251, 113, 133, 0.4));">🗑️</div>
             <h3 id="confirm-modal-title" class="modal-title" style="font-size: 19px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary);"></h3>
             <p id="confirm-modal-message" style="font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5;"></p>
@@ -1100,15 +1103,17 @@ const Confirm = {
 function setButtonLoading(btn, isLoading, loadingText = '') {
   if (!btn) return;
   if (isLoading) {
-    if (!btn.dataset.originalHtml) {
+    if (!btn.dataset.originalHtml && !btn.classList.contains('is-loading')) {
       btn.dataset.originalHtml = btn.innerHTML;
     }
     btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
     btn.classList.add('is-loading');
     const label = loadingText || btn.textContent.trim() || 'İşleniyor...';
     btn.innerHTML = `<span class="btn-spinner"></span> <span>${label}</span>`;
   } else {
     btn.disabled = false;
+    btn.removeAttribute('aria-busy');
     btn.classList.remove('is-loading');
     if (btn.dataset.originalHtml) {
       btn.innerHTML = btn.dataset.originalHtml;

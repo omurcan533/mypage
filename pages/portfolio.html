@@ -485,9 +485,21 @@
       };
 
       window.deleteAsset = async function(id) {
-        if (!confirm("Bu varlığı portföyünüzden silmek istediğinize emin misiniz?")) return;
+        const item = portfolioItems.find(p => p.id === id);
+        const name = item ? `"${item.symbol}"` : "bu varlığı";
+        const confirmed = window.Confirm
+          ? await window.Confirm.show({
+              title: "Varlığı Sil",
+              message: `${name} portföyünüzden silmek istediğinize emin misiniz?`,
+              confirmText: "🗑 Evet, Sil",
+              cancelText: "İptal",
+              danger: true
+            })
+          : confirm(`${name} silmek istediğinize emin misiniz?`);
+        if (!confirmed) return;
         portfolioItems = portfolioItems.filter(p => p.id !== id);
         await savePortfolioToSupabase(portfolioItems);
+        if (window.Toast) Toast.info("Varlık silindi.");
         renderPortfolio();
       };
 
@@ -500,38 +512,50 @@
 
       document.getElementById("portfolio-form").addEventListener("submit", async (e) => {
         e.preventDefault();
+        const submitBtn = e.target.querySelector('button[type="submit"]');
         const id = document.getElementById("asset-id").value;
-        const symbol = document.getElementById("asset-symbol").value.trim().toUpperCase();
-        const type = document.getElementById("asset-type").value;
-        const buyPrice = parseFloat(document.getElementById("asset-buy-price").value) || 0;
-        const qty = parseFloat(document.getElementById("asset-quantity").value) || 0;
-        const buyDate = document.getElementById("asset-date").value;
+        setButtonLoading(submitBtn, true, id ? "Güncelleniyor..." : "Kaydediliyor...");
 
-        if (id) {
-          const item = portfolioItems.find(p => p.id === id);
-          if (item) {
-            item.symbol = symbol;
-            item.type = type;
-            item.buyPrice = buyPrice;
-            item.qty = qty;
-            item.buyDate = buyDate;
+        try {
+          const symbol = document.getElementById("asset-symbol").value.trim().toUpperCase();
+          const type = document.getElementById("asset-type").value;
+          const buyPrice = parseFloat(document.getElementById("asset-buy-price").value) || 0;
+          const qty = parseFloat(document.getElementById("asset-quantity").value) || 0;
+          const buyDate = document.getElementById("asset-date").value;
+
+          if (id) {
+            const item = portfolioItems.find(p => p.id === id);
+            if (item) {
+              item.symbol = symbol;
+              item.type = type;
+              item.buyPrice = buyPrice;
+              item.qty = qty;
+              item.buyDate = buyDate;
+            }
+            if (window.Toast) Toast.success("Varlık güncellendi!");
+          } else {
+            portfolioItems.unshift({
+              id: 'p-' + Date.now(),
+              symbol,
+              name: symbol,
+              type,
+              buyPrice,
+              currentPrice: buyPrice,
+              qty,
+              buyDate
+            });
+            if (window.Toast) Toast.success("Varlık eklendi!");
           }
-        } else {
-          portfolioItems.unshift({
-            id: 'p-' + Date.now(),
-            symbol,
-            name: symbol,
-            type,
-            buyPrice,
-            currentPrice: buyPrice,
-            qty,
-            buyDate
-          });
-        }
 
-        await savePortfolioToSupabase(portfolioItems);
-        Modal.close("portfolio-modal");
-        await updatePricesAndRender();
+          await savePortfolioToSupabase(portfolioItems);
+          Modal.close("portfolio-modal");
+          await updatePricesAndRender();
+        } catch (err) {
+          console.error("Portfolio save error:", err);
+          if (window.Toast) Toast.error("Kayıt sırasında bir hata oluştu.");
+        } finally {
+          setButtonLoading(submitBtn, false);
+        }
       });
 
       // Init Page
