@@ -742,6 +742,7 @@ const Nav = {
           <li><a href="travels.html">✈️ Gezilerim</a></li>
           <li><a href="books.html">📚 Kitaplar</a></li>
           <li><a href="media.html">🎮 Medya & Eğlence</a></li>
+          <li><a href="english.html">🇬🇧 İngilizce</a></li>
           <li><a href="portfolio.html">💼 Portföyüm</a></li>
           <li><a href="contact.html">📬 İletişim</a></li>
         </ul>
