@@ -2,7 +2,7 @@
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Ailem — Ömür Can Yılmaz</title>
     <script>
       (function() {
@@ -203,8 +203,14 @@
           <!-- Akşam Yemekleri -->
           <div class="family-section">
             <div class="family-section-header">
-              <h2 class="family-section-title">🍽️ Akşam Menüsü</h2>
-              <div style="display:flex; gap: 8px;">
+              <div class="family-title-with-date">
+                <h2 class="family-section-title">🍽️ Akşam Menüsü</h2>
+                <span id="dinner-today-badge" class="dinner-today-badge">📅 Bugün</span>
+              </div>
+              <div style="display:flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-accent" onclick="openDinnerRecommenderModal()" style="padding: 6px 12px; font-size: 13px;">
+                  ✨ Ne Pişirsem?
+                </button>
                 <select id="dinner-year-filter" class="dinner-filter">
                   <option value="all">Tüm Yıllar</option>
                 </select>
@@ -236,9 +242,9 @@
 
     <!-- ===== MODALS ===== -->
     
-    <!-- Dinner Modal -->
+    <!-- Dinner Modal (Add / Edit) -->
     <div class="modal-overlay" id="dinner-modal">
-      <div class="modal">
+      <div class="modal" style="max-width: 520px;">
         <div class="modal-header">
           <div class="modal-title">🍽️ Yemek Ekle</div>
           <button class="modal-close">✕</button>
@@ -252,8 +258,38 @@
             <label class="form-label">Yemek (Menü)</label>
             <input type="text" id="dinner-meal" class="form-input" placeholder="Örn: Fırında Makarna, Salata..." required>
           </div>
+          <div class="form-group">
+            <label class="form-label">📝 Not / Eksik Malzemeler (Opsiyonel)</label>
+            <textarea id="dinner-note" class="form-textarea" placeholder="Örn: 1 kg tavuk göğsü, taze krema ve mantar alınacak..." style="min-height: 70px;"></textarea>
+          </div>
           <button type="submit" class="btn btn-primary" style="width: 100%;">Kaydet</button>
         </form>
+      </div>
+    </div>
+
+    <!-- Dinner Detail Modal (View Meal & Note) -->
+    <div class="modal-overlay" id="dinner-detail-modal">
+      <div class="modal" style="max-width: 540px;">
+        <div class="modal-header">
+          <div class="modal-title">🍽️ Günün Akşam Menüsü & Detayları</div>
+          <button class="modal-close">✕</button>
+        </div>
+        <div id="dinner-detail-body">
+          <!-- Injected by family.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Smart Dinner Recommender Modal -->
+    <div class="modal-overlay" id="dinner-recommender-modal">
+      <div class="modal" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+        <div class="modal-header">
+          <div class="modal-title">✨ Akıllı Yemek Öneri Asistanı</div>
+          <button class="modal-close">✕</button>
+        </div>
+        <div id="dinner-recommender-content">
+          <!-- Injected by family.js -->
+        </div>
       </div>
     </div>
 

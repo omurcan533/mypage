@@ -55,24 +55,27 @@ function setupEventListeners() {
     dinnerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const date = document.getElementById('dinner-date').value;
-      const meal = document.getElementById('dinner-meal').value;
+      const mealInput = document.getElementById('dinner-meal').value.trim();
+      const noteInput = document.getElementById('dinner-note')?.value.trim() || '';
       
-      if (!date || !meal) return;
+      if (!date || !mealInput) return;
       const submitBtn = e.target.querySelector('button[type="submit"]');
       setButtonLoading(submitBtn, true, editingDinnerId ? "Güncelleniyor..." : "Kaydediliyor...");
+
+      const finalMeal = noteInput ? `${mealInput} — 📝 Not: ${noteInput}` : mealInput;
 
       try {
         let error;
         if (editingDinnerId) {
           const res = await window.supabaseClient
             .from('family_dinners')
-            .update({ date, meal })
+            .update({ date, meal: finalMeal })
             .eq('id', editingDinnerId);
           error = res.error;
         } else {
           const res = await window.supabaseClient
             .from('family_dinners')
-            .insert([{ date, meal }]);
+            .insert([{ date, meal: finalMeal }]);
           error = res.error;
         }
         
@@ -80,7 +83,7 @@ function setupEventListeners() {
           editingDinnerId = null;
           e.target.reset();
           closeModal('dinner-modal');
-          if (window.Toast) Toast.success("Yemek kaydedildi!");
+          if (window.Toast) Toast.success(editingDinnerId ? "Yemek ve not güncellendi!" : "Yemek kaydedildi!");
           renderDinners();
         } else {
           console.error("Dinner Submit Error:", error);
@@ -227,6 +230,13 @@ async function renderAll() {
 
 /* ================= DINNERS ================= */
 async function renderDinners() {
+  const todayBadge = document.getElementById('dinner-today-badge');
+  if (todayBadge) {
+    const today = new Date();
+    const formatted = today.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+    todayBadge.innerHTML = `📅 ${formatted}`;
+  }
+
   const list = document.getElementById('dinner-list');
   if (!list) return;
   list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Yükleniyor...</div>`;
@@ -268,7 +278,7 @@ async function renderDinners() {
           <thead>
             <tr>
               <th style="width: 220px;">📅 Tarih</th>
-              <th>🍽️ Akşam Menüsü</th>
+              <th>🍽️ Akşam Menüsü & Notlar (Detay için tıkla)</th>
               ${isAdmin ? `<th style="text-align: right; width: 90px;">İşlem</th>` : ''}
             </tr>
           </thead>
@@ -277,18 +287,23 @@ async function renderDinners() {
               const dateObj = new Date(d.date);
               const dateStr = dateObj.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
               const dayStr = dateObj.toLocaleDateString('tr-TR', { weekday: 'long' });
+              const { meal, note } = parseMealAndNote(d.meal);
+
               return `
-                <tr>
+                <tr class="dinner-table-row" onclick="openDinnerDetailModal('${d.id}')" title="Menü ve not detayını görüntülemek için tıklayın">
                   <td>
                     <div class="dinner-date-badge">
                       <span>📅</span> <strong>${dateStr}</strong> <span style="opacity:0.75; font-size:11px;">(${dayStr})</span>
                     </div>
                   </td>
-                  <td style="font-weight: 600; font-size: 15px; color: var(--text-primary);">
-                    ${d.meal}
+                  <td>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                      <span style="font-weight: 600; font-size: 15px; color: var(--text-primary);">${meal}</span>
+                      ${note ? `<span class="dinner-note-pill" title="Not: ${note.replace(/"/g, '&quot;')}">📝 Not var</span>` : ''}
+                    </div>
                   </td>
                   ${isAdmin ? `
-                    <td style="text-align: right;">
+                    <td style="text-align: right;" onclick="event.stopPropagation();">
                       <div class="action-btns">
                         <button class="dinner-edit-btn" onclick="openEditDinnerModal('${d.id}')" title="Düzenle">✏️</button>
                         <button class="dinner-delete-btn" onclick="deleteDinner('${d.id}')" title="Sil">✕</button>
@@ -308,11 +323,91 @@ async function renderDinners() {
   }
 }
 
+function parseMealAndNote(rawMeal) {
+  if (!rawMeal) return { meal: '', note: '' };
+  // Pattern 1: "... — 📝 Eksikler: note" or "... — 📝 Not: note" or "... — 📝 not"
+  const match1 = rawMeal.match(/^(.*?)\s*—\s*📝\s*(?:Eksikler|Not|Malzemeler)?\s*:?\s*(.*)$/i);
+  if (match1) {
+    return { meal: match1[1].trim(), note: match1[2].trim() };
+  }
+  // Pattern 2: "... (Not: note)"
+  const match2 = rawMeal.match(/^(.*?)\s*\((?:Not|Eksik|Eksikler):\s*(.*?)\)$/i);
+  if (match2) {
+    return { meal: match2[1].trim(), note: match2[2].trim() };
+  }
+  return { meal: rawMeal.trim(), note: '' };
+}
+
+window.openDinnerDetailModal = function(id) {
+  const item = dinnersCache.find(d => String(d.id) === String(id));
+  if (!item) return;
+
+  const { meal, note } = parseMealAndNote(item.meal);
+  const dateObj = new Date(item.date);
+  const dateStr = dateObj.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric', weekday: 'long' });
+
+  const container = document.getElementById('dinner-detail-body');
+  if (!container) return;
+
+  const isAdmin = window.Auth && typeof window.Auth.canManageContent === 'function' ? window.Auth.canManageContent() : false;
+
+  container.innerHTML = `
+    <div style="display: flex; flex-direction: column; gap: 16px;">
+      <!-- Date Banner -->
+      <div style="background: linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(99, 102, 241, 0.14)); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: var(--radius-lg); padding: 14px 18px; display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 24px;">📅</span>
+        <div>
+          <div style="font-size: 11px; font-weight: 800; color: #38bdf8; text-transform: uppercase; letter-spacing: 0.05em;">Tarih & Gün</div>
+          <div style="font-size: 16px; font-weight: 800; color: #ffffff;">${dateStr}</div>
+        </div>
+      </div>
+
+      <!-- Meal Card -->
+      <div style="background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: var(--radius-lg); padding: 18px 20px;">
+        <div style="font-size: 12px; font-weight: 800; color: var(--accent-light, #818cf8); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">🍽️ Menü & Yemekler</div>
+        <div style="font-size: 17px; font-weight: 700; color: #ffffff; line-height: 1.55;">${meal}</div>
+      </div>
+
+      <!-- Note Card -->
+      <div style="background: ${note ? 'rgba(245, 158, 11, 0.14)' : 'rgba(255, 255, 255, 0.03)'}; border: 1px solid ${note ? 'rgba(245, 158, 11, 0.45)' : 'rgba(255, 255, 255, 0.1)'}; border-radius: var(--radius-lg); padding: 16px 20px;">
+        <div style="font-size: 12px; font-weight: 800; color: ${note ? '#fbbf24' : 'var(--text-muted)'}; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;">
+          📝 Düşülen Not & Eksik Malzemeler
+        </div>
+        ${note ? `
+          <div style="font-size: 15px; font-weight: 600; color: #fef08a; line-height: 1.55; white-space: pre-line;">
+            ${note}
+          </div>
+        ` : `
+          <div style="font-size: 13.5px; color: var(--text-muted); font-style: italic;">
+            Bu menü için henüz özel bir not veya eksik malzeme bırakılmamış.
+          </div>
+        `}
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 10px; margin-top: 6px; flex-wrap: wrap;">
+        <button class="btn btn-primary admin-only" style="flex: 1; padding: 12px 18px; font-weight: 700;" onclick="openEditDinnerModal('${item.id}')">
+          ✏️ Bu Yemeği Düzenle
+        </button>
+        <button class="btn btn-glass" style="padding: 12px 18px;" onclick="closeModal('dinner-detail-modal')">
+          ✕ Kapat
+        </button>
+      </div>
+    </div>
+  `;
+
+  openModal('dinner-detail-modal');
+  checkAdminAccess(isAdmin);
+};
+
 window.openNewDinnerModal = function() {
   editingDinnerId = null;
   const title = document.querySelector('#dinner-modal .modal-title');
   if (title) title.textContent = "🍽️ Yemek Ekle";
   document.getElementById('add-dinner-form')?.reset();
+  const todayStr = new Date().toISOString().split('T')[0];
+  const dateInput = document.getElementById('dinner-date');
+  if (dateInput) dateInput.value = todayStr;
   openModal('dinner-modal');
 };
 
@@ -322,8 +417,14 @@ window.openEditDinnerModal = function(id) {
   editingDinnerId = item.id;
   const title = document.querySelector('#dinner-modal .modal-title');
   if (title) title.textContent = "🍽️ Yemek Düzenle";
+  
+  const { meal, note } = parseMealAndNote(item.meal);
   document.getElementById('dinner-date').value = item.date || '';
-  document.getElementById('dinner-meal').value = item.meal || '';
+  document.getElementById('dinner-meal').value = meal || '';
+  const noteEl = document.getElementById('dinner-note');
+  if (noteEl) noteEl.value = note || '';
+
+  closeModal('dinner-detail-modal');
   openModal('dinner-modal');
 };
 
@@ -331,6 +432,715 @@ window.deleteDinner = async function(id) {
   if (!confirm("Bu yemeği silmek istediğinize emin misiniz?")) return;
   await window.supabaseClient.from('family_dinners').delete().eq('id', id);
   renderDinners();
+};
+
+/* ================= SMART DINNER RECOMMENDER ================= */
+const RECIPE_DATABASE = [
+  // Tavuk / Kanatlı
+  {
+    id: "rec-1",
+    category: "tavuk",
+    categoryLabel: "🍗 Tavuk / Kanatlı",
+    title: "Fırında Sebzeli Tavuk & Şehriyeli Pirinç Pilavı",
+    menu: "Fırında Patatesli Biberli Tavuk But, Şehriyeli Pirinç Pilavı, Mevsim Salata & Ayran",
+    soup: "Kırmızı Mercimek Çorbası",
+    prepTime: "15 dk",
+    cookTime: "40 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "800g Tavuk Pirzola veya But",
+      "3 adet orta boy Patates (elma dilim)",
+      "3 adet Yeşil Biber & 1 adet Kapya Biber",
+      "1 yemek kaşığı Domates Salçası",
+      "3 yemek kaşığı Yoğurt & 4 yemek kaşığı Zeytinyağı",
+      "3 diş Sarımsak (ezilmiş)",
+      "1'er tatlı kaşığı Kekik, Kırmızı Toz Biber, Karabiber, Tuz"
+    ],
+    steps: [
+      "Sos için; bir kapta yoğurt, zeytinyağı, salça, ezilmiş sarımsak ve tüm baharatları çırpın.",
+      "Tavuk etlerini ve elma dilim doğranmış patatesleri bu sosa bulayıp en az 15-20 dakika dinlendirin.",
+      "Fırın tepsisine tavukları ve patatesleri yerleştirin. Aralara iri doğranmış biberleri serpiştirin.",
+      "Önceden ısıtılmış 200°C fırında patatesler yumuşayıp tavukların üzeri nar gibi kızarana kadar yaklaşık 40 dakika pişirin.",
+      "Fırından çıkardıktan sonra 5 dakika dinlendirip tane şehriyeli pirinç pilavı ile sıcak servis yapın."
+    ],
+    tips: "Tavukları zeytinyağı, yoğurt, kekik ve sarımsakla marine ederek fırına verirseniz yumuşacık ve nar gibi kızarır."
+  },
+  {
+    id: "rec-2",
+    category: "tavuk",
+    categoryLabel: "🍗 Tavuk / Kanatlı",
+    title: "Kremalı Mantarlı Tavuk Sote & Fırın Makarna",
+    menu: "Kremalı Mantarlı Tavuk Göğsü, Fırında Beşamel Soslu Makarna, Roka Salatası",
+    soup: "Kremalı Domates Çorbası",
+    prepTime: "15 dk",
+    cookTime: "25 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "600g Tavuk Göğsü (kuşbaşı doğranmış)",
+      "300g Kültür Mantarı (dilimlenmiş)",
+      "1 kutu Sıvı Krema (200 ml)",
+      "1 adet Kuru Soğan & 2 diş Sarımsak",
+      "3 yemek kaşığı Sıvı Yağ & 1 yemek kaşığı Tereyağı",
+      "1 tatlı kaşığı Tuz, Taze Çekilmiş Karabiber & Taze Kekik"
+    ],
+    steps: [
+      "Geniş bir tavayı iyice ısıtın. Sıvı yağı ekleyip tavukları yüksek ateşte suyunu salıp çekene kadar soteleyin.",
+      "Yemeklik doğranmış soğan ve sarımsağı ekleyip 2-3 dakika kavurun.",
+      "Dilimlenmiş mantarları ve tereyağını ilave edin. Mantarlar suyunu çekene kadar yüksek ateşte pişirmeye devam edin.",
+      "Son olarak sıvı kremayı, tuzu, karabiberi ve taze kekiği ekleyin. Kısık ateşte krema hafif koyulaşana kadar 4-5 dakika kaynatıp ocaktan alın."
+    ],
+    tips: "Mantar ve tavukları yüksek ateşte suyunu salmadan mühürleyin, krema ve taze kekik ile zenginleştirin."
+  },
+  {
+    id: "rec-3",
+    category: "tavuk",
+    categoryLabel: "🍗 Tavuk / Kanatlı",
+    title: "Çıtır Tavuk Şinitzel & İpeksi Patates Püresi",
+    menu: "Ev Yapımı Tavuk Şinitzel, Tereyağlı Patates Püresi, Ballı Hardallı Marul Salatası",
+    soup: "Yayla Çorbası",
+    prepTime: "20 dk",
+    cookTime: "15 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "4 adet Tavuk Göğsü Fileto (inceltilmiş)",
+      "2 adet Yumurta (çırpılmış)",
+      "1 su bardağı Galeta Unu & 1 su bardağı Un",
+      "Püre için: 4 adet Patates, 2 yemek kaşığı Tereyağı, 1 çay bardağı Süt, Muskat rendesi",
+      "Kızartmak için Sıvı Yağ & Tuz, Karabiber"
+    ],
+    steps: [
+      "Tavuk filetoları buzdolabı poşeti arasında merdane ile hafifçe döverek inceltin, tuz ve karabiberle tatlandırın.",
+      "Filetoları sırasıyla önce una, sonra çırpılmış yumurtaya, en son her yerini kaplayacak şekilde galeta ununa bulayın.",
+      "Kızgın yağda arkalı önlü altın sarısı renk alana kadar 3-4'er dakika kızartın.",
+      "Haşlanmış sıcak patatesleri tereyağı, ılık süt, muskat ve tuzla pürüzsüz kıvama gelene kadar ezin. Şinitzel ile birlikte servis edin."
+    ],
+    tips: "Şinitzeli galeta ununa bulamadan önce un ve yumurtaya iyice batırın; püreye tereyağı ve muskat rendesi ekleyin."
+  },
+  {
+    id: "rec-4",
+    category: "tavuk",
+    categoryLabel: "🍗 Tavuk / Kanatlı",
+    title: "Tavuklu Sultan Kebabı & Havuç Tarator",
+    menu: "Yufkada Sebzeli Beşamel Soslu Tavuk Kebabı, Yoğurtlu Havuç Tarator, Şehriye Çorbası",
+    soup: "Tel Şehriye Çorbası",
+    prepTime: "25 dk",
+    cookTime: "30 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "2 adet Yufka",
+      "500g Tavuk Göğsü (küçük küpler halinde)",
+      "1 su bardağı Garnitür (bezelye, havuç, patates)",
+      "1 adet Kuru Soğan & 1 yemek kaşığı Salça",
+      "Beşamel için: 1.5 yemek kaşığı Un, 1.5 su bardağı Süt, 1 yemek kaşığı Tereyağı",
+      "Üzeri için: 1 su bardağı Rendelenmiş Kaşar Peyniri"
+    ],
+    steps: [
+      "Tavukları soğan ve salçayla soteleyin, garnitürü ekleyip 2 dakika çevirin ve ocaktan alın.",
+      "Beşamel sos için tereyağında unu kokusu çıkana kadar kavurup sütü ekleyin ve koyulaşana kadar karıştırarak pişirin.",
+      "Yufkaları 4 eşit parçaya bölün. Küçük bir kaseye yufkayı serip iç harçtan koyun ve kenarlarını kapatıp fırın tepsisine ters çevirin.",
+      "Üzerlerine beşamel sos döküp kaşar peyniri serpin. 190°C fırında üzeri kızarana kadar yaklaşık 20-25 dakika fırınlayın."
+    ],
+    tips: "Yufkayı küçük güveç kaplarında porsiyonluk sarıp üzerine kaşar peyniri serperek fırınlayın."
+  },
+
+  // Et & Köfte
+  {
+    id: "rec-5",
+    category: "et_kofte",
+    categoryLabel: "🥩 Et & Köfte",
+    title: "Izgara Anne Köftesi & Baharatlı Fırın Patates & Cacık",
+    menu: "Anne Köftesi, Baharatlı Fırın Elma Dilim Patates, Şehriyeli Bulgur Pilavı & Salatalıklı Cacık",
+    soup: "Ezogelin Çorbası",
+    prepTime: "20 dk",
+    cookTime: "20 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "500g Orta Yağlı Dana Kıyma",
+      "1 adet Kuru Soğan (rendelenip suyu sıkılmış)",
+      "1 adet Yumurta & 2 dilim Bayat Ekmek İçi (ıslatılıp sıkılmış)",
+      "2 diş Sarımsak & Yarım demet Maydanoz (ince kıyılmış)",
+      "1'er tatlı kaşığı Kimyon, Karabiber, Pul Biber, Tuz",
+      "Fırın Patates: 4 adet Patates, Kekik, Zeytinyağı, Toz Biber"
+    ],
+    steps: [
+      "Geniş bir kapta kıyma, soğan, sarımsak, yumurta, ekmek içi, maydanoz ve baharatları en az 10 dakika sakız kıvamına gelene kadar yoğurun.",
+      "Harcı buzdolabında 30 dakika dinlendirdikten sonra ceviz büyüklüğünde parçalar koparıp yassı köfte şekli verin.",
+      "Döküm tavada veya ızgarada her iki tarafını orta ateşte 4-5 dakika kurutmadan pişirin.",
+      "Önceden baharatlanıp fırınlanmış patates dilimleri ve soğuk cacık eşliğinde servis yapın."
+    ],
+    tips: "Köfte harcına bayat ekmek içi, kimyon ve ince kıyılmış maydanoz ekleyip en az 30 dakika buzdolabında dinlendirin."
+  },
+  {
+    id: "rec-6",
+    category: "et_kofte",
+    categoryLabel: "🥩 Et & Köfte",
+    title: "Geleneksel Fırında Karnıyarık & Tane Pirinç Pilavı",
+    menu: "Fırında Kıymalı Karnıyarık, Tereyağlı Pirinç Pilavı, Süzme Yoğurt & Çoban Salata",
+    soup: "Tarhana Çorbası",
+    prepTime: "25 dk",
+    cookTime: "35 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "6 adet orta boy Patlıcan",
+      "300g Kıyma & 2 adet Kuru Soğan",
+      "2 adet Yeşil Biber & 2 adet Domates",
+      "1 yemek kaşığı Domates Salçası & 2 diş Sarımsak",
+      "Sıvı Yağ, Tuz, Karabiber, Pul Biber, Maydanoz"
+    ],
+    steps: [
+      "Patlıcanları alacalı soyup tuzlu suda 15 dakika bekletin, kurulayıp fırında veya az yağda yumuşayana kadar kızartın.",
+      "Tavada soğan ve kıymayı kavurun; biber, sarımsak, salça, domates ve baharatları ekleyip 5 dakika pişirip ocaktan alırken maydanoz ekleyin.",
+      "Fırın tepsisine dizdiğiniz patlıcanların ortasını yararak hazırladığınız bol kıymalı harçla doldurun.",
+      "Üzerlerine biber ve domates dilimi koyun. Salçalı sıcak su hazırlayıp tepsinin tabanına dökün. 190°C fırında 25-30 dakika pişirin."
+    ],
+    tips: "Patlıcanları fırında az yağla közleyerek yaparsanız hem çok hafif hem de son derece lezzetli olur."
+  },
+  {
+    id: "rec-7",
+    category: "et_kofte",
+    categoryLabel: "🥩 Et & Köfte",
+    title: "Lokum Tas Kebabı & Patates Püresi",
+    menu: "Kuşbaşı Dana Tas Kebabı, İpeksi Patates Püresi, Gavurdağı Salatası",
+    soup: "Köz Domates Çorbası",
+    prepTime: "15 dk",
+    cookTime: "50 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "600g Dana Kuşbaşı (yumuşak et)",
+      "10-12 adet Arpacık Soğan & 3 diş Sarımsak",
+      "1 adet Havuç & 2 adet Patates (küp doğranmış)",
+      "1 yemek kaşığı Domates Salçası & 1 tatlı kaşığı Biber Salçası",
+      "2 yemek kaşığı Tereyağı, 2 su bardağı Sıcak Su, Tuz, Karabiber, Kekik"
+    ],
+    steps: [
+      "Tencerede tereyağını eritin. Etleri yüksek ateşte suyunu salıp çekene kadar mühürleyin.",
+      "Arpacık soğanları ve sarımsakları ekleyip 3-4 dakika kavurun.",
+      "Salçaları, küp doğranmış havuç ve patatesleri ilave edin. Sıcak suyu ve baharatları ekleyin.",
+      "Kapağını kapatıp kısık ateşte etler lokum gibi yumuşayana kadar yaklaşık 45-50 dakika pişirin."
+    ],
+    tips: "Eti kısık ateşte kendi suyunda yumuşayana kadar pişirdikten sonra arpacık soğan ve domates salçası ekleyin."
+  },
+  {
+    id: "rec-8",
+    category: "et_kofte",
+    categoryLabel: "🥩 Et & Köfte",
+    title: "Hasanpaşa Köftesi & Garnitürlü Pirinç Pilavı",
+    menu: "Püre Yatağında Fırınlanmış Hasanpaşa Köfte, Pirinç Pilavı, Karışık Turşu",
+    soup: "Mercimek Çorbası",
+    prepTime: "25 dk",
+    cookTime: "30 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "500g Kıyma, 1 Soğan, 1 Yumurta, Galeta Unu, Baharatlar",
+      "Püre: 3 Patates, 1 yemek kaşığı Tereyağı, Yarım çay bardağı Süt, Kaşar rendesi",
+      "Sosu: 1 yemek kaşığı Salça, 1.5 su bardağı Sıcak Su, Tuz"
+    ],
+    steps: [
+      "Köfte malzemelerini iyice yoğurun. Mandalina büyüklüğünde parçalar alıp ortası çukur çanak şekli verin.",
+      "Fırın tepsisine dizip 190°C fırında 15 dakika ön pişirme yapın.",
+      "Haşlanmış patateslerden hazırladığınız kremamsı püreyi köfte çanaklarının ortasına tepeleme doldurun.",
+      "Üzerlerine kaşar peyniri serpip tepsiye salçalı sosu dökün. Kaşarlar eriyip kızarana kadar 15 dakika daha fırınlayın."
+    ],
+    tips: "Köftelere çanak şekli verip fırınladıktan sonra ortalarına sıkma torbasıyla kaşarlı patates püresi sıkın."
+  },
+
+  // Bakliyat & Güveç
+  {
+    id: "rec-9",
+    category: "bakliyat",
+    categoryLabel: "🫘 Bakliyat & Güveç",
+    title: "Geleneksel Kuru Fasulye & Şehriyeli Pirinç Pilavı",
+    menu: "Etli / Sucuklu Kuru Fasulye, Tereyağlı Pirinç Pilavı, Çıtır Turşu & Kuru Soğan",
+    soup: "Yayla Çorbası",
+    prepTime: "15 dk (Önceden ıslatılmış)",
+    cookTime: "45 dk",
+    servings: "4-6 Kişilik",
+    ingredients: [
+      "2 su bardağı Kuru Fasulye (akşamdan ıslatılmış)",
+      "250g Kuşbaşı Dana Eti veya Kasap Sucuğu",
+      "1 adet büyük Kuru Soğan & 2 adet Yeşil Biber",
+      "1.5 yemek kaşığı Domates Salçası & 1 tatlı kaşığı Biber Salçası",
+      "2 yemek kaşığı Tereyağı, Sıcak Su, Pul Biber, Kimyon, Tuz"
+    ],
+    steps: [
+      "Akşamdan ıslatılmış fasulyeleri bol suda hafif diri kalacak şekilde 15-20 dakika haşlayıp süzün.",
+      "Tencerede tereyağında eti suyunu çekene kadar soteleyin. Yemeklik doğranmış soğanı ve biberi ekleyip kavurun.",
+      "Salçaları ilave edip 2 dakika kokusu çıkana kadar karıştırın. Haşlanmış fasulyeleri ekleyin.",
+      "Üzerini 2 parmak geçecek kadar sıcak su ve baharatları ilave edin. Kısık ateşte fasulyeler helmelenene kadar pişirin."
+    ],
+    tips: "İspir fasulyesi kullanarak kısık ateşte güveçte pişirirseniz lokum gibi kıvam alır."
+  },
+  {
+    id: "rec-10",
+    category: "bakliyat",
+    categoryLabel: "🫘 Bakliyat & Güveç",
+    title: "Yeşil Mercimek Yemeği & Cevizli Erişte",
+    menu: "Kıymalı Yeşil Mercimek Yemeği, Cevizli Tereyağlı Erişte, Sarımsaklı Yoğurt",
+    soup: "Domates Çorbası",
+    prepTime: "15 dk",
+    cookTime: "35 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "1.5 su bardağı Yeşil Mercimek",
+      "150g Kıyma & 1 adet Kuru Soğan",
+      "1 adet Havuç & 1 adet Patates (küp doğranmış)",
+      "1 yemek kaşığı Salça, Zeytinyağı, Kimyon, Tuz, Karabiber"
+    ],
+    steps: [
+      "Yeşil mercimekleri siyah suyu çıkması için 10 dakika kaynatıp suyunu süzün.",
+      "Tencerede zeytinyağında kıymayı ve soğanı kavurun. Salçayı, havuç ve patates küplerini ekleyin.",
+      "Mercimekleri ilave edip sıcak su ve baharatları ekleyin. Sebzeler ve mercimek yumuşayana kadar kısık ateşte pişirin."
+    ],
+    tips: "Yeşil mercimeğe bir miktar havuç ve patates küpleri ekleyerek lezzetini ve besin değerini katlayın."
+  },
+  {
+    id: "rec-11",
+    category: "bakliyat",
+    categoryLabel: "🫘 Bakliyat & Güveç",
+    title: "Etli Nohut Yemeği & Şehriyeli Bulgur Pilavı",
+    menu: "Kuşbaşı Etli Nohut Yemeği, Şehriyeli Bulgur Pilavı, Cacık & Biber Turşusu",
+    soup: "Tarhana Çorbası",
+    prepTime: "15 dk (Önceden ıslatılmış)",
+    cookTime: "40 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "2 su bardağı Nohut (akşamdan ıslatılmış)",
+      "300g Dana Kuşbaşı",
+      "1 adet Soğan, 1.5 yemek kaşığı Salça, 2 yemek kaşığı Tereyağı, Sıcak Su, Kimyon, Tuz"
+    ],
+    steps: [
+      "Düdüklü tencerede tereyağında etleri mühürleyin. Soğanları ekleyip kavurun.",
+      "Salçayı ekleyip kokusu çıkana kadar çevirin. Islatılmış nohutları, kimyonu, tuzu ve sıcak suyu ekleyin.",
+      "Düdüklü tencerenin kapağını kapatıp orta ateşte düdük çaldıktan sonra 30-35 dakika pişirin."
+    ],
+    tips: "Nohutları bir gece önceden ıslatıp düdüklü tencerede kemikli et suyuyla pişirin."
+  },
+
+  // Sebze & Zeytinyağlı
+  {
+    id: "rec-12",
+    category: "sebze",
+    categoryLabel: "🥬 Sebze & Zeytinyağlı",
+    title: "Zeytinyağlı Taze Fasulye & Bulgur Pilavı & Yoğurt",
+    menu: "Domatesli Zeytinyağlı Taze Fasulye, Domatesli Bulgur Pilavı, Ev Yoğurdu",
+    soup: "Mercimek Çorbası",
+    prepTime: "20 dk",
+    cookTime: "40 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "1 kg Taze Fasulye (ayıklanıp uzunlamasına bölünmüş)",
+      "3 adet olgun Domates (küp doğranmış)",
+      "2 adet Kuru Soğan (piyazlık doğranmış)",
+      "1 çay bardağı Sızma Zeytinyağı",
+      "1 adet Kesme Şeker, 1 tatlı kaşığı Tuz, 1 çay bardağı Sıcak Su"
+    ],
+    steps: [
+      "Geniş ve yayvan bir tencereye piyazlık soğanları serin. Üzerine ayıklanmış taze fasulyeleri yerleştirin.",
+      "En üste küp doğranmış domatesleri ve şekeri ekleyin. Zeytinyağını, tuzu ve sıcak suyu gezdirin.",
+      "Tencerenin kapağını kapatıp kısık ateşte fasulyeler yumuşayıp kendi suyunda pişene kadar yaklaşık 40 dakika pişirin.",
+      "Ilık veya soğuk olarak yanında tane bulgur pilavı ve yoğurtla servis edin."
+    ],
+    tips: "Taze fasulyeye bir kesme şeker ve bol rendelenmiş domates ekleyip kısık ateşte kendi buharında pişirin."
+  },
+  {
+    id: "rec-13",
+    category: "sebze",
+    categoryLabel: "🥬 Sebze & Zeytinyağlı",
+    title: "Fırında Kabak Mücver & Yoğurtlu Semizotu & Makarna",
+    menu: "Fırında Dereotlu Kabak Mücver, Sarımsaklı Yoğurtlu Semizotu Salatası, Domates Soslu Burgu Makarna",
+    soup: "Ezogelin Çorbası",
+    prepTime: "20 dk",
+    cookTime: "35 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "3 adet Kabak (rendelenip suyu sıkılmış)",
+      "3 adet Yumurta & 1 su bardağı Beyaz Peynir / Lor",
+      "Yarım demet Dereotu & Yarım demet Taze Soğan",
+      "1 çay bardağı Zeytinyağı, 1 su bardağı Un, 1 paket Kabartma Tozu, Tuz, Karabiber"
+    ],
+    steps: [
+      "Rendelenmiş kabakların suyunu avucunuzda sıkarak derin bir kaba alın.",
+      "İçine yumurta, peynir, ince kıyılmış dereotu, taze soğan, zeytinyağı, un, kabartma tozu ve baharatları ekleyip spatula ile karıştırın.",
+      "Yağlanmış borcama harcı döküp üzerini düzeltin. İsteğe bağlı susam/çörek otu serpin.",
+      "180°C fırında üzeri altın sarısı kızarana kadar yaklaşık 35 dakika pişirin. Dilimleyerek sarımsaklı yoğurtla servis yapın."
+    ],
+    tips: "Kabakların suyunu iyice sıkarak harca ekleyin, fırında pişirerek hem hafif hem çıtır olmasını sağlayın."
+  },
+  {
+    id: "rec-14",
+    category: "sebze",
+    categoryLabel: "🥬 Sebze & Zeytinyağlı",
+    title: "Kıymalı Bezelye Yemeği & Havuçlu Pirinç Pilavı",
+    menu: "Kıymalı Patatesli Bezelye Yemeği, Tane Pirinç Pilavı, Yoğurt & Mevsim Salatası",
+    soup: "Yayla Çorbası",
+    prepTime: "15 dk",
+    cookTime: "30 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "500g Bezelye (taze veya dondurulmuş)",
+      "200g Kıyma & 1 adet Soğan",
+      "1 adet Havuç & 1 adet Patates (küp doğranmış)",
+      "1 yemek kaşığı Salça, 3 yemek kaşığı Sıvı Yağ, Sıcak Su, Dereotu, Tuz"
+    ],
+    steps: [
+      "Tencerede yağda kıyma ve soğanı kavurun. Salçayı ekleyip kokusu çıkana kadar karıştırın.",
+      "Küp doğranmış havuç ve patatesleri ekleyip 2 dakika soteleyin. Bezelyeleri ilave edin.",
+      "Sıcak su ve tuz ekleyip kısık ateşte sebzeler yumuşayana kadar 25-30 dakika pişirin. İnce kıyılmış taze dereotu ile süsleyin."
+    ],
+    tips: "Bezelye yemeğine taze dereotu ve bir miktar havuç katarak lezzet dengesini yükseltin."
+  },
+  {
+    id: "rec-15",
+    category: "sebze",
+    categoryLabel: "🥬 Sebze & Zeytinyağlı",
+    title: "Karnabahar & Brokoli Graten & Şinitzel",
+    menu: "Fırında Beşamel Soslu Kaşarlı Karnabahar Graten, Fırın Tavuk Şinitzel, Akdeniz Salatası",
+    soup: "Kremalı Mantar Çorbası",
+    prepTime: "20 dk",
+    cookTime: "30 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "Yarım boy Karnabahar & 1 küçük boy Brokoli (çiçeklerine ayrılmış)",
+      "Beşamel: 2 yemek kaşığı Tereyağı, 2 yemek kaşığı Un, 2.5 su bardağı Süt, Muskat, Tuz",
+      "Üzeri için: 1.5 su bardağı Rendelenmiş Kaşar Peyniri"
+    ],
+    steps: [
+      "Karnabahar ve brokolileri tuzlu kaynar suda hafif diri kalacak şekilde 5-6 dakika haşlayıp süzün ve fırın kabına dizin.",
+      "Tereyağında unu kavurup sütü ekleyerek pürüzsüz kıvamda beşamel sos hazırlayın. Muskat ve tuz ekleyin.",
+      "Sosu sebzelerin üzerine dökün, bol kaşar peyniri serpin.",
+      "200°C fırında üzeri nar gibi kızarana kadar 25 dakika fırınlayın."
+    ],
+    tips: "Karnabaharları hafif haşlayıp beşamel sos ve bol muskat rendesiyle fırınlayın."
+  },
+
+  // Balık & Deniz Ürünleri
+  {
+    id: "rec-16",
+    category: "balik",
+    categoryLabel: "🐟 Balık & Deniz Ürünleri",
+    title: "Fırında Limonlu Sarımsaklı Somon & Fırın Patates",
+    menu: "Fırında Baharatlı Somon Fileto, Taze Biberiyeli Fırın Patates, Ballı Hardallı Roka Salatası",
+    soup: "Balık Çorbası veya Mercimek Çorbası",
+    prepTime: "15 dk",
+    cookTime: "20 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "4 dilim Somon Fileto",
+      "1 adet Limon (dilimlenmiş)",
+      "3 diş Sarımsak (ince dilimlenmiş)",
+      "4 yemek kaşığı Zeytinyağı & 1 yemek kaşığı Tereyağı",
+      "Taze Dereotu, Taze Biberiye, Deniz Tuzu, Taze Çekilmiş Karabiber"
+    ],
+    steps: [
+      "Somon filetoları fırın tepsisine dizin. Üzerlerine zeytinyağı gezdirip tuz ve karabiber serpin.",
+      "Her somonun üzerine limon dilimleri, sarımsak parçaları ve taze dereotu/biberiye yerleştirin.",
+      "Önceden ısıtılmış 190°C fırında somonlar suyunu kaybetmeden yumuşacık kalacak şekilde 18-20 dakika pişirin.",
+      "Fırından alıp üzerine eritilmiş tereyağı gezdirerek roka salatasıyla servis edin."
+    ],
+    tips: "Somonun üzerine zeytinyağı, sarımsak, limon dilimleri ve taze dereotu koyup 190 derecede 20 dakika pişirin."
+  },
+  {
+    id: "rec-17",
+    category: "balik",
+    categoryLabel: "🐟 Balık & Deniz Ürünleri",
+    title: "Çipura Izgara & Fırın Patates & Soğan Salatası",
+    menu: "Fırında Bütün Çipura / Levrek, Elma Dilim Patates, Sumaklı Kırmızı Soğan Salatası & Roka",
+    soup: "Kremalı Balık Çorbası",
+    prepTime: "15 dk",
+    cookTime: "25 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "2-4 adet Temizlenmiş Çipura veya Levrek",
+      "1 adet Limon & 1 adet Kırmızı Soğan",
+      "4 diş Sarımsak & 4 adet Defne Yaprağı",
+      "Sızma Zeytinyağı, Deniz Tuzu, Tane Karabiber"
+    ],
+    steps: [
+      "Balıkların üzerine bıçakla 2'şer çizik atın. İçini ve dışını zeytinyağı ve deniz tuzuyla ovalayın.",
+      "Balıkların karın boşluğuna defne yaprağı, sarımsak ve limon dilimi yerleştirin.",
+      "Fırın tepsisine dizip 200°C fırında yaklaşık 25 dakika derisi çıtırlaşana kadar pişirin.",
+      "Sumaklı maydanozlu soğan salatası ve limon dilimleriyle sıcak servis edin."
+    ],
+    tips: "Balığın içine defne yaprağı ve sarımsak yerleştirerek fırınlarsanız enfes bir aroma elde edersiniz."
+  },
+
+  // Hamur İşi & Mantı & Pratik
+  {
+    id: "rec-18",
+    category: "makarna_manti",
+    categoryLabel: "🍝 Makarna, Mantı & Pratik",
+    title: "Ev Yapımı Kayseri Mantısı & Sarımsaklı Yoğurt",
+    menu: "Tereyağlı Sumaklı Ev Mantısı, Sarımsaklı Yoğurt, Çıtır Nane & Biber Yağı, Çoban Salata",
+    soup: "Ezogelin Çorbası",
+    prepTime: "10 dk",
+    cookTime: "15 dk",
+    servings: "4 Kişilik",
+    ingredients: [
+      "500g Ev Mantısı",
+      "2 su bardağı Süzme Yoğurt & 3 diş Sarımsak",
+      "3 yemek kaşığı Tereyağı & 1 tatlı kaşığı Kırmızı Toz Biber / Pul Biber",
+      "1 yemek kaşığı Kuru Nane, 1 tatlı kaşığı Sumak, Tuz"
+    ],
+    steps: [
+      "Bol tuzlu kaynar suda mantıları yumuşayana kadar yaklaşık 10-12 dakika haşlayıp süzün (haşlama suyundan 2 kaşık ayırın).",
+      "Sarımsaklı yoğurdu pürüzsüzce çırpın. Küçük tavada tereyağını kızdırıp pul biber ve naneyi hafifçe köpürtün.",
+      "Servis tabağına sıcak mantıyı alın, üzerine sarımsaklı yoğurt dökün.",
+      "En üste kızgın tereyağlı naneli sosu gezdirip sumak serperek servis yapın."
+    ],
+    tips: "Haşlama suyuna bir parça tereyağı ekleyin; sos için nane, pul biber ve tereyağını hafifçe yakın."
+  },
+  {
+    id: "rec-19",
+    category: "makarna_manti",
+    categoryLabel: "🍝 Makarna, Mantı & Pratik",
+    title: "Kıymalı Lazanya & Roka Parmesan Salatası",
+    menu: "Fırında Bolonez Soslu & Beşamel Soslu Lazanya, Cevizli Roka Salatası, Fırın Sarımsaklı Ekmek",
+    soup: "Domates Çorbası",
+    prepTime: "25 dk",
+    cookTime: "35 dk",
+    servings: "4-6 Kişilik",
+    ingredients: [
+      "12-14 yaprak Lazanya",
+      "400g Kıyma, 1 Soğan, 1 Havuç, 2 diş Sarımsak, 2 su bardağı Domates Püresi",
+      "Beşamel: 3 yemek kaşığı Tereyağı, 3 yemek kaşığı Un, 3 su bardağı Süt, Muskat",
+      "2 su bardağı Rendelenmiş Kaşar Peyniri"
+    ],
+    steps: [
+      "Bolonez sos için kıymayı sebzeler ve domates püresiyle kısık ateşte 20 dakika pişirin.",
+      "Beşamel sosu tereyağı, un ve sütle pürüzsüz kıvamda pişirin.",
+      "Borcamın tabanına beşamel sos sürün. Sırasıyla lazanya yaprağı, bolonez sos, beşamel sos ve kaşar peyniri katları oluşturun (en az 4 kat).",
+      "En üst kata bol beşamel sos ve kaşar peyniri döküp 180°C fırında üzeri altın sarısı kızarana kadar 30 dakika pişirin. 10 dakika dinlendirip dilimleyin."
+    ],
+    tips: "Bolonez sosu kısık ateşte havuç ve kereviz sapıyla uzun süre pişirirseniz restoran kalitesinde bir lazanya elde edersiniz."
+  }
+];
+
+let lastRecommendedRecipeId = null;
+let isRecipeDetailsOpen = false;
+
+function getSmartDinnerRecommendation(excludeId = null) {
+  // 1. Analyze past 7-10 dinners from cache
+  const recentDinners = (dinnersCache || [])
+    .slice()
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 8);
+
+  const recentText = recentDinners.map(d => (d.meal || '').toLowerCase()).join(' ');
+
+  // Detect recent categories
+  const recentCats = new Set();
+  if (/tavuk|şinitzel|but|göğüs/.test(recentText)) recentCats.add('tavuk');
+  if (/köfte|kıyma|et|kebap|karnıyarık/.test(recentText)) recentCats.add('et_kofte');
+  if (/fasulye|nohut|mercimek|bakliyat/.test(recentText)) recentCats.add('bakliyat');
+  if (/mücver|kabak|bezelye|karnabahar|brokoli|zeytinyağlı|ıspanak|enginar/.test(recentText)) recentCats.add('sebze');
+  if (/balık|somon|çipura|levrek|hamsi/.test(recentText)) recentCats.add('balik');
+  if (/makarna|mantı|lazanya|börek|pizza/.test(recentText)) recentCats.add('makarna_manti');
+
+  // Filter candidates
+  let candidates = RECIPE_DATABASE.filter(r => r.id !== excludeId);
+
+  // Exclude dishes whose exact names match recent dinners
+  candidates = candidates.filter(r => !recentText.includes(r.title.toLowerCase().split('&')[0].trim()));
+
+  // Prioritize categories NOT recently eaten
+  const unrepresentedCandidates = candidates.filter(r => !recentCats.has(r.category));
+  const finalPool = unrepresentedCandidates.length > 0 ? unrepresentedCandidates : candidates;
+
+  const picked = finalPool[Math.floor(Math.random() * finalPool.length)] || RECIPE_DATABASE[0];
+  lastRecommendedRecipeId = picked.id;
+  isRecipeDetailsOpen = false;
+
+  // Generate intelligent explanation
+  let reason = "";
+  if (recentDinners.length === 0) {
+    reason = "Geçmiş yemek kaydı bulunmadığı için günün en dengeli ve sevilen menülerinden biri seçildi.";
+  } else {
+    const recentSample = recentDinners.slice(0, 3).map(d => d.meal.split(',')[0]).join(', ');
+    reason = `Son günlerdeki yemekleriniz (${recentSample}) incelendi. Menünüzde besin çeşitliliği ve lezzet dengesi sağlamak için <b>${picked.categoryLabel}</b> kategorisinden taze bir öneri hazırlandı.`;
+  }
+
+  return { recipe: picked, reason: reason };
+}
+
+window.openDinnerRecommenderModal = function() {
+  const result = getSmartDinnerRecommendation();
+  renderDinnerRecommenderContent(result);
+  openModal('dinner-recommender-modal');
+};
+
+window.refreshDinnerRecommendation = function() {
+  const result = getSmartDinnerRecommendation(lastRecommendedRecipeId);
+  renderDinnerRecommenderContent(result);
+};
+
+window.toggleRecipeDetails = function() {
+  isRecipeDetailsOpen = !isRecipeDetailsOpen;
+  const box = document.getElementById('recom-recipe-box');
+  const btn = document.getElementById('recom-recipe-toggle-btn');
+  if (box && btn) {
+    if (isRecipeDetailsOpen) {
+      box.style.display = 'flex';
+      btn.innerHTML = `<span>📖 Yemek Tarifini Gizle</span> <span>▲</span>`;
+    } else {
+      box.style.display = 'none';
+      btn.innerHTML = `<span>📖 Detaylı Yemek Tarifini Gör (Nasıl Yapılır?)</span> <span>▼</span>`;
+    }
+  }
+};
+
+function renderDinnerRecommenderContent(result) {
+  const container = document.getElementById('dinner-recommender-content');
+  if (!container) return;
+  const { recipe, reason } = result;
+
+  container.innerHTML = `
+    <div class="dinner-recom-card">
+      <!-- Category Badge & Title -->
+      <div class="recom-hero">
+        <span class="recom-cat-tag">${recipe.categoryLabel}</span>
+        <h3 class="recom-title">${recipe.title}</h3>
+      </div>
+
+      <!-- Menu Composition -->
+      <div class="recom-box">
+        <div class="recom-box-label">🍽️ Tavsiye Edilen Menü Bileşenleri</div>
+        <div class="recom-menu-text">${recipe.menu}</div>
+        ${recipe.soup ? `
+          <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--glass-border); font-size: 13px; color: var(--text-secondary);">
+            🍲 <b>Başlangıç Çorbası:</b> ${recipe.soup}
+          </div>
+        ` : ''}
+      </div>
+
+      <!-- Recipe Fetch & Detail Button (Requested by User) -->
+      <div>
+        <button id="recom-recipe-toggle-btn" class="recom-recipe-toggle-btn" onclick="toggleRecipeDetails()">
+          <span>📖 Detaylı Yemek Tarifini Gör (Nasıl Yapılır?)</span>
+          <span>▼</span>
+        </button>
+
+        <div id="recom-recipe-box" class="recom-recipe-details" style="display: none; margin-top: 10px;">
+          <!-- Meta Time & Servings -->
+          <div class="recom-meta-row">
+            ${recipe.prepTime ? `<span class="recom-meta-pill">⏱️ Hazırlık: ${recipe.prepTime}</span>` : ''}
+            ${recipe.cookTime ? `<span class="recom-meta-pill">🔥 Pişirme: ${recipe.cookTime}</span>` : ''}
+            ${recipe.servings ? `<span class="recom-meta-pill">👥 ${recipe.servings}</span>` : ''}
+          </div>
+
+          <!-- Ingredients List -->
+          ${recipe.ingredients && recipe.ingredients.length > 0 ? `
+            <div>
+              <div style="font-size: 13px; font-weight: 800; color: #fbbf24; margin-bottom: 6px;">🥗 Gerekli Malzemeler:</div>
+              <div class="recom-ing-list">
+                ${recipe.ingredients.map(ing => `
+                  <div class="recom-ing-item">
+                    <span style="color:#10b981;">✓</span>
+                    <span>${ing}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+
+          <!-- Step by Step Cooking Instructions -->
+          ${recipe.steps && recipe.steps.length > 0 ? `
+            <div>
+              <div style="font-size: 13px; font-weight: 800; color: #fbbf24; margin-bottom: 6px;">👨‍🍳 Adım Adım Hazırlanışı:</div>
+              <div class="recom-steps-list">
+                ${recipe.steps.map((step, idx) => `
+                  <div class="recom-step-item">
+                    <span class="recom-step-num">${idx + 1}.</span>
+                    <span>${step}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+
+      <!-- Chef's Tip -->
+      <div style="background: rgba(251, 191, 36, 0.08); border: 1px solid rgba(251, 191, 36, 0.3); border-radius: var(--radius-lg); padding: 14px 18px;">
+        <div style="font-size: 12px; font-weight: 700; color: #fbbf24; margin-bottom: 4px;">💡 Şefin Hazırlık İpucu</div>
+        <div style="font-size: 13px; color: var(--text-primary); line-height: 1.45;">${recipe.tips}</div>
+      </div>
+
+      <!-- Reasoning -->
+      <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: var(--radius-lg); padding: 12px 16px; font-size: 12px; color: var(--text-secondary); line-height: 1.45;">
+        🧠 <b>Neden Bu Menü?</b> ${reason}
+      </div>
+
+      <!-- Missing Ingredients & Shopping Note -->
+      <div style="background: rgba(99, 102, 241, 0.07); border: 1px dashed rgba(99, 102, 241, 0.35); border-radius: var(--radius-lg); padding: 14px 16px;">
+        <label for="dinner-recommender-note" style="display: flex; align-items: center; justify-content: space-between; font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px;">
+          <span>🛒 Eksik Malzeme & Alışveriş / Aile Notu (Opsiyonel):</span>
+        </label>
+        <textarea id="dinner-recommender-note" class="form-textarea" style="width: 100%; min-height: 60px; font-size: 13px; border-radius: 8px; resize: vertical; margin-bottom: 4px;" placeholder="Örn: 1 kg tavuk göğsü, taze krema ve mantar alınacak..."></textarea>
+        <div style="font-size: 11px; color: var(--text-muted); line-height: 1.4;">
+          💡 <i>Not bırakırsanız, hem menüye eklenir hem de <b>Aile Panosu (Yapılacaklar)</b> listesine otomatik olarak alınacaklar görevi olarak eklenir.</i>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; gap: 10px; margin-top: 4px; flex-wrap: wrap;">
+        <button class="btn btn-primary" style="flex: 1; padding: 12px 16px; font-weight: 700;" onclick="applyRecommendedDinner('${recipe.menu.replace(/'/g, "\\'")}', '${recipe.title.replace(/'/g, "\\'")}')">
+          📅 Bu Menüyü Bugüne Ekle
+        </button>
+        <button class="btn btn-glass" style="padding: 12px 16px;" onclick="refreshDinnerRecommendation()">
+          🔄 Başka Öneri Getir
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+window.applyRecommendedDinner = async function(mealText, recipeTitle = '') {
+  const isAdmin = window.Auth && typeof window.Auth.canManageContent === 'function' ? await window.Auth.canManageContent() : false;
+  if (!isAdmin) {
+    alert("Yemek menüsünü kaydetmek için lütfen Admin girişi yapınız.");
+    return;
+  }
+
+  const todayStr = new Date().toISOString().split('T')[0];
+  const noteInput = document.getElementById('dinner-recommender-note');
+  const note = noteInput ? noteInput.value.trim() : '';
+
+  const finalMealText = note ? `${mealText} — 📝 Eksikler: ${note}` : mealText;
+
+  try {
+    const { error: dinnerErr } = await window.supabaseClient
+      .from('family_dinners')
+      .insert([{ date: todayStr, meal: finalMealText }]);
+
+    if (dinnerErr) throw dinnerErr;
+
+    // If there is an ingredient / shopping note, automatically add a todo to family_board!
+    if (note) {
+      const todoTitle = recipeTitle ? `🛒 [Yemek Malzemesi] ${recipeTitle}: ${note}` : `🛒 [Yemek Malzemesi]: ${note}`;
+      await window.supabaseClient
+        .from('family_board')
+        .insert([{
+          type: 'todo',
+          text: todoTitle,
+          completed: false
+        }]);
+    }
+
+    closeModal('dinner-recommender-modal');
+    if (window.Toast) {
+      if (note) {
+        Toast.success("Günün akşam menüsü ve eksik malzemeler Aile Panosu'na eklendi! 🛒🍽️");
+      } else {
+        Toast.success("Günün akşam menüsü başarıyla kaydedildi! 🍽️");
+      }
+    }
+    
+    renderDinners();
+    if (note) renderBoard();
+  } catch (err) {
+    console.error("Apply recommended dinner error:", err);
+    alert("Yemek kaydedilirken bir hata oluştu: " + (err.message || ''));
+  }
 };
 
 /* ================= BOARD ================= */

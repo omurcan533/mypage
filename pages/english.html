@@ -2,7 +2,7 @@
 <html lang="tr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>İngilizce Pratik & Konuşma Rehberi — Ömür Can Yılmaz</title>
     <script>
       (function () {
@@ -25,7 +25,7 @@
       /* ===== ENGLISH HUB STYLES ===== */
       .en-stats-row {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
         gap: 14px;
         margin-bottom: 28px;
       }
@@ -1195,15 +1195,158 @@
         font-weight: 800;
         color: var(--text-primary);
       }
-      .en-quiz-res-score {
-        font-size: 18px;
+      /* Mastered Vocabulary Badges & Buttons */
+      .en-mastered-btn {
+        padding: 5px 12px;
+        border-radius: var(--radius-pill);
+        font-size: 11px;
         font-weight: 700;
-        color: var(--accent-light);
-        margin: 10px 0;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: var(--transition);
+        font-family: inherit;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        color: #34d399;
       }
-      .en-quiz-res-desc {
-        font-size: 14px;
-        color: var(--text-secondary);
+      .en-mastered-btn:hover {
+        background: rgba(16, 185, 129, 0.2);
+        border-color: #10b981;
+        transform: translateY(-1px);
+      }
+      .en-mastered-btn.mastered {
+        background: #10b981;
+        color: #ffffff;
+        border-color: #10b981;
+        box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+      }
+      .en-vocab-card.is-mastered {
+        border-color: rgba(16, 185, 129, 0.35);
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.04), rgba(255, 255, 255, 0.02));
+      }
+
+      /* Quiz Config Bar & Interactive Modes */
+      .en-quiz-config-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 14px 18px;
+        margin-bottom: 24px;
+      }
+      .en-quiz-config-group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .en-quiz-config-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .en-quiz-select {
+        background-color: #1e293b !important;
+        border: 1px solid rgba(255, 255, 255, 0.18) !important;
+        color: #ffffff !important;
+        border-radius: var(--radius-md);
+        padding: 8px 34px 8px 14px;
+        font-size: 13.5px;
+        font-weight: 600;
+        outline: none;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23818cf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 14px;
+        transition: all 0.2s ease;
+      }
+      .en-quiz-select:hover,
+      .en-quiz-select:focus {
+        border-color: var(--accent) !important;
+        box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.25);
+      }
+      .en-quiz-select option {
+        background-color: #1e293b !important;
+        color: #ffffff !important;
+        padding: 10px 14px;
+        font-weight: 500;
+      }
+      html[data-theme="light"] .en-quiz-select {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+        border-color: #cbd5e1 !important;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      }
+      html[data-theme="light"] .en-quiz-select option {
+        background-color: #ffffff !important;
+        color: #0f172a !important;
+      }
+      .en-quiz-type-box {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        margin-top: 16px;
+      }
+      .en-quiz-type-input-wrap {
+        display: flex;
+        gap: 10px;
+      }
+      .en-quiz-type-input {
+        flex: 1;
+        background: var(--bg-card);
+        border: 2px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 14px 18px;
+        color: var(--text-primary);
+        font-size: 16px;
+        font-weight: 600;
+        outline: none;
+        transition: var(--transition);
+        font-family: inherit;
+      }
+      .en-quiz-type-input:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 16px var(--accent-glow);
+      }
+      .en-quiz-type-input.correct {
+        border-color: #10b981;
+        background: rgba(16, 185, 129, 0.08);
+      }
+      .en-quiz-type-input.wrong {
+        border-color: #f43f5e;
+        background: rgba(244, 63, 94, 0.08);
+      }
+      .en-audio-prompt-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 24px;
+        border-radius: var(--radius-pill);
+        background: linear-gradient(135deg, rgba(108, 99, 255, 0.2), rgba(34, 211, 238, 0.15));
+        border: 1px solid var(--accent);
+        color: var(--accent-light);
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition);
+        box-shadow: 0 4px 16px var(--accent-glow);
+        margin: 12px 0;
+      }
+      .en-audio-prompt-btn:hover {
+        background: var(--accent);
+        color: #ffffff;
+        transform: scale(1.03);
       }
 
       /* Modal System */
@@ -1516,6 +1659,13 @@
             <div>
               <div class="en-stat-val" id="stat-vocab">0</div>
               <div class="en-stat-lbl">Kelime Defteri</div>
+            </div>
+          </div>
+          <div class="en-stat-card" style="border-color: rgba(16, 185, 129, 0.35); background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), var(--bg-card));">
+            <div class="en-stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">🎓</div>
+            <div>
+              <div class="en-stat-val" id="stat-mastered" style="color: #34d399;">0</div>
+              <div class="en-stat-lbl">Ezberlenen Kelime</div>
             </div>
           </div>
         </div>

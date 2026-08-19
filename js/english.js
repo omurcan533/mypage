@@ -4,6 +4,7 @@ const ENGLISH_STORAGE_KEY = 'oyp_english_places_v1';
 const VOCAB_STORAGE_KEY = 'oyp_english_vocab_v1';
 const FAV_PHRASES_KEY = 'oyp_english_fav_phrases_v1';
 const FAV_VOCAB_KEY = 'oyp_english_fav_vocab_v1';
+const MASTERED_VOCAB_KEY = 'oyp_english_mastered_vocab_v1';
 
 // Initial Rich Place & Dialogue Dataset
 const DEFAULT_PLACES = [
@@ -699,21 +700,26 @@ const EnglishApp = {
   vocab: [],
   favoritePhrases: new Set(),
   favoriteVocab: new Set(),
-  activeTab: 'places', // 'places', 'detail', 'vocab', 'quiz', 'favorites'
+  masteredVocab: new Set(),
+  activeTab: 'places', // 'places', 'detail', 'vocab', 'mastered', 'quiz', 'favorites'
   activePlaceId: null,
   activeSectionId: null,
   vocabFilter: 'all',
   vocabLevelFilter: 'all',
   vocabSearchQuery: '',
   vocabViewMode: 'list', // 'list' or 'flashcard'
+  masteredViewMode: 'list',
   flashcardIndex: 0,
   flashcardFlipped: false,
   allRevealed: false,
   isAdmin: false,
   speechRate: 1.0,
+  quizSource: 'all', // 'all', 'mastered', 'vocab', 'phrases'
+  quizMode: 'mixed', // 'mixed', 'type_tr', 'type_en', 'audio_listen', 'choice'
 
   async init() {
     this._loadFavorites();
+    this._loadMastered();
     await this._checkAdminStatus();
     await this.loadData();
     this._attachEvents();
@@ -748,6 +754,41 @@ const EnglishApp = {
   _saveFavorites() {
     localStorage.setItem(FAV_PHRASES_KEY, JSON.stringify(Array.from(this.favoritePhrases)));
     localStorage.setItem(FAV_VOCAB_KEY, JSON.stringify(Array.from(this.favoriteVocab)));
+  },
+
+  _loadMastered() {
+    try {
+      const m = JSON.parse(localStorage.getItem(MASTERED_VOCAB_KEY) || '[]');
+      this.masteredVocab = new Set(m);
+    } catch (e) {
+      this.masteredVocab = new Set();
+    }
+  },
+
+  async _saveMastered() {
+    localStorage.setItem(MASTERED_VOCAB_KEY, JSON.stringify(Array.from(this.masteredVocab)));
+    try {
+      if (window.supabaseClient) {
+        await window.supabaseClient
+          .from('site_settings')
+          .upsert({ key: 'oyp_english_mastered_vocab', value: JSON.stringify(Array.from(this.masteredVocab)) }, { onConflict: 'key' });
+      }
+    } catch (e) {
+      console.warn("Mastered vocab save warning:", e);
+    }
+  },
+
+  async toggleMasteredVocab(vocabId) {
+    if (this.masteredVocab.has(vocabId)) {
+      this.masteredVocab.delete(vocabId);
+      this.toast("Kelime ezberlenenlerden çıkarıldı.", "info");
+    } else {
+      this.masteredVocab.add(vocabId);
+      this.toast("🎓 Harika! Kelime ezberlenenlere eklendi.", "success");
+    }
+    await this._saveMastered();
+    this.renderStats();
+    this.render();
   },
 
   // ===== DATA SYNC =====
@@ -875,6 +916,18 @@ const EnglishApp = {
     }, 2800);
   },
 
+  _getTabBarHtml() {
+    return `
+      <div class="en-tab-bar">
+        <button class="en-tab-btn ${this.activeTab === 'places' ? 'active' : ''}" onclick="EnglishApp.setTab('places')">🏢 Mekanlar & Konuşmalar</button>
+        <button class="en-tab-btn ${this.activeTab === 'vocab' ? 'active' : ''}" onclick="EnglishApp.setTab('vocab')">📚 Kelime Defteri</button>
+        <button class="en-tab-btn ${this.activeTab === 'mastered' ? 'active' : ''}" onclick="EnglishApp.setTab('mastered')">🎓 Ezberlediklerim (${this.masteredVocab.size})</button>
+        <button class="en-tab-btn ${this.activeTab === 'quiz' ? 'active' : ''}" onclick="EnglishApp.setTab('quiz')">🧠 İnteraktif Quiz</button>
+        <button class="en-tab-btn ${this.activeTab === 'favorites' ? 'active' : ''}" onclick="EnglishApp.setTab('favorites')">⭐ Favorilerim</button>
+      </div>
+    `;
+  },
+
   // ===== RENDER DISPATCHER =====
   render() {
     this.renderStats();
@@ -886,6 +939,8 @@ const EnglishApp = {
       this.renderPlaceDetail();
     } else if (this.activeTab === 'vocab') {
       this.renderVocab();
+    } else if (this.activeTab === 'mastered') {
+      this.renderMastered();
     } else if (this.activeTab === 'quiz') {
       this.renderQuiz();
     } else if (this.activeTab === 'favorites') {
@@ -908,11 +963,13 @@ const EnglishApp = {
     const sEl = document.getElementById('stat-sections');
     const phEl = document.getElementById('stat-phrases');
     const vEl = document.getElementById('stat-vocab');
+    const mEl = document.getElementById('stat-mastered');
 
     if (pEl) pEl.textContent = totalPlaces;
     if (sEl) sEl.textContent = totalSections;
     if (phEl) phEl.textContent = totalPhrases;
     if (vEl) vEl.textContent = this.vocab.length;
+    if (mEl) mEl.textContent = this.masteredVocab.size;
   },
 
   renderAdminControls() {
@@ -929,12 +986,7 @@ const EnglishApp = {
 
     let html = `
       <div class="en-places-header">
-        <div class="en-tab-bar">
-          <button class="en-tab-btn ${this.activeTab === 'places' ? 'active' : ''}" onclick="EnglishApp.setTab('places')">🏢 Mekanlar & Konuşmalar</button>
-          <button class="en-tab-btn ${this.activeTab === 'vocab' ? 'active' : ''}" onclick="EnglishApp.setTab('vocab')">📚 Kelime Defteri</button>
-          <button class="en-tab-btn ${this.activeTab === 'quiz' ? 'active' : ''}" onclick="EnglishApp.setTab('quiz')">🧠 Hızlı Pratik Testi</button>
-          <button class="en-tab-btn ${this.activeTab === 'favorites' ? 'active' : ''}" onclick="EnglishApp.setTab('favorites')">⭐ Favorilerim</button>
-        </div>
+        ${this._getTabBarHtml()}
         <div class="en-search-wrap">
           <input type="text" id="place-search-input" class="en-search-input" placeholder="Mekan ara... (örn: Kafe, Taksi, Havalimanı)" oninput="EnglishApp.filterPlaces(this.value)">
           <span class="en-search-icon">🔍</span>
@@ -1136,26 +1188,24 @@ const EnglishApp = {
       return;
     }
 
-    // Active Section Details & Action Bar
+    // Active Section Card
     html += `
       <div class="en-active-section-card">
         <div class="en-sec-header-row">
           <div>
-            <div class="en-sec-lvl-pill ${activeSection.level_badge || 'beginner'}">${activeSection.level || 'Zorluk: Genel'}</div>
-            <h3 class="en-sec-current-title">${activeSection.title_tr}</h3>
-            <div class="en-sec-current-en">${activeSection.title_en || ''}</div>
-            ${activeSection.desc_tr ? `<p class="en-sec-desc">${activeSection.desc_tr}</p>` : ''}
+            <div class="en-sec-level-badge ${activeSection?.level_badge || 'beginner'}">${activeSection?.level || 'A1'}</div>
+            <h3 class="en-sec-title">${activeSection?.title_tr || ''}</h3>
+            <p class="en-sec-desc">${activeSection?.desc_tr || ''}</p>
           </div>
           
-          <div class="en-sec-top-actions">
-            <!-- MASTER TOGGLE ALL BUTTON (REQUESTED BY USER) -->
+          <div class="en-sec-actions">
+            <!-- Global Master Toggle Button (Requested by User) -->
             <button id="master-toggle-btn" class="en-btn btn-accent ${this.allRevealed ? 'active' : ''}" onclick="EnglishApp.toggleAllPhrases()">
               <span>${this.allRevealed ? '🙈' : '👁️'}</span>
               <span>${this.allRevealed ? 'Tüm İngilizce Cümleleri Gizle' : `Tüm İngilizce Cümleleri Göster (${phrases.length} Cümle)`}</span>
             </button>
 
-            <!-- Auto Play Sequential Audio -->
-            <button class="en-btn btn-glass" title="Bölümdeki tüm İngilizce cümleleri sırayla dinle" onclick="EnglishApp.playAllSectionAudio()">
+            <button class="en-btn btn-glass" title="Bölümdeki tüm cümleleri sırayla dinle" onclick="EnglishApp.playAllSectionAudio()">
               <span>🔊</span> <span>Sırayla Dinle</span>
             </button>
 
@@ -1167,7 +1217,7 @@ const EnglishApp = {
           </div>
         </div>
 
-        <!-- Phrases Container -->
+        <!-- Phrases Container (Messaging App Style) -->
         <div class="en-phrases-list">
     `;
 
@@ -1180,7 +1230,7 @@ const EnglishApp = {
         </div>
       `;
     } else {
-      phrases.forEach((phrase, pIdx) => {
+      phrases.forEach((phrase) => {
         const isFav = this.favoritePhrases.has(phrase.id);
         const roleClass = phrase.role === 'staff' ? 'staff-role' : 'customer-role';
 
@@ -1215,7 +1265,7 @@ const EnglishApp = {
               <div class="en-sentence-tr">${phrase.tr}</div>
             </div>
 
-            <!-- Individual Sentence Toggle Button (REQUESTED BY USER) -->
+            <!-- Individual Sentence Toggle Button -->
             <div class="en-phrase-toggle-row">
               <button id="btn-toggle-${phrase.id}" class="en-toggle-en-btn ${this.allRevealed ? 'active' : ''}" onclick="EnglishApp.toggleSinglePhrase('${phrase.id}')">
                 <span>${this.allRevealed ? '🙈' : '👁️'}</span>
@@ -1227,7 +1277,7 @@ const EnglishApp = {
               </button>
             </div>
 
-            <!-- English Sentence Box (Collapsible / Toggleable with smooth animation) -->
+            <!-- English Sentence Box -->
             <div id="phrase-en-${phrase.id}" class="en-phrase-en-box ${this.allRevealed ? 'revealed' : ''}">
               <div class="en-phrase-en-content">
                 <span class="en-lang-flag">🇬🇧</span>
@@ -1260,54 +1310,36 @@ const EnglishApp = {
     if (!section || !section.phrases || section.phrases.length === 0) return;
 
     const texts = section.phrases.map(p => p.en);
-    this.toast(`Sırayla dinleniyor (${texts.length} cümle)...`, 'info');
-    this.speakSequential(texts);
+    this.toast(`${texts.length} cümle sırayla seslendiriliyor...`, 'info');
+    this.speakSequential(texts, 0);
   },
 
-  toggleFavoritePhrase(id) {
-    if (this.favoritePhrases.has(id)) {
-      this.favoritePhrases.delete(id);
-      this.toast('Cümle favorilerden çıkarıldı.', 'info');
-    } else {
-      this.favoritePhrases.add(id);
-      this.toast('Cümle favorilere eklendi! ⭐', 'success');
-    }
-    this._saveFavorites();
-    this.render();
-  },
-
-  copyPhrase(tr, en) {
-    const text = `🇹🇷 ${tr}\n🇬🇧 ${en}`;
-    navigator.clipboard.writeText(text).then(() => {
-      this.toast('Cümle panoya kopyalandı! 📋', 'success');
-    });
-  },
-
-  // ===== VIEW: VOCABULARY BANK (KELİME DEFTERİ) =====
+  // ===== VIEW: VOCABULARY BANK =====
   renderVocab() {
     const container = document.getElementById('main-view-container');
     if (!container) return;
 
-    const categories = ['all', 'Kafe & Yeme İçme', 'Seyahat & Havalimanı', 'Taksi & Ulaşım', 'Sokak & Yol Tarifi', 'Alışveriş & Mağaza', 'Otel & Konaklama', 'Eczane & Sağlık'];
-    const levels = ['all', 'A1', 'A2', 'B1', 'B2', 'C1'];
+    const categories = ['all', 'mastered', 'unlearned', ...new Set(this.vocab.map(v => v.cat).filter(Boolean))];
 
-    // Filter vocab
-    const q = this.vocabSearchQuery.toLowerCase().trim();
     const filteredVocab = this.vocab.filter(v => {
-      const matchCat = this.vocabFilter === 'all' || v.cat === this.vocabFilter;
+      let matchCat = true;
+      if (this.vocabFilter === 'mastered') {
+        matchCat = this.masteredVocab.has(v.id);
+      } else if (this.vocabFilter === 'unlearned') {
+        matchCat = !this.masteredVocab.has(v.id);
+      } else if (this.vocabFilter !== 'all') {
+        matchCat = v.cat === this.vocabFilter;
+      }
+
       const matchLvl = this.vocabLevelFilter === 'all' || v.level === this.vocabLevelFilter;
+      const q = (this.vocabSearchQuery || '').toLowerCase().trim();
       const matchQuery = !q || v.word.toLowerCase().includes(q) || v.meaning.toLowerCase().includes(q) || (v.ex_en && v.ex_en.toLowerCase().includes(q));
       return matchCat && matchLvl && matchQuery;
     });
 
     let html = `
       <div class="en-places-header">
-        <div class="en-tab-bar">
-          <button class="en-tab-btn ${this.activeTab === 'places' ? 'active' : ''}" onclick="EnglishApp.setTab('places')">🏢 Mekanlar & Konuşmalar</button>
-          <button class="en-tab-btn ${this.activeTab === 'vocab' ? 'active' : ''}" onclick="EnglishApp.setTab('vocab')">📚 Kelime Defteri</button>
-          <button class="en-tab-btn ${this.activeTab === 'quiz' ? 'active' : ''}" onclick="EnglishApp.setTab('quiz')">🧠 Hızlı Pratik Testi</button>
-          <button class="en-tab-btn ${this.activeTab === 'favorites' ? 'active' : ''}" onclick="EnglishApp.setTab('favorites')">⭐ Favorilerim</button>
-        </div>
+        ${this._getTabBarHtml()}
       </div>
 
       <div class="en-vocab-header-card">
@@ -1334,11 +1366,17 @@ const EnglishApp = {
 
           <!-- Category Pills -->
           <div class="en-filter-pills-row">
-            ${categories.map(cat => `
-              <button class="en-filter-pill ${this.vocabFilter === cat ? 'active' : ''}" onclick="EnglishApp.setVocabFilter('${cat}')">
-                ${cat === 'all' ? 'Tüm Kategoriler' : cat}
-              </button>
-            `).join('')}
+            ${categories.map(cat => {
+              let label = cat;
+              if (cat === 'all') label = 'Tüm Kategoriler';
+              else if (cat === 'mastered') label = `🎓 Ezberlediklerim (${this.masteredVocab.size})`;
+              else if (cat === 'unlearned') label = `⏳ Öğrenilecekler (${this.vocab.length - this.masteredVocab.size})`;
+              return `
+                <button class="en-filter-pill ${this.vocabFilter === cat ? 'active' : ''}" onclick="EnglishApp.setVocabFilter('${cat}')">
+                  ${label}
+                </button>
+              `;
+            }).join('')}
           </div>
         </div>
       </div>
@@ -1351,11 +1389,16 @@ const EnglishApp = {
       } else {
         const curIdx = Math.min(this.flashcardIndex, filteredVocab.length - 1);
         const card = filteredVocab[curIdx];
-        const isFav = this.favoriteVocab.has(card.id);
+        const isMastered = this.masteredVocab.has(card.id);
 
         html += `
           <div class="en-flashcard-wrapper">
-            <div class="en-flashcard-counter">Kart ${curIdx + 1} / ${filteredVocab.length}</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; max-width:480px; margin-bottom:12px;">
+              <div class="en-flashcard-counter">Kart ${curIdx + 1} / ${filteredVocab.length}</div>
+              <button class="en-mastered-btn ${isMastered ? 'mastered' : ''}" onclick="event.stopPropagation(); EnglishApp.toggleMasteredVocab('${card.id}')">
+                🎓 ${isMastered ? 'Ezberlendi ✅' : 'Ezberledim'}
+              </button>
+            </div>
             
             <div class="en-flashcard-3d ${this.flashcardFlipped ? 'flipped' : ''}" onclick="EnglishApp.flipFlashcard()">
               <!-- Front Side -->
@@ -1403,14 +1446,19 @@ const EnglishApp = {
       } else {
         filteredVocab.forEach(item => {
           const isFav = this.favoriteVocab.has(item.id);
+          const isMastered = this.masteredVocab.has(item.id);
+
           html += `
-            <div class="en-vocab-card">
+            <div class="en-vocab-card ${isMastered ? 'is-mastered' : ''}">
               <div class="en-vocab-card-header">
                 <div class="en-vocab-word-row">
                   <h4 class="en-vocab-word">${item.word}</h4>
                   ${item.pron ? `<span class="en-vocab-pron">${item.pron}</span>` : ''}
                 </div>
                 <div class="en-vocab-header-actions">
+                  <button class="en-mastered-btn ${isMastered ? 'mastered' : ''}" title="Ezberledim / Öğrendim" onclick="EnglishApp.toggleMasteredVocab('${item.id}')">
+                    🎓 ${isMastered ? 'Ezberlendi ✅' : 'Ezberledim'}
+                  </button>
                   <button class="en-icon-action-btn ${isFav ? 'starred' : ''}" title="Favorile" onclick="EnglishApp.toggleFavoriteVocab('${item.id}')">
                     ${isFav ? '⭐' : '☆'}
                   </button>
@@ -1439,6 +1487,7 @@ const EnglishApp = {
               <div class="en-vocab-footer">
                 <span class="en-vpill cat">${item.cat || 'Genel'}</span>
                 <span class="en-vpill lvl">${item.level || 'A1'}</span>
+                ${isMastered ? `<span class="en-vpill" style="background:rgba(16,185,129,0.2); color:#34d399; font-weight:700; margin-left:auto;">✓ Öğrenildi</span>` : ''}
               </div>
             </div>
           `;
@@ -1449,6 +1498,106 @@ const EnglishApp = {
     }
 
     container.innerHTML = html;
+  },
+
+  // ===== VIEW: MASTERED VOCABULARY (DEDICATED VIEW) =====
+  renderMastered() {
+    const container = document.getElementById('main-view-container');
+    if (!container) return;
+
+    const masteredList = this.vocab.filter(v => this.masteredVocab.has(v.id));
+    const percent = this.vocab.length > 0 ? Math.round((masteredList.length / this.vocab.length) * 100) : 0;
+
+    let html = `
+      <div class="en-places-header">
+        ${this._getTabBarHtml()}
+      </div>
+
+      <div class="en-vocab-header-card" style="border-color: rgba(16, 185, 129, 0.3); background: linear-gradient(135deg, rgba(16, 185, 129, 0.06), var(--bg-card));">
+        <div class="en-vocab-top-row">
+          <div>
+            <h2 class="en-vocab-title">🎓 Ezberlediğim Kelimeler Havuzu</h2>
+            <p class="en-vocab-desc">Öğrenip hafızanıza kaydettiğiniz tüm kelimeler. İlerlemenizi takip edin ve bu kelimelerle özel yazma/dinleme testleri yapın.</p>
+          </div>
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="en-btn btn-primary" onclick="EnglishApp.startMasteredQuiz()">🧠 Bu Kelimelerle Test Yap</button>
+            <button class="en-btn btn-glass" onclick="EnglishApp.setTab('vocab')">📚 Yeni Kelimeler Ekle</button>
+          </div>
+        </div>
+
+        <!-- Progress Overview -->
+        <div style="margin-top: 20px; background: rgba(0,0,0,0.2); border-radius: var(--radius-lg); padding: 16px 20px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span style="font-size:13px; font-weight:700; color:var(--text-primary);">Kelime Havuzu Hakimiyeti</span>
+            <span style="font-size:14px; font-weight:800; color:#34d399;">%${percent} (${masteredList.length} / ${this.vocab.length} Kelime)</span>
+          </div>
+          <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.08); border-radius: 5px; overflow: hidden;">
+            <div style="width: ${percent}%; height: 100%; background: linear-gradient(90deg, #10b981, #34d399); border-radius: 5px; transition: width 0.4s ease;"></div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    if (masteredList.length === 0) {
+      html += `
+        <div class="en-empty-state">
+          <div class="en-empty-icon">🎓</div>
+          <h3>Henüz ezberlenen kelimeniz bulunmuyor.</h3>
+          <p style="color:var(--text-muted); max-width:450px; margin:0 auto 18px;">
+            Kelime Defteri'ne giderek öğrendiğiniz kelimeleri "🎓 Ezberledim" butonuyla buraya ekleyebilirsiniz.
+          </p>
+          <button class="en-btn btn-primary" onclick="EnglishApp.setTab('vocab')">📚 Kelime Defterine Git</button>
+        </div>
+      `;
+    } else {
+      html += `
+        <div class="en-vocab-grid">
+      `;
+      masteredList.forEach(item => {
+        html += `
+          <div class="en-vocab-card is-mastered">
+            <div class="en-vocab-card-header">
+              <div class="en-vocab-word-row">
+                <h4 class="en-vocab-word">${item.word}</h4>
+                ${item.pron ? `<span class="en-vocab-pron">${item.pron}</span>` : ''}
+              </div>
+              <div class="en-vocab-header-actions">
+                <button class="en-mastered-btn mastered" title="Ezberlenenlerden Çıkar" onclick="EnglishApp.toggleMasteredVocab('${item.id}')">
+                  🎓 Ezberlendi ✓
+                </button>
+                <button class="en-icon-action-btn" title="Telaffuz" onclick="EnglishApp.speak('${item.word.replace(/'/g, "\\'")}')">
+                  🔊
+                </button>
+              </div>
+            </div>
+            <div class="en-vocab-meaning-row">
+              <span class="en-vocab-meaning-label">Anlamı:</span>
+              <span class="en-vocab-meaning">${item.meaning}</span>
+            </div>
+            ${item.ex_en ? `
+              <div class="en-vocab-ex-box">
+                <div class="en-vex-en">🇬🇧 ${item.ex_en}</div>
+                <div class="en-vex-tr">🇹🇷 ${item.ex_tr || ''}</div>
+              </div>
+            ` : ''}
+            <div class="en-vocab-footer">
+              <span class="en-vpill cat">${item.cat || 'Genel'}</span>
+              <span class="en-vpill lvl">${item.level || 'A1'}</span>
+            </div>
+          </div>
+        `;
+      });
+      html += `</div>`;
+    }
+
+    container.innerHTML = html;
+  },
+
+  startMasteredQuiz() {
+    this.quizSource = 'mastered';
+    this.quizMode = 'mixed';
+    this.activeTab = 'quiz';
+    this.generateQuiz();
   },
 
   onVocabSearch(val) {
@@ -1498,7 +1647,7 @@ const EnglishApp = {
     this.render();
   },
 
-  // ===== VIEW: QUIZ MODE =====
+  // ===== VIEW: MIXED INTERACTIVE QUIZ MODE =====
   renderQuiz() {
     const container = document.getElementById('main-view-container');
     if (!container) return;
@@ -1511,12 +1660,33 @@ const EnglishApp = {
 
     let html = `
       <div class="en-places-header">
-        <div class="en-tab-bar">
-          <button class="en-tab-btn ${this.activeTab === 'places' ? 'active' : ''}" onclick="EnglishApp.setTab('places')">🏢 Mekanlar & Konuşmalar</button>
-          <button class="en-tab-btn ${this.activeTab === 'vocab' ? 'active' : ''}" onclick="EnglishApp.setTab('vocab')">📚 Kelime Defteri</button>
-          <button class="en-tab-btn ${this.activeTab === 'quiz' ? 'active' : ''}" onclick="EnglishApp.setTab('quiz')">🧠 Hızlı Pratik Testi</button>
-          <button class="en-tab-btn ${this.activeTab === 'favorites' ? 'active' : ''}" onclick="EnglishApp.setTab('favorites')">⭐ Favorilerim</button>
+        ${this._getTabBarHtml()}
+      </div>
+
+      <!-- Quiz Setup & Source Configuration -->
+      <div class="en-quiz-config-bar">
+        <div class="en-quiz-config-group">
+          <span class="en-quiz-config-label">📖 Soru Havuzu:</span>
+          <select class="en-quiz-select" id="quiz-source-select" onchange="EnglishApp.onQuizConfigChange()">
+            <option value="all" ${this.quizSource === 'all' ? 'selected' : ''}>🎲 Karışık (Tüm Kelimeler & Cümleler)</option>
+            <option value="mastered" ${this.quizSource === 'mastered' ? 'selected' : ''}>🎓 Sadece Ezberlediklerim (${this.masteredVocab.size})</option>
+            <option value="vocab" ${this.quizSource === 'vocab' ? 'selected' : ''}>📚 Tüm Kelime Defteri (${this.vocab.length})</option>
+            <option value="phrases" ${this.quizSource === 'phrases' ? 'selected' : ''}>💬 Mekan Cümleleri & Diyaloglar</option>
+          </select>
         </div>
+
+        <div class="en-quiz-config-group">
+          <span class="en-quiz-config-label">🎯 Soru Formatı:</span>
+          <select class="en-quiz-select" id="quiz-mode-select" onchange="EnglishApp.onQuizConfigChange()">
+            <option value="mixed" ${this.quizMode === 'mixed' ? 'selected' : ''}>🎲 Karışık Mod (Yazma + Dinleme + Seçmeli)</option>
+            <option value="type_tr" ${this.quizMode === 'type_tr' ? 'selected' : ''}>✍️ Türkçe Anlamını Yaz (Type Meaning)</option>
+            <option value="type_en" ${this.quizMode === 'type_en' ? 'selected' : ''}>✍️ İngilizce Karşılığını Yaz (Type English)</option>
+            <option value="audio_listen" ${this.quizMode === 'audio_listen' ? 'selected' : ''}>🎧 Sesli Dinle & Yaz (Listening Quiz)</option>
+            <option value="choice" ${this.quizMode === 'choice' ? 'selected' : ''}>🔘 Çoktan Seçmeli Test</option>
+          </select>
+        </div>
+
+        <button class="en-btn btn-sm btn-accent" onclick="EnglishApp.generateQuiz()">🔄 Yeniden Başlat</button>
       </div>
 
       <div class="en-quiz-card">
@@ -1530,80 +1700,276 @@ const EnglishApp = {
           <h2 class="en-quiz-res-title">Pratik Testi Tamamlandı!</h2>
           <div class="en-quiz-res-score">Doğru Sayısı: ${this.quizScore} / ${this.quizQuestions.length} (%${percentage})</div>
           <p class="en-quiz-res-desc">
-            ${percentage === 100 ? 'Harika bir performans! Tüm soruları doğru bildiniz.' : percentage >= 60 ? 'Tebrikler, güzel bir pratik oldu!' : 'Biraz daha pratik yaparak kelimeleri pekiştirebilirsiniz.'}
+            ${percentage === 100 ? 'Harika bir performans! Tüm soruları başarıyla bildiniz.' : percentage >= 60 ? 'Tebrikler, güzel bir pratik oldu!' : 'Biraz daha pratik yaparak kelimelerinizi pekiştirebilirsiniz.'}
           </p>
-          <div style="display:flex; gap:12px; justify-content:center; margin-top:24px;">
-            <button class="en-btn btn-primary" onclick="EnglishApp.generateQuiz()">🔄 Yeni Test Başlat</button>
-            <button class="en-btn btn-glass" onclick="EnglishApp.setTab('vocab')">📚 Kelimelere Dön</button>
+          <div style="display:flex; gap:12px; justify-content:center; margin-top:24px; flex-wrap:wrap;">
+            <button class="en-btn btn-primary" onclick="EnglishApp.generateQuiz()">🔄 Tekrar Test Çöz</button>
+            <button class="en-btn btn-accent" onclick="EnglishApp.setTab('mastered')">🎓 Ezberlediklerim Alanı</button>
+            <button class="en-btn btn-glass" onclick="EnglishApp.setTab('vocab')">📚 Kelime Defterine Dön</button>
           </div>
         </div>
       `;
     } else if (q) {
       html += `
         <div class="en-quiz-header">
-          <span class="en-quiz-badge">Soru ${(this.quizCurrentIndex || 0) + 1} / ${this.quizQuestions.length}</span>
-          <span class="en-quiz-score-live">Puan: ${this.quizScore || 0}</span>
+          <span class="en-quiz-badge">Soru ${(this.quizCurrentIndex || 0) + 1} / ${this.quizQuestions.length} · ${q.typeLabel}</span>
+          <span class="en-quiz-score-live">Puan: ${this.quizScore || 0} / ${(this.quizCurrentIndex || 0)}</span>
         </div>
+      `;
 
-        <div class="en-quiz-prompt">
-          <div class="en-quiz-label">Aşağıdaki Türkçe cümlenin / kelimenin doğru İngilizce karşılığı hangisidir?</div>
-          <div class="en-quiz-question-text">🇹🇷 "${q.question}"</div>
-        </div>
+      if (q.type === 'type_tr') {
+        // TYPE TR MEANING
+        html += `
+          <div class="en-quiz-prompt">
+            <div class="en-quiz-label">Aşağıdaki İngilizce kelimenin Türkçe anlamını yazınız:</div>
+            <div class="en-quiz-question-text" style="color:var(--accent-light);">🇬🇧 "${q.prompt}"</div>
+            <button class="en-fc-audio-btn" style="margin-top:8px;" onclick="EnglishApp.speak('${q.prompt.replace(/'/g, "\\'")}')">🔊 Telaffuzu Dinle</button>
+          </div>
 
-        <div class="en-quiz-options">
-          ${q.options.map((opt, oIdx) => `
-            <button class="en-quiz-opt-btn" id="quiz-opt-${oIdx}" onclick="EnglishApp.answerQuiz(${oIdx})">
-              <span class="en-opt-letter">${String.fromCharCode(65 + oIdx)}</span>
-              <span class="en-opt-text">${opt}</span>
-            </button>
-          `).join('')}
-        </div>
+          <div class="en-quiz-type-box">
+            <div class="en-quiz-type-input-wrap">
+              <input type="text" id="quiz-typed-input" class="en-quiz-type-input" placeholder="Türkçe anlamını buraya yazın..." autocomplete="off" onkeydown="if(event.key==='Enter') EnglishApp.submitTypedAnswer()">
+              <button class="en-btn btn-primary" onclick="EnglishApp.submitTypedAnswer()">Cevapla</button>
+            </div>
+          </div>
+        `;
+      } else if (q.type === 'type_en') {
+        // TYPE ENGLISH
+        html += `
+          <div class="en-quiz-prompt">
+            <div class="en-quiz-label">Aşağıdaki Türkçe ifadenin İngilizce karşılığını yazınız:</div>
+            <div class="en-quiz-question-text">🇹🇷 "${q.prompt}"</div>
+          </div>
 
+          <div class="en-quiz-type-box">
+            <div class="en-quiz-type-input-wrap">
+              <input type="text" id="quiz-typed-input" class="en-quiz-type-input" placeholder="İngilizce karşılığını yazın..." autocomplete="off" onkeydown="if(event.key==='Enter') EnglishApp.submitTypedAnswer()">
+              <button class="en-btn btn-primary" onclick="EnglishApp.submitTypedAnswer()">Cevapla</button>
+            </div>
+          </div>
+        `;
+      } else if (q.type === 'audio_listen') {
+        // AUDIO LISTENING TEST
+        html += `
+          <div class="en-quiz-prompt" style="text-align:center;">
+            <div class="en-quiz-label">Kulaklığınızı takın veya hoparlörünüzü açın. Duyduğunuz ifadenin İngilizce yazılışını veya Türkçe anlamını yazın:</div>
+            <div>
+              <button class="en-audio-prompt-btn" onclick="EnglishApp.speak('${q.audioText.replace(/'/g, "\\'")}')">
+                <span style="font-size:22px;">🔊</span> <span>Sesi Tekrar Dinle</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="en-quiz-type-box">
+            <div class="en-quiz-type-input-wrap">
+              <input type="text" id="quiz-typed-input" class="en-quiz-type-input" placeholder="Duyduğunuz kelimeyi veya Türkçe anlamını yazın..." autocomplete="off" onkeydown="if(event.key==='Enter') EnglishApp.submitTypedAnswer()">
+              <button class="en-btn btn-primary" onclick="EnglishApp.submitTypedAnswer()">Cevapla</button>
+            </div>
+          </div>
+        `;
+      } else {
+        // MULTIPLE CHOICE
+        html += `
+          <div class="en-quiz-prompt">
+            <div class="en-quiz-label">Aşağıdaki Türkçe cümlenin / kelimenin doğru İngilizce karşılığı hangisidir?</div>
+            <div class="en-quiz-question-text">🇹🇷 "${q.question}"</div>
+          </div>
+
+          <div class="en-quiz-options">
+            ${q.options.map((opt, oIdx) => `
+              <button class="en-quiz-opt-btn" id="quiz-opt-${oIdx}" onclick="EnglishApp.answerQuiz(${oIdx})">
+                <span class="en-opt-letter">${String.fromCharCode(65 + oIdx)}</span>
+                <span class="en-opt-text">${opt}</span>
+              </button>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      html += `
         <div id="quiz-feedback-box" class="en-quiz-feedback" style="display:none;"></div>
       `;
     }
 
     html += `</div>`;
     container.innerHTML = html;
+
+    // Auto-focus typing input if present and play audio if listening test
+    setTimeout(() => {
+      const input = document.getElementById('quiz-typed-input');
+      if (input) input.focus();
+
+      if (q && q.type === 'audio_listen' && !this.quizAnswered) {
+        this.speak(q.audioText);
+      }
+    }, 100);
+  },
+
+  onQuizConfigChange() {
+    const srcEl = document.getElementById('quiz-source-select');
+    const modeEl = document.getElementById('quiz-mode-select');
+    if (srcEl) this.quizSource = srcEl.value;
+    if (modeEl) this.quizMode = modeEl.value;
+    this.generateQuiz();
+  },
+
+  _normalizeText(str) {
+    if (!str) return '';
+    return str
+      .toLowerCase()
+      .trim()
+      .replace(/['’".,/#!$%^&*;:{}=\-_`~()]/g, '')
+      .replace(/[\s]+/g, ' ')
+      .replace(/ı/g, 'i')
+      .replace(/ğ/g, 'g')
+      .replace(/ü/g, 'u')
+      .replace(/ş/g, 's')
+      .replace(/ö/g, 'o')
+      .replace(/ç/g, 'c');
+  },
+
+  _isAnswerMatching(userText, targetText) {
+    const u = this._normalizeText(userText);
+    if (!u) return false;
+    
+    const targets = targetText.split(/[,/;|]/).map(t => this._normalizeText(t)).filter(Boolean);
+    targets.push(this._normalizeText(targetText));
+
+    for (const t of targets) {
+      if (u === t) return true;
+      if (t.includes(u) && u.length >= 3) return true;
+      if (u.includes(t) && t.length >= 3) return true;
+    }
+    return false;
   },
 
   generateQuiz() {
     this.quizScore = 0;
     this.quizCurrentIndex = 0;
     this.quizFinished = false;
+    this.quizAnswered = false;
 
-    // Build a pool of question items from vocab & phrases
-    const pool = [];
-    this.vocab.forEach(v => {
-      pool.push({ question: v.meaning, answer: v.word, distractorPool: this.vocab.map(x => x.word) });
-    });
+    let itemsPool = [];
 
-    this.places.forEach(p => {
-      (p.sections || []).forEach(s => {
-        (s.phrases || []).forEach(ph => {
-          pool.push({ question: ph.tr, answer: ph.en, distractorPool: (s.phrases || []).map(x => x.en) });
+    // Filter by Source
+    if (this.quizSource === 'mastered') {
+      itemsPool = this.vocab.filter(v => this.masteredVocab.has(v.id)).map(v => ({
+        id: v.id,
+        word: v.word,
+        meaning: v.meaning,
+        isVocab: true
+      }));
+      if (itemsPool.length === 0) {
+        this.toast('Ezberlenmiş kelimeniz bulunmadığından tüm kelime havuzu yüklendi.', 'warning');
+        itemsPool = this.vocab.map(v => ({ id: v.id, word: v.word, meaning: v.meaning, isVocab: true }));
+      }
+    } else if (this.quizSource === 'vocab') {
+      itemsPool = this.vocab.map(v => ({ id: v.id, word: v.word, meaning: v.meaning, isVocab: true }));
+    } else if (this.quizSource === 'phrases') {
+      this.places.forEach(p => {
+        (p.sections || []).forEach(s => {
+          (s.phrases || []).forEach(ph => {
+            itemsPool.push({ id: ph.id, word: ph.en, meaning: ph.tr, isVocab: false });
+          });
         });
       });
-    });
+    } else {
+      // All
+      this.vocab.forEach(v => itemsPool.push({ id: v.id, word: v.word, meaning: v.meaning, isVocab: true }));
+      this.places.forEach(p => {
+        (p.sections || []).forEach(s => {
+          (s.phrases || []).forEach(ph => {
+            itemsPool.push({ id: ph.id, word: ph.en, meaning: ph.tr, isVocab: false });
+          });
+        });
+      });
+    }
 
-    // Shuffle and pick 5
-    pool.sort(() => 0.5 - Math.random());
-    const selected = pool.slice(0, 5);
+    // Shuffle pool
+    itemsPool.sort(() => 0.5 - Math.random());
+    const selected = itemsPool.slice(0, 5);
 
-    this.quizQuestions = selected.map(item => {
-      const wrong = item.distractorPool.filter(w => w !== item.answer).sort(() => 0.5 - Math.random()).slice(0, 3);
-      while (wrong.length < 3) {
-        wrong.push("Alternative phrase " + (wrong.length + 1));
+    const questionTypes = ['type_tr', 'type_en', 'audio_listen', 'choice'];
+
+    this.quizQuestions = selected.map((item, idx) => {
+      let qType = this.quizMode;
+      if (qType === 'mixed') {
+        qType = questionTypes[idx % questionTypes.length];
       }
-      const options = [item.answer, ...wrong].sort(() => 0.5 - Math.random());
+
+      let typeLabel = 'Çoktan Seçmeli';
+      if (qType === 'type_tr') typeLabel = '✍️ Türkçe Anlamını Yaz';
+      else if (qType === 'type_en') typeLabel = '✍️ İngilizce Yaz';
+      else if (qType === 'audio_listen') typeLabel = '🎧 Sesli Dinleme Testi';
+
+      // For multiple choice distractors
+      const wrong = itemsPool.filter(w => w.word !== item.word).sort(() => 0.5 - Math.random()).slice(0, 3).map(x => x.word);
+      while (wrong.length < 3) {
+        wrong.push("Alternative choice " + (wrong.length + 1));
+      }
+      const options = [item.word, ...wrong].sort(() => 0.5 - Math.random());
+
       return {
-        question: item.question,
-        answer: item.answer,
+        id: item.id,
+        isVocab: item.isVocab,
+        type: qType,
+        typeLabel: typeLabel,
+        prompt: qType === 'type_tr' ? item.word : item.meaning,
+        question: item.meaning,
+        answer: item.word,
+        meaning: item.meaning,
+        audioText: item.word,
         options: options
       };
     });
 
     this.render();
+  },
+
+  submitTypedAnswer() {
+    const q = this.quizQuestions[this.quizCurrentIndex];
+    if (!q || this.quizAnswered) return;
+
+    const input = document.getElementById('quiz-typed-input');
+    if (!input) return;
+    const userVal = input.value.trim();
+    if (!userVal) {
+      this.toast('Lütfen bir cevap yazın.', 'warning');
+      return;
+    }
+
+    this.quizAnswered = true;
+    let isCorrect = false;
+
+    if (q.type === 'type_tr') {
+      isCorrect = this._isAnswerMatching(userVal, q.meaning);
+    } else if (q.type === 'type_en') {
+      isCorrect = this._isAnswerMatching(userVal, q.answer);
+    } else if (q.type === 'audio_listen') {
+      isCorrect = this._isAnswerMatching(userVal, q.answer) || this._isAnswerMatching(userVal, q.meaning);
+    }
+
+    if (isCorrect) this.quizScore++;
+
+    input.disabled = true;
+    input.classList.add(isCorrect ? 'correct' : 'wrong');
+
+    const feedbackBox = document.getElementById('quiz-feedback-box');
+    if (feedbackBox) {
+      feedbackBox.style.display = 'flex';
+      feedbackBox.className = `en-quiz-feedback ${isCorrect ? 'correct' : 'wrong'}`;
+      feedbackBox.innerHTML = `
+        <div style="flex:1;">
+          <div>${isCorrect ? '🎉 Harika! Doğru cevap.' : `❌ Yanlış. Doğru cevap: <b>${q.type === 'type_tr' ? q.meaning : q.answer}</b>`}</div>
+          ${q.isVocab && !this.masteredVocab.has(q.id) ? `
+            <button class="en-mastered-btn" style="margin-top:6px;" onclick="EnglishApp.toggleMasteredVocab('${q.id}')">🎓 Ezberlediklerime Ekle</button>
+          ` : ''}
+        </div>
+        <button class="en-btn btn-sm btn-primary" style="margin-left:auto;" onclick="EnglishApp.nextQuizQuestion()">
+          ${this.quizCurrentIndex + 1 >= this.quizQuestions.length ? 'Sonuçları Gör' : 'Sonraki Soru →'}
+        </button>
+      `;
+    }
   },
 
   answerQuiz(selectedOptIdx) {
@@ -1631,7 +1997,12 @@ const EnglishApp = {
       feedbackBox.style.display = 'flex';
       feedbackBox.className = `en-quiz-feedback ${isCorrect ? 'correct' : 'wrong'}`;
       feedbackBox.innerHTML = `
-        <div>${isCorrect ? '🎉 Tebrikler! Doğru cevap.' : `❌ Yanlış. Doğru cevap: <b>${q.answer}</b>`}</div>
+        <div style="flex:1;">
+          <div>${isCorrect ? '🎉 Tebrikler! Doğru cevap.' : `❌ Yanlış. Doğru cevap: <b>${q.answer}</b>`}</div>
+          ${q.isVocab && !this.masteredVocab.has(q.id) ? `
+            <button class="en-mastered-btn" style="margin-top:6px;" onclick="EnglishApp.toggleMasteredVocab('${q.id}')">🎓 Ezberlediklerime Ekle</button>
+          ` : ''}
+        </div>
         <button class="en-btn btn-sm btn-primary" style="margin-left:auto;" onclick="EnglishApp.nextQuizQuestion()">
           ${this.quizCurrentIndex + 1 >= this.quizQuestions.length ? 'Sonuçları Gör' : 'Sonraki Soru →'}
         </button>
@@ -1668,12 +2039,7 @@ const EnglishApp = {
 
     let html = `
       <div class="en-places-header">
-        <div class="en-tab-bar">
-          <button class="en-tab-btn ${this.activeTab === 'places' ? 'active' : ''}" onclick="EnglishApp.setTab('places')">🏢 Mekanlar & Konuşmalar</button>
-          <button class="en-tab-btn ${this.activeTab === 'vocab' ? 'active' : ''}" onclick="EnglishApp.setTab('vocab')">📚 Kelime Defteri</button>
-          <button class="en-tab-btn ${this.activeTab === 'quiz' ? 'active' : ''}" onclick="EnglishApp.setTab('quiz')">🧠 Hızlı Pratik Testi</button>
-          <button class="en-tab-btn ${this.activeTab === 'favorites' ? 'active' : ''}" onclick="EnglishApp.setTab('favorites')">⭐ Favorilerim (${favPhrasesList.length + favVocabList.length})</button>
-        </div>
+        ${this._getTabBarHtml()}
       </div>
 
       <div class="en-favs-section">

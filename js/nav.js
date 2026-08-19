@@ -20,6 +20,7 @@ const Nav = {
     this.syncLiveScoreStateFromSupabase();
     this._attachThemeToggle();
     this._hideFamilyLinkIfNotAdmin();
+    Modal.initGlobalWatcher();
 
     if (!this._listenersAttached) {
       this._listenersAttached = true;
@@ -139,7 +140,14 @@ const Nav = {
     }
 
     if (dateEl && window.DateUtils) {
-      dateEl.textContent = `📅 ${DateUtils.format(new Date(), true)}`;
+      const now = new Date();
+      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+      const dateText = DateUtils.format(now, true);
+      dateEl.innerHTML = `
+        <span class="hero-date-icon">📅</span>
+        <span class="hero-date-text">${dateText}</span>
+        <span class="hero-date-time">⏰ ${timeStr}</span>
+      `;
     }
   },
 
@@ -935,16 +943,42 @@ const Toast = {
   info(msg) { this.show(msg, 'info'); }
 };
 
-// ===== MODAL HELPERS =====
+// ===== MODAL HELPERS & GLOBAL SCROLL LOCK =====
 const Modal = {
   open(id) {
     const el = document.getElementById(id);
-    if (el) el.classList.add('open');
+    if (el) {
+      el.classList.add('open');
+      this.syncScrollLock();
+    }
   },
 
   close(id) {
     const el = document.getElementById(id);
-    if (el) el.classList.remove('open');
+    if (el) {
+      el.classList.remove('open', 'active');
+      this.syncScrollLock();
+    }
+  },
+
+  _isSyncingScroll: false,
+
+  syncScrollLock() {
+    if (this._isSyncingScroll) return;
+    this._isSyncingScroll = true;
+
+    try {
+      const hasOpenModal = !!document.querySelector(
+        '.modal-overlay.open, .modal-overlay.active, .en-modal-backdrop.open, .confirm-delete-modal.open'
+      );
+      const isLocked = document.body ? document.body.classList.contains('modal-open') : false;
+
+      if (hasOpenModal !== isLocked && document.body) {
+        document.body.classList.toggle('modal-open', hasOpenModal);
+      }
+    } finally {
+      this._isSyncingScroll = false;
+    }
   },
 
   /**
@@ -962,6 +996,37 @@ const Modal = {
     // Close buttons
     overlay.querySelectorAll('.modal-close, .modal-close-btn').forEach(btn => {
       btn.addEventListener('click', () => this.close(id));
+    });
+  },
+
+  initGlobalWatcher() {
+    if (this._watcherInitialized) return;
+    this._watcherInitialized = true;
+
+    // MutationObserver to automatically detect modal open/close without observing body itself recursively
+    const observer = new MutationObserver((mutations) => {
+      const isRelevant = mutations.some(m => m.target !== document.body && m.target !== document.documentElement);
+      if (isRelevant) {
+        this.syncScrollLock();
+      }
+    });
+
+    if (document.body) {
+      observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class'],
+        subtree: true
+      });
+    }
+
+    // ESC key global listener to close modals
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.open, .modal-overlay.active, .en-modal-backdrop.open').forEach(m => {
+          m.classList.remove('open', 'active');
+        });
+        this.syncScrollLock();
+      }
     });
   }
 };

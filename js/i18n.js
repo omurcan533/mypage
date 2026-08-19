@@ -63,7 +63,7 @@ const dictionary = {
     home_activity_sub: "Alışkanlıklarını tamamlamaya başla!",
     
     // Habits
-    habits_title: "✅ Alışkanlıklar",
+    habits_title: "Alışkanlıklar",
     habits_subtitle: "Alışkanlıklarını günlük, haftalık ve aylık olarak takip et",
     habits_stat_total: "Toplam Alışkanlık",
     habits_stat_today: "Bugün",
@@ -192,7 +192,7 @@ const dictionary = {
     home_activity_sub: "Start completing your habits!",
     
     // Habits
-    habits_title: "✅ Habits",
+    habits_title: "Habits",
     habits_subtitle: "Track your habits daily, weekly and monthly",
     habits_stat_total: "Total Habits",
     habits_stat_today: "Today",
