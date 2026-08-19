@@ -769,9 +769,14 @@ const EnglishApp = {
     localStorage.setItem(MASTERED_VOCAB_KEY, JSON.stringify(Array.from(this.masteredVocab)));
     try {
       if (window.supabaseClient) {
-        await window.supabaseClient
+        const { error } = await window.supabaseClient
           .from('site_settings')
-          .upsert({ key: 'oyp_english_mastered_vocab', value: JSON.stringify(Array.from(this.masteredVocab)) }, { onConflict: 'key' });
+          .upsert({ 
+            key: 'oyp_english_mastered_vocab', 
+            value: JSON.stringify(Array.from(this.masteredVocab)),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'key' });
+        if (error) console.warn("Mastered vocab cloud save error:", error);
       }
     } catch (e) {
       console.warn("Mastered vocab save warning:", e);
@@ -812,6 +817,7 @@ const EnglishApp = {
     // 2. Try Supabase cloud sync if available
     try {
       if (window.supabaseClient) {
+        // A) Places
         const { data: placesData } = await window.supabaseClient
           .from('site_settings')
           .select('value')
@@ -819,13 +825,17 @@ const EnglishApp = {
           .maybeSingle();
 
         if (placesData && placesData.value) {
-          const parsed = JSON.parse(placesData.value);
+          let parsed = placesData.value;
+          if (typeof parsed === 'string') {
+            try { parsed = JSON.parse(parsed); } catch (e) {}
+          }
           if (Array.isArray(parsed) && parsed.length > 0) {
             this.places = parsed;
             localStorage.setItem(ENGLISH_STORAGE_KEY, JSON.stringify(parsed));
           }
         }
 
+        // B) Vocab
         const { data: vocabData } = await window.supabaseClient
           .from('site_settings')
           .select('value')
@@ -833,10 +843,31 @@ const EnglishApp = {
           .maybeSingle();
 
         if (vocabData && vocabData.value) {
-          const parsedV = JSON.parse(vocabData.value);
+          let parsedV = vocabData.value;
+          if (typeof parsedV === 'string') {
+            try { parsedV = JSON.parse(parsedV); } catch (e) {}
+          }
           if (Array.isArray(parsedV) && parsedV.length > 0) {
             this.vocab = parsedV;
             localStorage.setItem(VOCAB_STORAGE_KEY, JSON.stringify(parsedV));
+          }
+        }
+
+        // C) Mastered Vocabulary (Ezberlenenler)
+        const { data: masteredData } = await window.supabaseClient
+          .from('site_settings')
+          .select('value')
+          .eq('key', 'oyp_english_mastered_vocab')
+          .maybeSingle();
+
+        if (masteredData && masteredData.value) {
+          let parsedM = masteredData.value;
+          if (typeof parsedM === 'string') {
+            try { parsedM = JSON.parse(parsedM); } catch (e) {}
+          }
+          if (Array.isArray(parsedM)) {
+            parsedM.forEach(id => this.masteredVocab.add(id));
+            localStorage.setItem(MASTERED_VOCAB_KEY, JSON.stringify(Array.from(this.masteredVocab)));
           }
         }
       }
