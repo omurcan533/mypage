@@ -14,6 +14,7 @@ const Nav = {
     this._ensureAdminAccessButton();
     this._ensureTopHeaderControls();
     this._ensureMobileHeader();
+    this._initMobileHeaderScroll();
     this._updateGlobalGreeting();
     this._ensureFooter();
     this._ensureLiveScoreBanner();
@@ -207,6 +208,45 @@ const Nav = {
         toggleMenu(false);
       }
     });
+  },
+
+  _initMobileHeaderScroll() {
+    if (this._mobileHeaderScrollInitialized) return;
+    this._mobileHeaderScrollInitialized = true;
+
+    let lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
+    let ticking = false;
+
+    const updateHeaderVisibility = () => {
+      const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
+      const header = document.getElementById('mobile-header');
+      const sidebar = document.querySelector('.sidebar');
+      
+      const isSidebarOpen = sidebar && sidebar.classList.contains('open');
+      const isModalOpen = (document.body && document.body.classList.contains('modal-open')) ||
+                          (document.documentElement && document.documentElement.classList.contains('modal-open'));
+
+      if (!isSidebarOpen && !isModalOpen && header) {
+        // Scrolling DOWN -> hide header
+        if (currentScrollY > lastScrollY && currentScrollY > 70) {
+          header.classList.add('header-hidden');
+        } 
+        // Scrolling UP or near top -> show header
+        else if (currentScrollY < lastScrollY || currentScrollY <= 15) {
+          header.classList.remove('header-hidden');
+        }
+      }
+
+      lastScrollY = Math.max(0, currentScrollY);
+      ticking = false;
+    };
+
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateHeaderVisibility);
+        ticking = true;
+      }
+    }, { passive: true });
   },
 
   async syncAccess() {
@@ -973,8 +1013,9 @@ const Modal = {
       );
       const isLocked = document.body ? document.body.classList.contains('modal-open') : false;
 
-      if (hasOpenModal !== isLocked && document.body) {
-        document.body.classList.toggle('modal-open', hasOpenModal);
+      if (hasOpenModal !== isLocked) {
+        if (document.body) document.body.classList.toggle('modal-open', hasOpenModal);
+        if (document.documentElement) document.documentElement.classList.toggle('modal-open', hasOpenModal);
       }
     } finally {
       this._isSyncingScroll = false;
@@ -992,6 +1033,13 @@ const Modal = {
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) this.close(id);
     });
+
+    // Touch dragging backdrop on mobile
+    overlay.addEventListener('touchmove', (e) => {
+      if (e.target === overlay) {
+        e.preventDefault();
+      }
+    }, { passive: false });
 
     // Close buttons
     overlay.querySelectorAll('.modal-close, .modal-close-btn').forEach(btn => {

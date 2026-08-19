@@ -1520,6 +1520,7 @@ function setupModals() {
       if (modal) {
         modal.classList.remove('active');
         modal.classList.remove('open');
+        if (window.Modal) window.Modal.syncScrollLock();
       }
     });
   });
@@ -1529,8 +1530,16 @@ function setupModals() {
       if (e.target === overlay) {
         overlay.classList.remove('active');
         overlay.classList.remove('open');
+        if (window.Modal) window.Modal.syncScrollLock();
       }
     });
+
+    // Prevent scrolling behind modal on mobile touch
+    overlay.addEventListener('touchmove', (e) => {
+      if (e.target === overlay) {
+        e.preventDefault();
+      }
+    }, { passive: false });
   });
 }
 
@@ -1539,6 +1548,7 @@ window.openModal = function(id) {
   if (el) {
     el.classList.add('active');
     el.classList.add('open');
+    if (window.Modal) window.Modal.syncScrollLock();
   }
 };
 
@@ -1547,5 +1557,6 @@ window.closeModal = function(id) {
   if (el) {
     el.classList.remove('active');
     el.classList.remove('open');
+    if (window.Modal) window.Modal.syncScrollLock();
   }
 };

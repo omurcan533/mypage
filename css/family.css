@@ -778,3 +778,66 @@ html[data-theme="light"] .recom-step-item {
   color: #818cf8;
   flex-shrink: 0;
 }
+
+/* Mobile Modal & Recommender Optimizations */
+@media (max-width: 640px) {
+  .modal-overlay {
+    padding: 12px;
+    align-items: center;
+  }
+
+  .modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100vh - 24px) !important;
+    max-height: calc(100dvh - 24px) !important;
+    padding: 18px 16px !important;
+    border-radius: 20px !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .modal-header {
+    margin-bottom: 14px !important;
+  }
+
+  .modal-title {
+    font-size: 17px !important;
+  }
+
+  .dinner-recom-card {
+    gap: 12px !important;
+  }
+
+  .recom-hero {
+    padding: 14px 16px !important;
+  }
+
+  .recom-title {
+    font-size: 17px !important;
+  }
+
+  .recom-box {
+    padding: 12px 14px !important;
+  }
+
+  .recom-menu-text {
+    font-size: 14px !important;
+  }
+
+  .recom-recipe-toggle-btn {
+    padding: 12px 14px !important;
+    font-size: 13px !important;
+  }
+
+  .recom-recipe-details {
+    padding: 14px 12px !important;
+    gap: 12px !important;
+  }
+
+  .recom-step-item {
+    font-size: 12.5px !important;
+    padding: 10px 10px !important;
+    gap: 8px !important;
+  }
+}
