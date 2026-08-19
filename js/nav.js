@@ -985,6 +985,8 @@ const Toast = {
 
 // ===== MODAL HELPERS & GLOBAL SCROLL LOCK =====
 const Modal = {
+  _savedScrollY: 0,
+
   open(id) {
     const el = document.getElementById(id);
     if (el) {
@@ -1013,9 +1015,20 @@ const Modal = {
       );
       const isLocked = document.body ? document.body.classList.contains('modal-open') : false;
 
-      if (hasOpenModal !== isLocked) {
-        if (document.body) document.body.classList.toggle('modal-open', hasOpenModal);
-        if (document.documentElement) document.documentElement.classList.toggle('modal-open', hasOpenModal);
+      if (hasOpenModal && !isLocked) {
+        // Save exact scroll position before locking
+        this._savedScrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        if (document.body) document.body.classList.add('modal-open');
+      } else if (!hasOpenModal && isLocked) {
+        // Unlock and immediately restore scroll position
+        if (document.body) document.body.classList.remove('modal-open');
+        if (document.documentElement) document.documentElement.classList.remove('modal-open');
+        
+        const restoreY = this._savedScrollY;
+        window.scrollTo({ top: restoreY, behavior: 'instant' });
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: restoreY, behavior: 'instant' });
+        });
       }
     } finally {
       this._isSyncingScroll = false;

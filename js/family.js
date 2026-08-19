@@ -54,6 +54,7 @@ function setupEventListeners() {
   if (dinnerForm) {
     dinnerForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
       const date = document.getElementById('dinner-date').value;
       const mealInput = document.getElementById('dinner-meal').value.trim();
       const noteInput = document.getElementById('dinner-note')?.value.trim() || '';
@@ -84,7 +85,8 @@ function setupEventListeners() {
           e.target.reset();
           closeModal('dinner-modal');
           if (window.Toast) Toast.success(editingDinnerId ? "Yemek ve not güncellendi!" : "Yemek kaydedildi!");
-          renderDinners();
+          await renderDinners(true);
+          window.scrollTo({ top: scrollY, behavior: 'instant' });
         } else {
           console.error("Dinner Submit Error:", error);
           if (window.Toast) Toast.error("Kayıt sırasında bir hata oluştu: " + error.message);
@@ -100,6 +102,7 @@ function setupEventListeners() {
   if (boardForm) {
     boardForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
       const type = document.getElementById('board-type').value;
       const text = document.getElementById('board-text').value;
       
@@ -127,7 +130,8 @@ function setupEventListeners() {
           e.target.reset();
           closeModal('board-modal');
           if (window.Toast) Toast.success("Pano notu kaydedildi!");
-          renderBoard();
+          await renderBoard(true);
+          window.scrollTo({ top: scrollY, behavior: 'instant' });
         } else {
           console.error("Board Submit Error:", error);
           if (window.Toast) Toast.error("Kayıt sırasında bir hata oluştu: " + error.message);
@@ -143,6 +147,7 @@ function setupEventListeners() {
   if (travelForm) {
     travelForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
       const year = document.getElementById('travel-year').value;
       const month = document.getElementById('travel-month').value;
       const place = document.getElementById('travel-place').value;
@@ -175,7 +180,8 @@ function setupEventListeners() {
           e.target.reset();
           closeModal('travel-modal');
           if (window.Toast) Toast.success("Gezi planı kaydedildi!");
-          renderTravels();
+          await renderTravels(true);
+          window.scrollTo({ top: scrollY, behavior: 'instant' });
         } else {
           console.error("Travel Submit Error:", error);
           if (window.Toast) Toast.error("Kayıt sırasında bir hata oluştu: " + error.message);
@@ -191,6 +197,7 @@ function setupEventListeners() {
   if (birthdayForm) {
     birthdayForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
       const name = document.getElementById('birthday-name').value;
       const birthdate = document.getElementById('birthday-date').value;
       
@@ -207,7 +214,8 @@ function setupEventListeners() {
           e.target.reset();
           closeModal('birthday-modal');
           if (window.Toast) Toast.success("Doğum günü eklendi!");
-          renderBirthdays();
+          await renderBirthdays(true);
+          window.scrollTo({ top: scrollY, behavior: 'instant' });
         } else {
           console.error("Birthday Insert Error:", error);
           if (window.Toast) Toast.error("Kayıt sırasında bir hata oluştu: " + error.message);
@@ -229,7 +237,7 @@ async function renderAll() {
 }
 
 /* ================= DINNERS ================= */
-async function renderDinners() {
+async function renderDinners(silent = false) {
   const todayBadge = document.getElementById('dinner-today-badge');
   if (todayBadge) {
     const today = new Date();
@@ -239,7 +247,9 @@ async function renderDinners() {
 
   const list = document.getElementById('dinner-list');
   if (!list) return;
-  list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Yükleniyor...</div>`;
+  if (!silent && (!dinnersCache || dinnersCache.length === 0)) {
+    list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Yükleniyor...</div>`;
+  }
 
   try {
     const { data: dinners, error } = await window.supabaseClient
@@ -430,8 +440,10 @@ window.openEditDinnerModal = function(id) {
 
 window.deleteDinner = async function(id) {
   if (!confirm("Bu yemeği silmek istediğinize emin misiniz?")) return;
+  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
   await window.supabaseClient.from('family_dinners').delete().eq('id', id);
-  renderDinners();
+  await renderDinners(true);
+  window.scrollTo({ top: scrollY, behavior: 'instant' });
 };
 
 /* ================= SMART DINNER RECOMMENDER ================= */
@@ -1126,6 +1138,7 @@ window.applyRecommendedDinner = async function(mealText, recipeTitle = '') {
         }]);
     }
 
+    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
     closeModal('dinner-recommender-modal');
     if (window.Toast) {
       if (note) {
@@ -1135,8 +1148,9 @@ window.applyRecommendedDinner = async function(mealText, recipeTitle = '') {
       }
     }
     
-    renderDinners();
-    if (note) renderBoard();
+    await renderDinners(true);
+    if (note) await renderBoard(true);
+    window.scrollTo({ top: scrollY, behavior: 'instant' });
   } catch (err) {
     console.error("Apply recommended dinner error:", err);
     alert("Yemek kaydedilirken bir hata oluştu: " + (err.message || ''));
@@ -1144,10 +1158,12 @@ window.applyRecommendedDinner = async function(mealText, recipeTitle = '') {
 };
 
 /* ================= BOARD ================= */
-async function renderBoard() {
+async function renderBoard(silent = false) {
   const container = document.getElementById('board-list');
   if (!container) return;
-  container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted); grid-column: 1 / -1;">Yükleniyor...</div>`;
+  if (!silent && (!boardCache || boardCache.length === 0)) {
+    container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted); grid-column: 1 / -1;">Yükleniyor...</div>`;
+  }
 
   try {
     const { data: items, error } = await window.supabaseClient
@@ -1169,9 +1185,12 @@ async function renderBoard() {
       }
       return todos.map(item => `
         <div class="board-item todo ${item.completed ? 'completed' : ''}" 
-             ${isAdmin ? `onclick="toggleBoardTodo('${item.id}', ${item.completed})"` : ''}>
+             ${isAdmin ? `onclick="toggleBoardTodo('${item.id}', ${item.completed})"` : ''}
+             title="${isAdmin ? (item.completed ? 'Tamamlandı (Geri almak için tıkla)' : 'Tamamlamak için tıkla') : ''}">
           <div class="board-item-icon">
-            ${item.completed ? '✅' : '🟩'}
+            <div class="todo-check-circle ${item.completed ? 'checked' : ''}">
+              ${item.completed ? '✓' : ''}
+            </div>
           </div>
           <div class="board-item-content">
             <div class="board-item-text">${item.text}</div>
@@ -1197,7 +1216,7 @@ async function renderBoard() {
             <div class="board-item-text">${item.text}</div>
           </div>
           ${isAdmin ? `
-            <div class="action-btns">
+            <div class="action-btns" onclick="event.stopPropagation();">
               <button class="dinner-edit-btn" onclick="openEditBoardModal('${item.id}', event)" title="Düzenle">✏️</button>
               <button class="board-item-delete" onclick="deleteBoardItem('${item.id}', event)" title="Sil">✕</button>
             </div>
@@ -1211,7 +1230,7 @@ async function renderBoard() {
       <div class="board-column">
         <div class="board-column-header">
           <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-            <span>🟩 Yapılacaklar</span>
+            <span>📋 Yapılacaklar</span>
             <span style="font-size: 11px; font-weight: 500; color: var(--text-muted); opacity: 0.85;">💡 Maddelerin üzerine tıklayarak tamamlayabilirsiniz</span>
           </div>
           <span class="board-column-count">${todos.filter(t => !t.completed).length} aktif</span>
@@ -1261,25 +1280,54 @@ window.openEditBoardModal = function(id, e) {
 window.toggleBoardTodo = async function(id, currentStatus) {
   const isAdmin = window.Auth && typeof window.Auth.canManageContent === 'function' ? await window.Auth.canManageContent() : false;
   if (!isAdmin) return;
-  await window.supabaseClient
-    .from('family_board')
-    .update({ completed: !currentStatus })
-    .eq('id', id);
-  renderBoard();
+
+  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+  
+  // 1. Optimistic Update (instant UI feedback)
+  const item = boardCache.find(b => String(b.id) === String(id));
+  if (item) {
+    item.completed = !currentStatus;
+    await renderBoard(true);
+    window.scrollTo({ top: scrollY, behavior: 'instant' });
+  }
+
+  // 2. Persist to Supabase in background
+  try {
+    const { error } = await window.supabaseClient
+      .from('family_board')
+      .update({ completed: !currentStatus })
+      .eq('id', id);
+    if (error) throw error;
+  } catch (err) {
+    console.error("Board toggle error:", err);
+    if (item) {
+      item.completed = currentStatus;
+      await renderBoard(true);
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
+    }
+  }
 };
 
 window.deleteBoardItem = async function(id, e) {
   if (e) e.stopPropagation();
   if (!confirm("Bu notu silmek istediğinize emin misiniz?")) return;
+  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+  
+  // Optimistic remove
+  boardCache = boardCache.filter(b => String(b.id) !== String(id));
+  await renderBoard(true);
+  window.scrollTo({ top: scrollY, behavior: 'instant' });
+
   await window.supabaseClient.from('family_board').delete().eq('id', id);
-  renderBoard();
 };
 
 /* ================= TRAVELS ================= */
-async function renderTravels() {
+async function renderTravels(silent = false) {
   const container = document.getElementById('travels-timeline');
   if (!container) return;
-  container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Yükleniyor...</div>`;
+  if (!silent && (!travelsCache || travelsCache.length === 0)) {
+    container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Yükleniyor...</div>`;
+  }
 
   try {
     const { data: travels, error } = await window.supabaseClient
@@ -1399,20 +1447,8 @@ window.openTravelDetailModal = async function(id) {
   const isAdmin = window.Auth && typeof window.Auth.canManageContent === 'function' ? await window.Auth.canManageContent() : false;
   if (adminActions) {
     adminActions.style.display = isAdmin ? 'flex' : 'none';
-  }
-
-  if (editBtn) {
-    editBtn.onclick = () => {
-      closeModal('travel-detail-modal');
-      openEditTravelModal(item.id);
-    };
-  }
-
-  if (deleteBtn) {
-    deleteBtn.onclick = () => {
-      closeModal('travel-detail-modal');
-      deleteTravel(item.id);
-    };
+    if (editBtn) editBtn.onclick = () => { closeModal('travel-detail-modal'); openEditTravelModal(item.id); };
+    if (deleteBtn) deleteBtn.onclick = () => { closeModal('travel-detail-modal'); deleteTravel(item.id); };
   }
 
   openModal('travel-detail-modal');
@@ -1423,6 +1459,9 @@ window.openNewTravelModal = function() {
   const title = document.querySelector('#travel-modal .modal-title');
   if (title) title.textContent = "✈️ Gezi Ekle";
   document.getElementById('add-travel-form')?.reset();
+  const currentYear = new Date().getFullYear();
+  const yearInput = document.getElementById('travel-year');
+  if (yearInput) yearInput.value = currentYear;
   openModal('travel-modal');
 };
 
@@ -1433,27 +1472,36 @@ window.openEditTravelModal = function(id, e) {
   editingTravelId = item.id;
   const title = document.querySelector('#travel-modal .modal-title');
   if (title) title.textContent = "✈️ Gezi Düzenle";
-  document.getElementById('travel-year').value = item.year || '';
+  
+  document.getElementById('travel-year').value = item.year || new Date().getFullYear();
   document.getElementById('travel-month').value = item.month || '';
   document.getElementById('travel-place').value = item.place || '';
   document.getElementById('travel-location').value = item.location || '';
   document.getElementById('travel-companions').value = item.companions || '';
   document.getElementById('travel-details').value = item.details || '';
+  
   openModal('travel-modal');
 };
 
 window.deleteTravel = async function(id, e) {
   if (e) e.stopPropagation();
   if (!confirm("Bu geziyi silmek istediğinize emin misiniz?")) return;
+  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+  
+  travelsCache = travelsCache.filter(t => String(t.id) !== String(id));
+  await renderTravels(true);
+  window.scrollTo({ top: scrollY, behavior: 'instant' });
+
   await window.supabaseClient.from('family_travels').delete().eq('id', id);
-  renderTravels();
 };
 
 /* ================= BIRTHDAYS ================= */
-async function renderBirthdays() {
+async function renderBirthdays(silent = false) {
   const list = document.getElementById('birthdays-list');
   if (!list) return;
-  list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Yükleniyor...</div>`;
+  if (!silent) {
+    list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Yükleniyor...</div>`;
+  }
 
   try {
     const { data: birthdays, error } = await window.supabaseClient
@@ -1508,8 +1556,10 @@ async function renderBirthdays() {
 
 window.deleteBirthday = async function(id) {
   if (!confirm("Bu kişinin doğum gününü silmek istediğinize emin misiniz?")) return;
+  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
   await window.supabaseClient.from('family_birthdays').delete().eq('id', id);
-  renderBirthdays();
+  await renderBirthdays(true);
+  window.scrollTo({ top: scrollY, behavior: 'instant' });
 };
 
 /* ================= MODALS ================= */
@@ -1546,6 +1596,9 @@ function setupModals() {
 window.openModal = function(id) {
   const el = document.getElementById(id);
   if (el) {
+    if (window.Modal && !document.querySelector('.modal-overlay.open, .modal-overlay.active')) {
+      window.Modal._savedScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
+    }
     el.classList.add('active');
     el.classList.add('open');
     if (window.Modal) window.Modal.syncScrollLock();

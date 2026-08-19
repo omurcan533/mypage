@@ -276,51 +276,104 @@ html[data-theme="light"] .dinner-table th {
 }
 .board-item {
   display: flex;
+  align-items: flex-start;
   gap: 12px;
   padding: 14px 16px;
   background: rgba(255, 255, 255, 0.03);
   border-left: 4px solid var(--accent);
   border-radius: var(--radius-md);
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: all 0.2s ease;
 }
 .board-item.todo {
   border-left-color: #3b82f6;
   cursor: pointer;
-  transition: background 0.2s;
 }
 .board-item.todo:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(59, 130, 246, 0.08);
+  border-left-color: #60a5fa;
+  transform: translateX(2px);
 }
 .board-item.info {
   border-left-color: #10b981;
 }
+.board-item.info:hover {
+  background: rgba(16, 185, 129, 0.06);
+}
 .board-item-icon {
   font-size: 18px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
+.todo-check-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(148, 163, 184, 0.45);
+  background: rgba(255, 255, 255, 0.04);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: transparent;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.board-item.todo:hover .todo-check-circle:not(.checked) {
+  border-color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  transform: scale(1.08);
+}
+
+.todo-check-circle.checked {
+  background: #10b981 !important;
+  border-color: #10b981 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
+  transform: scale(1.04);
+}
+
+html[data-theme="light"] .todo-check-circle {
+  border-color: #94a3b8;
+  background: #ffffff;
+}
+
 .board-item-content {
   flex: 1;
 }
 .board-item-text {
   font-size: 15px;
   color: var(--text-primary);
-  line-height: 1.4;
+  line-height: 1.45;
+  word-break: break-word;
+}
+.board-item.todo.completed {
+  opacity: 0.65;
+  background: rgba(255, 255, 255, 0.015);
+  border-left-color: #64748b;
 }
 .board-item.todo.completed .board-item-text {
   text-decoration: line-through;
   color: var(--text-muted);
-}
-.board-item.todo.completed .board-item-icon {
-  opacity: 0.5;
 }
 .board-item-delete {
   background: transparent;
   border: none;
   color: var(--text-muted);
   cursor: pointer;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  transition: all 0.2s ease;
 }
 .board-item-delete:hover {
   color: var(--rose);
+  background: rgba(244, 63, 94, 0.1);
 }
 
 /* Travels Timeline */

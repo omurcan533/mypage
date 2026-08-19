@@ -671,12 +671,8 @@ html[data-theme="light"] .en-quiz-select option {
 }
 
 /* ===== MODAL & SCROLL LOCK ===== */
-html.modal-open,
 body.modal-open {
   overflow: hidden !important;
-  height: 100% !important;
-  touch-action: none;
-  -webkit-overflow-scrolling: auto !important;
 }
 
 .modal-overlay {
