@@ -7,6 +7,8 @@ let editingTravelId = null;
 let dinnersCache = [];
 let boardCache = [];
 let travelsCache = [];
+let birthdaysCache = [];
+let pendingDeleteAction = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
   if (window.Nav) {
@@ -225,6 +227,38 @@ function setupEventListeners() {
       }
     });
   }
+
+  // Global Confirm Delete Action Listener
+  const confirmDeleteBtn = document.getElementById('confirm-delete-action-btn');
+  if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener('click', async () => {
+      if (typeof pendingDeleteAction === 'function') {
+        setButtonLoading(confirmDeleteBtn, true, 'Siliniyor...');
+        try {
+          await pendingDeleteAction();
+        } finally {
+          setButtonLoading(confirmDeleteBtn, false);
+          pendingDeleteAction = null;
+          closeModal('confirm-delete-modal');
+        }
+      }
+    });
+  }
+}
+
+function promptConfirmDelete({ header = "🗑 Kaydı Sil", icon = "🗑️", title = "Bu kaydı silmek istediğinizden emin misiniz?", subtitle = "Bu işlem geri alınamaz.", onConfirm }) {
+  const headerEl = document.getElementById('confirm-delete-header');
+  const iconEl = document.getElementById('confirm-delete-icon');
+  const titleEl = document.getElementById('confirm-delete-title');
+  const subEl = document.getElementById('confirm-delete-subtitle');
+
+  if (headerEl) headerEl.textContent = header;
+  if (iconEl) iconEl.textContent = icon;
+  if (titleEl) titleEl.textContent = title;
+  if (subEl) subEl.textContent = subtitle;
+
+  pendingDeleteAction = onConfirm;
+  openModal('confirm-delete-modal');
 }
 
 async function renderAll() {
@@ -438,12 +472,25 @@ window.openEditDinnerModal = function(id) {
   openModal('dinner-modal');
 };
 
-window.deleteDinner = async function(id) {
-  if (!confirm("Bu yemeği silmek istediğinize emin misiniz?")) return;
-  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-  await window.supabaseClient.from('family_dinners').delete().eq('id', id);
-  await renderDinners(true);
-  window.scrollTo({ top: scrollY, behavior: 'instant' });
+window.deleteDinner = function(id) {
+  const item = dinnersCache.find(d => String(d.id) === String(id));
+  const { meal } = parseMealAndNote(item ? item.meal : '');
+  const label = meal ? `"${meal}"` : 'Bu akşam yemeği';
+
+  promptConfirmDelete({
+    header: "🍽️ Yemeği Sil",
+    icon: "🍽️",
+    title: "Bu yemek kaydını silmek istediğinizden emin misiniz?",
+    subtitle: `${label} menüden kalıcı olarak silinecek.`,
+    onConfirm: async () => {
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      dinnersCache = dinnersCache.filter(d => String(d.id) !== String(id));
+      await window.supabaseClient.from('family_dinners').delete().eq('id', id);
+      if (window.Toast) Toast.info("Yemek kaydı silindi.");
+      await renderDinners(true);
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
+    }
+  });
 };
 
 /* ================= SMART DINNER RECOMMENDER ================= */
@@ -1308,17 +1355,25 @@ window.toggleBoardTodo = async function(id, currentStatus) {
   }
 };
 
-window.deleteBoardItem = async function(id, e) {
+window.deleteBoardItem = function(id, e) {
   if (e) e.stopPropagation();
-  if (!confirm("Bu notu silmek istediğinize emin misiniz?")) return;
-  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-  
-  // Optimistic remove
-  boardCache = boardCache.filter(b => String(b.id) !== String(id));
-  await renderBoard(true);
-  window.scrollTo({ top: scrollY, behavior: 'instant' });
+  const item = boardCache.find(b => String(b.id) === String(id));
+  const label = item && item.text ? `"${item.text.length > 40 ? item.text.slice(0, 40) + '...' : item.text}"` : 'Bu pano notu';
 
-  await window.supabaseClient.from('family_board').delete().eq('id', id);
+  promptConfirmDelete({
+    header: "📌 Pano Notunu Sil",
+    icon: "📌",
+    title: "Bu pano notunu silmek istediğinizden emin misiniz?",
+    subtitle: `${label} panodan kalıcı olarak silinecek.`,
+    onConfirm: async () => {
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      boardCache = boardCache.filter(b => String(b.id) !== String(id));
+      await window.supabaseClient.from('family_board').delete().eq('id', id);
+      if (window.Toast) Toast.info("Pano notu silindi.");
+      await renderBoard(true);
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
+    }
+  });
 };
 
 /* ================= TRAVELS ================= */
@@ -1483,16 +1538,25 @@ window.openEditTravelModal = function(id, e) {
   openModal('travel-modal');
 };
 
-window.deleteTravel = async function(id, e) {
+window.deleteTravel = function(id, e) {
   if (e) e.stopPropagation();
-  if (!confirm("Bu geziyi silmek istediğinize emin misiniz?")) return;
-  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-  
-  travelsCache = travelsCache.filter(t => String(t.id) !== String(id));
-  await renderTravels(true);
-  window.scrollTo({ top: scrollY, behavior: 'instant' });
+  const item = travelsCache.find(t => String(t.id) === String(id));
+  const label = item && item.place ? `"${item.place}"` : 'Bu gezi kaydı';
 
-  await window.supabaseClient.from('family_travels').delete().eq('id', id);
+  promptConfirmDelete({
+    header: "✈️ Geziyi Sil",
+    icon: "✈️",
+    title: "Bu gezi kaydını silmek istediğinizden emin misiniz?",
+    subtitle: `${label} gezi geçmişinden kalıcı olarak silinecek.`,
+    onConfirm: async () => {
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      travelsCache = travelsCache.filter(t => String(t.id) !== String(id));
+      await window.supabaseClient.from('family_travels').delete().eq('id', id);
+      if (window.Toast) Toast.info("Gezi kaydı silindi.");
+      await renderTravels(true);
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
+    }
+  });
 };
 
 /* ================= BIRTHDAYS ================= */
@@ -1509,6 +1573,8 @@ async function renderBirthdays(silent = false) {
       .select('*');
 
     if (error) throw error;
+    birthdaysCache = birthdays || [];
+
     if (!birthdays || birthdays.length === 0) {
       list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Henüz doğum günü eklenmedi.</div>`;
       return;
@@ -1554,12 +1620,24 @@ async function renderBirthdays(silent = false) {
   }
 }
 
-window.deleteBirthday = async function(id) {
-  if (!confirm("Bu kişinin doğum gününü silmek istediğinize emin misiniz?")) return;
-  const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-  await window.supabaseClient.from('family_birthdays').delete().eq('id', id);
-  await renderBirthdays(true);
-  window.scrollTo({ top: scrollY, behavior: 'instant' });
+window.deleteBirthday = function(id) {
+  const item = (birthdaysCache || []).find(b => String(b.id) === String(id));
+  const label = item && item.name ? `"${item.name}"` : 'Bu doğum günü';
+
+  promptConfirmDelete({
+    header: "🎂 Doğum Gününü Sil",
+    icon: "🎂",
+    title: "Bu doğum günü kaydını silmek istediğinizden emin misiniz?",
+    subtitle: `${label} doğum günleri listesinden kalıcı olarak silinecek.`,
+    onConfirm: async () => {
+      const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+      birthdaysCache = (birthdaysCache || []).filter(b => String(b.id) !== String(id));
+      await window.supabaseClient.from('family_birthdays').delete().eq('id', id);
+      if (window.Toast) Toast.info("Doğum günü silindi.");
+      await renderBirthdays(true);
+      window.scrollTo({ top: scrollY, behavior: 'instant' });
+    }
+  });
 };
 
 /* ================= MODALS ================= */

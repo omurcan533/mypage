@@ -425,6 +425,25 @@
       </div>
     </div>
 
+    <!-- Confirm Delete Modal (Proje Geneli ile Uyumlu) -->
+    <div class="modal-overlay" id="confirm-delete-modal">
+      <div class="modal confirm-delete-modal">
+        <div class="modal-header">
+          <div class="modal-title" id="confirm-delete-header">🗑 Kaydı Sil</div>
+          <button class="modal-close" type="button">✕</button>
+        </div>
+        <div class="confirm-delete-body">
+          <div class="confirm-delete-icon" id="confirm-delete-icon">🗑️</div>
+          <div class="confirm-delete-title" id="confirm-delete-title">Bu kaydı silmek istediğinizden emin misiniz?</div>
+          <div class="confirm-delete-subtitle" id="confirm-delete-subtitle">Bu işlem geri alınamaz.</div>
+          <div class="confirm-delete-actions">
+            <button type="button" class="btn btn-glass modal-close-btn" onclick="closeModal('confirm-delete-modal')">İptal</button>
+            <button type="button" class="btn btn-danger" id="confirm-delete-action-btn">Evet, Sil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="../js/i18n.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
