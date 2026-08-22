@@ -22,24 +22,22 @@
     <link rel="stylesheet" href="../css/style.css" />
     <style>
       /* ===== BOOKS PAGE ===== */
-      .books-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
-      .books-stat-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:16px 20px;display:flex;align-items:center;gap:14px;transition:var(--transition);}
-      .books-stat-card:hover{border-color:var(--glass-border-hover);background:var(--bg-card-hover);}
+      .books-stats{display:grid;grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));gap:12px;margin-bottom:24px;}
+      .books-stat-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;user-select:none;transition:all .2s cubic-bezier(.16,1,.3,1);}
+      .books-stat-card:hover{border-color:var(--accent);background:var(--bg-card-hover);transform:translateY(-2px);box-shadow:0 6px 20px rgba(108,99,255,.12);}
+      .books-stat-card.active{border-color:var(--accent) !important;background:rgba(108,99,255,.14) !important;box-shadow:0 0 0 1px var(--accent), 0 6px 20px rgba(108,99,255,.22) !important;}
+      .books-stat-card.active .books-stat-value{color:var(--accent-light);}
       .books-stat-icon{font-size:26px;flex-shrink:0;}
-      .books-stat-value{font-size:24px;font-weight:800;color:var(--text-primary);line-height:1;}
+      .books-stat-value{font-size:24px;font-weight:800;color:var(--text-primary);line-height:1;transition:color .2s ease;}
       .books-stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;}
       .books-controls-row{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:28px;}
-      .books-search-wrap{position:relative;flex:1;min-width:260px;max-width:380px;}
+      .books-search-wrap{position:relative;flex:1;min-width:260px;}
       .books-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);pointer-events:none;}
       .books-search-input{width:100%;padding:10px 36px 10px 38px;background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-pill);font-size:13px;font-weight:500;color:var(--text-primary);font-family:inherit;outline:none;transition:var(--transition);}
       .books-search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);background:var(--bg-card-hover);}
       .books-search-input::placeholder{color:var(--text-muted);}
       .books-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:var(--text-muted);font-size:11px;display:none;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);}
       .books-search-clear:hover{background:rgba(255,255,255,.2);color:var(--text-primary);}
-      .books-filter-bar{display:flex;gap:8px;flex-wrap:wrap;}
-      .book-filter-btn{padding:8px 18px;border-radius:var(--radius-pill);font-size:13px;font-weight:600;border:1px solid var(--glass-border);background:var(--bg-card);color:var(--text-muted);cursor:pointer;transition:var(--transition);}
-      .book-filter-btn:hover{border-color:var(--glass-border-hover);color:var(--text-primary);}
-      .book-filter-btn.active{background:rgba(108,99,255,.15);border-color:var(--accent);color:var(--accent-light);}
       .books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:24px;}
       .book-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-xl);overflow:hidden;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
       .book-card:hover{transform:translateY(-6px);border-color:rgba(108,99,255,.4);box-shadow:0 20px 60px rgba(108,99,255,.18),0 4px 20px rgba(0,0,0,.4);}
@@ -210,11 +208,42 @@
             <button class="btn btn-primary" id="add-book-btn" style="display:none;">+ Kitap Ekle</button>
           </div>
         </div>
-        <div class="books-stats">
-          <div class="books-stat-card"><div class="books-stat-icon">📖</div><div><div class="books-stat-value" id="stat-total">0</div><div class="books-stat-label">Toplam Kitap</div></div></div>
-          <div class="books-stat-card"><div class="books-stat-icon">✅</div><div><div class="books-stat-value" id="stat-completed">0</div><div class="books-stat-label">Tamamlandı</div></div></div>
-          <div class="books-stat-card"><div class="books-stat-icon">🔵</div><div><div class="books-stat-value" id="stat-reading">0</div><div class="books-stat-label">Okunuyor</div></div></div>
-          <div class="books-stat-card"><div class="books-stat-icon">📌</div><div><div class="books-stat-value" id="stat-want">0</div><div class="books-stat-label">Okunacak</div></div></div>
+        <div class="books-stats" id="books-stats-filter">
+          <div class="books-stat-card active" data-filter="all" role="button" tabindex="0" title="Tüm Kitapları Göster">
+            <div class="books-stat-icon">📖</div>
+            <div>
+              <div class="books-stat-value" id="stat-total">0</div>
+              <div class="books-stat-label">Toplam Kitap</div>
+            </div>
+          </div>
+          <div class="books-stat-card" data-filter="completed" role="button" tabindex="0" title="Tamamlanan Kitapları Filtrele">
+            <div class="books-stat-icon">✅</div>
+            <div>
+              <div class="books-stat-value" id="stat-completed">0</div>
+              <div class="books-stat-label">Tamamlandı</div>
+            </div>
+          </div>
+          <div class="books-stat-card" data-filter="reading" role="button" tabindex="0" title="Okunmakta Olan Kitapları Filtrele">
+            <div class="books-stat-icon">🔵</div>
+            <div>
+              <div class="books-stat-value" id="stat-reading">0</div>
+              <div class="books-stat-label">Okunuyor</div>
+            </div>
+          </div>
+          <div class="books-stat-card" data-filter="want_to_read" role="button" tabindex="0" title="Okunacak Kitapları Filtrele">
+            <div class="books-stat-icon">📌</div>
+            <div>
+              <div class="books-stat-value" id="stat-want">0</div>
+              <div class="books-stat-label">Okunacak</div>
+            </div>
+          </div>
+          <div class="books-stat-card" data-filter="favorite" role="button" tabindex="0" title="Favori Kitapları Filtrele">
+            <div class="books-stat-icon">❤️</div>
+            <div>
+              <div class="books-stat-value" id="stat-favorites">0</div>
+              <div class="books-stat-label">Favoriler</div>
+            </div>
+          </div>
         </div>
         <div class="books-controls-row">
           <div class="books-search-wrap">
@@ -223,18 +252,11 @@
               type="text"
               id="book-search-input"
               class="books-search-input"
-              placeholder="Kitap ismi veya yazar ara..."
+              placeholder="Kitap ismi veya yazar ara... (Kısayol: /)"
               autocomplete="off"
               aria-label="Kitap ismi veya yazar ara"
             />
             <button type="button" id="book-search-clear" class="books-search-clear" title="Aramayı Temizle">✕</button>
-          </div>
-          <div class="books-filter-bar">
-            <button class="book-filter-btn active" data-filter="all">📚 Tümü</button>
-            <button class="book-filter-btn" data-filter="completed">✅ Tamamlandı</button>
-            <button class="book-filter-btn" data-filter="reading">🔵 Okunuyor</button>
-            <button class="book-filter-btn" data-filter="want_to_read">📌 Okunacak</button>
-            <button class="book-filter-btn" data-filter="favorite">❤️ Favoriler</button>
           </div>
         </div>
         <div class="books-grid" id="books-grid">
@@ -798,6 +820,8 @@
         document.getElementById('stat-completed').textContent = books.filter(b => b.status === 'completed').length;
         document.getElementById('stat-reading').textContent = books.filter(b => b.status === 'reading').length;
         document.getElementById('stat-want').textContent = books.filter(b => b.status === 'want_to_read').length;
+        const favEl = document.getElementById('stat-favorites');
+        if (favEl) favEl.textContent = books.filter(b => b.is_favorite).length;
       }
 
       function applyFilter() {
@@ -1082,11 +1106,11 @@
         });
       }
 
-      document.querySelectorAll('.book-filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.book-filter-btn').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          activeFilter = btn.dataset.filter;
+      document.querySelectorAll('.books-stat-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.books-stat-card').forEach(b => b.classList.remove('active'));
+          card.classList.add('active');
+          activeFilter = card.dataset.filter || 'all';
           applyFilter();
         });
       });

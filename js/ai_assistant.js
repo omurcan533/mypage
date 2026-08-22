@@ -202,13 +202,13 @@
 
       // 2. MAÇ & FENERBAHÇE SORGUSU
       if (q.includes('mac') || q.includes('fener') || q.includes('lyon') || q.includes('fikstur') || q.includes('skor')) {
-        const nextMatch = fixtures[0]; // 18 Ağustos Lyon
+        const nextMatch = fixtures.find(f => f.fullDate >= todayStr) || fixtures[fixtures.length - 1];
         return `⚽🔥 <b>Sıradaki Maç Bilgisi:</b><br><br>` +
                `🏆 <b>${nextMatch.home} vs ${nextMatch.away}</b><br>` +
                `📅 <b>Tarih:</b> ${nextMatch.date} (${nextMatch.time})<br>` +
                `📌 <b>Turnuva:</b> ${nextMatch.comp}<br>` +
                `🏟️ <b>Stad:</b> ${nextMatch.venue}<br><br>` +
-               `<i>Canlı skor ve fikstür detaylarına Medya sayfasından da ulaşabilirsin.</i>`;
+               `<i>Son maç skorları ve fikstür detaylarına Medya sayfasından da ulaşabilirsin.</i>`;
       }
 
       // 3. HAFTA SONU SORGUSU
@@ -250,12 +250,16 @@
         return res;
       }
 
-      // 5. 18 AĞUSTOS / TARİH SORGUSU (Örn: "18 ağustos", "ağustos")
+      // 5. GEÇMİŞ MAÇLAR / TARİH SORGUSU
       if (q.includes('18 agustos') || q.includes('18')) {
-        return `📅 <b>18 Ağustos 2026 Salı Günü:</b><br><br>` +
-               `⚽ <b>Fenerbahçe - Lyon Şampiyonlar Ligi Maçı</b> var!<br>` +
-               `⏰ Saat: 22:00<br>` +
-               `🏟️ Yer: Ülker Stadyumu Kadıköy`;
+        return `📅 <b>18 Ağustos 2026 Salı:</b><br><br>` +
+               `⚽ <b>Fenerbahçe 1 - 1 Lyon</b> (UEFA Şampiyonlar Ligi Play-Off 1. Maç)<br>` +
+               `📌 Maç 1-1 beraberlikle sonuçlandı. Rövanş 26 Ağustos'ta Groupama Stadium'da oynanacak.`;
+      }
+      if (q.includes('22 agustos') || q.includes('konya')) {
+        return `📅 <b>22 Ağustos 2026 Cumartesi:</b><br><br>` +
+               `⚽ <b>Fenerbahçe 4 - 2 Tümosan Konyaspor</b> (Trendyol Süper Lig 2. Hafta)<br>` +
+               `✅ Fenerbahçe Kadıköy'de 4-2'lik galibiyet elde etti!`;
       }
 
       // 6. GENEL ETKİNLİK / PLAN LİSTESİ SORGUSU

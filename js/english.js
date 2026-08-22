@@ -1487,9 +1487,6 @@ const EnglishApp = {
                   ${item.pron ? `<span class="en-vocab-pron">${item.pron}</span>` : ''}
                 </div>
                 <div class="en-vocab-header-actions">
-                  <button class="en-mastered-btn ${isMastered ? 'mastered' : ''}" title="Ezberledim / Öğrendim" onclick="EnglishApp.toggleMasteredVocab('${item.id}')">
-                    🎓 ${isMastered ? 'Ezberlendi ✅' : 'Ezberledim'}
-                  </button>
                   <button class="en-icon-action-btn ${isFav ? 'starred' : ''}" title="Favorile" onclick="EnglishApp.toggleFavoriteVocab('${item.id}')">
                     ${isFav ? '⭐' : '☆'}
                   </button>
@@ -1518,7 +1515,9 @@ const EnglishApp = {
               <div class="en-vocab-footer">
                 <span class="en-vpill cat">${item.cat || 'Genel'}</span>
                 <span class="en-vpill lvl">${item.level || 'A1'}</span>
-                ${isMastered ? `<span class="en-vpill" style="background:rgba(16,185,129,0.2); color:#34d399; font-weight:700; margin-left:auto;">✓ Öğrenildi</span>` : ''}
+                <button class="en-master-pill-btn ${isMastered ? 'mastered' : ''}" onclick="EnglishApp.toggleMasteredVocab('${item.id}')" title="${isMastered ? 'Ezberlenenlerden Çıkar' : 'Ezberledim Olarak İşaretle'}">
+                  ${isMastered ? '🎓 Ezberlendi ✓' : '＋ Ezberle'}
+                </button>
               </div>
             </div>
           `;
@@ -1593,12 +1592,16 @@ const EnglishApp = {
                 ${item.pron ? `<span class="en-vocab-pron">${item.pron}</span>` : ''}
               </div>
               <div class="en-vocab-header-actions">
-                <button class="en-mastered-btn mastered" title="Ezberlenenlerden Çıkar" onclick="EnglishApp.toggleMasteredVocab('${item.id}')">
-                  🎓 Ezberlendi ✓
+                <button class="en-icon-action-btn ${this.favoriteVocab.has(item.id) ? 'starred' : ''}" title="Favorile" onclick="EnglishApp.toggleFavoriteVocab('${item.id}')">
+                  ${this.favoriteVocab.has(item.id) ? '⭐' : '☆'}
                 </button>
                 <button class="en-icon-action-btn" title="Telaffuz" onclick="EnglishApp.speak('${item.word.replace(/'/g, "\\'")}')">
                   🔊
                 </button>
+                ${this.isAdmin ? `
+                  <button class="en-icon-action-btn" title="Düzenle" onclick="EnglishApp.editVocabModal('${item.id}')">✏️</button>
+                  <button class="en-icon-action-btn danger" title="Sil" onclick="EnglishApp.deleteVocab('${item.id}')">🗑️</button>
+                ` : ''}
               </div>
             </div>
             <div class="en-vocab-meaning-row">
@@ -1614,6 +1617,9 @@ const EnglishApp = {
             <div class="en-vocab-footer">
               <span class="en-vpill cat">${item.cat || 'Genel'}</span>
               <span class="en-vpill lvl">${item.level || 'A1'}</span>
+              <button class="en-master-pill-btn mastered" onclick="EnglishApp.toggleMasteredVocab('${item.id}')" title="Ezberlenenlerden Çıkar">
+                🎓 Ezberlendi ✓
+              </button>
             </div>
           </div>
         `;

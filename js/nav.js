@@ -214,34 +214,54 @@ const Nav = {
     if (this._mobileHeaderScrollInitialized) return;
     this._mobileHeaderScrollInitialized = true;
 
-    let lastScrollY = window.pageYOffset || document.documentElement.scrollTop;
+    let lastScrollY = window.pageYOffset || document.documentElement.scrollTop || 0;
     let ticking = false;
 
     const updateHeaderVisibility = () => {
-      const currentScrollY = window.pageYOffset || document.documentElement.scrollTop;
-      const header = document.getElementById('mobile-header');
-      const sidebar = document.querySelector('.sidebar');
-      
-      const isSidebarOpen = sidebar && sidebar.classList.contains('open');
-      const isModalOpen = (document.body && document.body.classList.contains('modal-open')) ||
-                          (document.documentElement && document.documentElement.classList.contains('modal-open'));
+      try {
+        const currentScrollY = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+        const header = document.getElementById('mobile-header');
+        const topControls = document.getElementById('top-controls-bar');
+        const dynamicIsland = document.getElementById('fb-dynamic-island');
+        const sidebar = document.querySelector('.sidebar');
+        
+        const isSidebarOpen = sidebar && sidebar.classList.contains('open');
+        const isModalOpen = (document.body && document.body.classList.contains('modal-open')) ||
+                            (document.documentElement && document.documentElement.classList.contains('modal-open')) ||
+                            !!document.querySelector('.modal-overlay.open, .modal-overlay.active, .en-modal-backdrop.open');
 
-      if (!isSidebarOpen && !isModalOpen && header) {
-        // Scrolling DOWN -> hide header
-        if (currentScrollY > lastScrollY && currentScrollY > 70) {
-          header.classList.add('header-hidden');
-        } 
-        // Scrolling UP or near top -> show header
-        else if (currentScrollY < lastScrollY || currentScrollY <= 15) {
-          header.classList.remove('header-hidden');
+        if (!isSidebarOpen && !isModalOpen) {
+          const isMobile = window.innerWidth <= 768;
+          // Scrolling DOWN -> hide mobile header & top controls
+          if (currentScrollY > lastScrollY && currentScrollY > 50) {
+            if (header) header.classList.add('header-hidden');
+            if (topControls && isMobile) topControls.classList.add('header-hidden');
+            if (dynamicIsland) dynamicIsland.classList.add('header-hidden');
+          } 
+          // Scrolling UP or near top -> show mobile header & top controls
+          else if (currentScrollY < lastScrollY || currentScrollY <= 15) {
+            if (header) header.classList.remove('header-hidden');
+            if (topControls) topControls.classList.remove('header-hidden');
+            if (dynamicIsland) dynamicIsland.classList.remove('header-hidden');
+          }
         }
-      }
 
-      lastScrollY = Math.max(0, currentScrollY);
-      ticking = false;
+        lastScrollY = Math.max(0, currentScrollY);
+      } catch (err) {
+        console.warn('Mobile header scroll update error:', err);
+      } finally {
+        ticking = false;
+      }
     };
 
     window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(updateHeaderVisibility);
+        ticking = true;
+      }
+    }, { passive: true });
+
+    document.addEventListener('scroll', () => {
       if (!ticking) {
         window.requestAnimationFrame(updateHeaderVisibility);
         ticking = true;
@@ -757,9 +777,7 @@ const Nav = {
         const realData = await window.LiveFootballAPI.fetchLiveMatch();
         if (realData) {
           localStorage.setItem('oyp_fb_live_match_data', JSON.stringify(realData));
-          if (realData.isLive) {
-            this._ensureLiveScoreBanner();
-          }
+          this._ensureLiveScoreBanner();
         }
       } catch (err) {}
     }
@@ -791,7 +809,7 @@ const Nav = {
           <li><a href="books.html">📚 Kitaplar</a></li>
           <li><a href="media.html">🎮 Medya & Eğlence</a></li>
           <li><a href="english.html">🇬🇧 İngilizce</a></li>
-          <li><a href="portfolio.html">💼 Portföyüm</a></li>
+          <!-- <li><a href="portfolio.html">💼 Portföyüm</a></li> -->
           <li><a href="contact.html">📬 İletişim</a></li>
         </ul>
       </div>

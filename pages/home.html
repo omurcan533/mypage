@@ -308,12 +308,12 @@
               <span>İngilizce</span></a
             >
           </li>
-          <li>
+          <!-- <li>
             <a href="portfolio.html"
               ><span class="nav-icon">💼</span>
               <span>Portföyüm</span></a
             >
-          </li>
+          </li> -->
           <li>
             <a href="family.html"
               ><span class="nav-icon">👨‍👩‍👧‍👦</span>
@@ -422,28 +422,30 @@
 
         <!-- Stats Row -->
         <div
-          class="grid-4 animate-fade-up"
+          class="grid-3 animate-fade-up"
           style="margin-bottom: 28px"
           id="stats-row"
         >
+          <!-- Portfolio stat paused
           <div class="stat-card animate-fade-up" style="animation-delay: 0.1s">
             <div class="stat-icon">💰</div>
             <div class="stat-value" id="stat-portfolio">₺0</div>
             <div class="stat-label">Toplam Net Değer</div>
           </div>
-          <div class="stat-card animate-fade-up" style="animation-delay: 0.2s">
+          -->
+          <div class="stat-card animate-fade-up" style="animation-delay: 0.1s">
             <div class="stat-icon">📚</div>
             <div class="stat-value" id="stat-books">0</div>
             <div class="stat-label">Okunan Kitap</div>
           </div>
-          <div class="stat-card animate-fade-up" style="animation-delay: 0.3s">
+          <div class="stat-card animate-fade-up" style="animation-delay: 0.2s">
             <div class="stat-icon">✅</div>
             <div class="stat-value" id="stat-habits">0</div>
             <div class="stat-label" data-i18n="home_stat_active">
               Aktif Alışkanlık
             </div>
           </div>
-          <div class="stat-card animate-fade-up" style="animation-delay: 0.4s">
+          <div class="stat-card animate-fade-up" style="animation-delay: 0.3s">
             <div class="stat-icon">🔥</div>
             <div class="stat-value" id="stat-streak">0</div>
             <div class="stat-label" data-i18n="home_stat_streak">
@@ -459,8 +461,8 @@
               <h2 class="card-title">⚡ Hızlı Erişim</h2>
             </div>
             <div class="card-body" style="display:flex; flex-direction:column; gap:12px;">
-              <a href="portfolio.html" class="btn btn-primary" style="text-align:center; text-decoration:none; padding:10px; border-radius:8px;">💰 Portföye Varlık Ekle</a>
-              <a href="books.html" class="btn btn-outline" style="text-align:center; text-decoration:none; padding:10px; border-radius:8px;">📚 Yeni Kitap Ekle</a>
+              <!-- <a href="portfolio.html" class="btn btn-primary" style="text-align:center; text-decoration:none; padding:10px; border-radius:8px;">💰 Portföye Varlık Ekle</a> -->
+              <a href="books.html" class="btn btn-primary" style="text-align:center; text-decoration:none; padding:10px; border-radius:8px;">📚 Yeni Kitap Ekle</a>
               <a href="habits.html" class="btn btn-outline" style="text-align:center; text-decoration:none; padding:10px; border-radius:8px;">✅ Alışkanlık Ekle</a>
             </div>
           </div>
@@ -632,7 +634,7 @@
         const todayStats = await HabitStore.getTodayStats(todayKey);
         const streak = HabitStore.getOverallStreak();
 
-        // Calculate Portfolio Value
+        /* Portfolio calculation paused
         let portfolioTotal = 0;
         try {
           const portfolioStr = localStorage.getItem("oyp_portfolio_assets");
@@ -641,29 +643,40 @@
             portfolio.forEach(item => {
               portfolioTotal += (item.qty * item.currentPrice);
             });
-          } else {
-            // Default mock data if no portfolio
-            portfolioTotal = (250*325) + (500*118.2) + (10*6736) + (1000*47.84) + (0.05*63037);
           }
         } catch(e) {}
-        
         const formatter = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 });
         const pfEl = document.getElementById("stat-portfolio");
         if (pfEl) pfEl.textContent = formatter.format(portfolioTotal);
-        
+        */
+
         // Calculate Books Read
         let booksTotal = 0;
+        const bkEl = document.getElementById("stat-books");
         try {
           const booksStr = localStorage.getItem("oyp_books");
           if (booksStr) {
             const books = JSON.parse(booksStr);
             booksTotal = books.filter(b => b.status === "completed").length;
-          } else {
-            booksTotal = 12; // default mock
           }
-        } catch(e) {}
-        const bkEl = document.getElementById("stat-books");
-        if (bkEl) bkEl.textContent = booksTotal;
+          if (bkEl) bkEl.textContent = booksTotal;
+
+          if (window.supabaseClient) {
+            window.supabaseClient
+              .from('books')
+              .select('*')
+              .then(({ data, error }) => {
+                if (!error && data) {
+                  localStorage.setItem('oyp_books', JSON.stringify(data));
+                  const updatedTotal = data.filter(b => b.status === "completed").length;
+                  if (bkEl) bkEl.textContent = updatedTotal;
+                }
+              })
+              .catch(err => console.warn('Supabase books fetch warning:', err));
+          }
+        } catch(e) {
+          console.warn("Books count error:", e);
+        }
 
         const habEl = document.getElementById("stat-habits");
         if (habEl) habEl.textContent = habits.length;

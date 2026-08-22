@@ -130,12 +130,12 @@
               <span>İngilizce</span></a
             >
           </li>
-          <li>
+          <!-- <li>
             <a href="portfolio.html"
               ><span class="nav-icon">💼</span>
               <span>Portföyüm</span></a
             >
-          </li>
+          </li> -->
           <li>
             <a href="family.html"
               ><span class="nav-icon">👨‍👩‍👧‍👦</span>
@@ -273,48 +273,43 @@
           </div>
         </div>
 
-        <!-- Stats Bar -->
+        <!-- Stats Bar & Interactive Filter -->
         <div class="events-stats-grid">
-          <div class="event-stat-card">
+          <div class="event-stat-card active" data-time="all" role="button" tabindex="0" title="Tüm Planları Göster">
+            <div class="event-stat-icon">📌</div>
+            <div class="event-stat-info">
+              <div class="event-stat-val" id="stat-total">0</div>
+              <div class="event-stat-lbl">Tüm Planlar</div>
+            </div>
+          </div>
+          <div class="event-stat-card" data-time="this_week" role="button" tabindex="0" title="Bu Haftaki Etkinlikleri Filtrele">
             <div class="event-stat-icon">🔥</div>
             <div class="event-stat-info">
               <div class="event-stat-val" id="stat-this-week">0</div>
               <div class="event-stat-lbl">Bu Hafta</div>
             </div>
           </div>
-          <div class="event-stat-card">
+          <div class="event-stat-card" data-time="upcoming" role="button" tabindex="0" title="Yaklaşan Etkinlikleri Filtrele">
             <div class="event-stat-icon">⚡</div>
             <div class="event-stat-info">
               <div class="event-stat-val" id="stat-upcoming">0</div>
               <div class="event-stat-lbl">Yaklaşan Plan</div>
             </div>
           </div>
-          <div class="event-stat-card">
+          <div class="event-stat-card" data-time="completed" role="button" tabindex="0" title="Tamamlanan Etkinlikleri Filtrele">
             <div class="event-stat-icon">✅</div>
             <div class="event-stat-info">
               <div class="event-stat-val" id="stat-completed">0</div>
               <div class="event-stat-lbl">Tamamlanan</div>
             </div>
           </div>
-          <div class="event-stat-card">
-            <div class="event-stat-icon">📌</div>
-            <div class="event-stat-info">
-              <div class="event-stat-val" id="stat-total">0</div>
-              <div class="event-stat-lbl">Toplam Plan</div>
-            </div>
-          </div>
         </div>
 
         <!-- Filter & Controls -->
-        <div class="events-controls-bar">
-          <div class="events-filter-group" id="time-filter-group">
-            <button type="button" class="event-filter-pill active" data-time="all">Tümü</button>
-            <button type="button" class="event-filter-pill" data-time="this_week">🔥 Bu Hafta</button>
-            <button type="button" class="event-filter-pill" data-time="upcoming">⚡ Yaklaşanlar</button>
-            <button type="button" class="event-filter-pill" data-time="completed">✅ Tamamlananlar</button>
-          </div>
+        <div class="events-controls-bar" style="justify-content: flex-end;">
           <div style="display: flex; gap: 10px; align-items: center;">
-            <select id="category-filter-select" class="input-field" style="padding: 6px 12px; font-size: 13px; border-radius: var(--radius-pill);">
+            <label for="category-filter-select" style="font-size: 13px; color: var(--text-secondary); font-weight: 600;">🏷️ Kategori:</label>
+            <select id="category-filter-select" class="input-field" style="padding: 6px 14px; font-size: 13px; border-radius: var(--radius-pill); cursor: pointer;">
               <option value="all">Tüm Kategoriler</option>
               <option value="🎉 Parti & Kutlama">🎉 Parti & Kutlama</option>
               <option value="⛺ Kamp & Doğa">⛺ Kamp & Doğa</option>
@@ -483,8 +478,10 @@
             </button>
           </div>
 
-          <!-- Add Birthday Form (Collapsible) -->
+          <!-- Add / Edit Birthday Form (Collapsible) -->
           <form id="bday-add-form" style="display:none; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:12px; padding:14px; margin-bottom:14px;">
+            <input type="hidden" id="bday-edit-id-input" value="" />
+            <div id="bday-form-title" style="font-size:13px; font-weight:700; color:#fbbf24; margin-bottom:10px;">＋ Yeni Doğum Günü Ekle</div>
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px;">
               <div class="input-group">
                 <label class="input-label">İsim *</label>
@@ -509,7 +506,7 @@
             </div>
             <div style="display:flex; justify-content:flex-end; gap:8px;">
               <button type="button" class="btn btn-ghost" id="btn-cancel-add-bday" style="font-size:11px; padding:4px 10px;">İptal</button>
-              <button type="submit" class="btn btn-primary" style="font-size:11px; padding:4px 12px;">✓ Kaydet</button>
+              <button type="submit" class="btn btn-primary" id="bday-submit-btn" style="font-size:11px; padding:4px 12px;">✓ Kaydet</button>
             </div>
           </form>
 
@@ -773,14 +770,14 @@
         container.innerHTML = html;
       }
 
-      // Time Filter Click
-      document.getElementById("time-filter-group").addEventListener("click", (e) => {
-        const btn = e.target.closest(".event-filter-pill");
-        if (!btn) return;
-        document.querySelectorAll(".event-filter-pill").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-        activeTimeFilter = btn.dataset.time || "all";
-        renderEvents();
+      // Time Filter via Stat Cards
+      document.querySelectorAll(".event-stat-card").forEach(card => {
+        card.addEventListener("click", () => {
+          document.querySelectorAll(".event-stat-card").forEach(c => c.classList.remove("active"));
+          card.classList.add("active");
+          activeTimeFilter = card.dataset.time || "all";
+          renderEvents();
+        });
       });
 
       // Category Filter Change
@@ -953,6 +950,7 @@
               ${item.gift_ideas ? `<div style="font-size:11px; color:var(--text-muted); margin-top:2px;">🎁 <i>${escapeHtml(item.gift_ideas)}</i></div>` : ''}
             </div>
             <div style="display:flex; gap:6px; align-items:center;">
+              <button type="button" class="event-icon-btn" onclick="editBdayDirect('${item.id}')" title="Düzenle">✏️</button>
               <button type="button" class="event-icon-btn" onclick="sendBdayAlertDirect('${item.id}', this)" title="Telegram'a Bildir">📲</button>
               <button type="button" class="event-icon-btn delete" onclick="deleteBdayDirect('${item.id}')" title="Sil">🗑️</button>
             </div>
@@ -968,17 +966,54 @@
 
       document.getElementById("btn-show-add-bday").addEventListener("click", () => {
         const f = document.getElementById("bday-add-form");
+        const titleEl = document.getElementById("bday-form-title");
+        const submitBtn = document.getElementById("bday-submit-btn");
+
+        document.getElementById("bday-edit-id-input").value = "";
+        document.getElementById("bday-add-form").reset();
+        if (titleEl) titleEl.textContent = "＋ Yeni Doğum Günü Ekle";
+        if (submitBtn) submitBtn.textContent = "✓ Kaydet";
+
         f.style.display = f.style.display === "none" ? "block" : "none";
       });
 
       document.getElementById("btn-cancel-add-bday").addEventListener("click", () => {
+        document.getElementById("bday-add-form").reset();
+        document.getElementById("bday-edit-id-input").value = "";
         document.getElementById("bday-add-form").style.display = "none";
       });
+
+      window.editBdayDirect = async function(id) {
+        if (!window.BirthdaysAPI) return;
+        const list = await window.BirthdaysAPI.fetchBirthdays();
+        const item = list.find(b => b.id === id);
+        if (!item) return;
+
+        const form = document.getElementById("bday-add-form");
+        const titleEl = document.getElementById("bday-form-title");
+        const submitBtn = document.getElementById("bday-submit-btn");
+
+        document.getElementById("bday-edit-id-input").value = item.id;
+        document.getElementById("bday-name-input").value = item.name || '';
+        document.getElementById("bday-date-input").value = item.birth_date || '';
+        document.getElementById("bday-rel-input").value = item.relationship || '';
+        document.getElementById("bday-gift-input").value = item.gift_ideas || '';
+        document.getElementById("bday-notes-input").value = item.notes || '';
+
+        if (titleEl) titleEl.innerHTML = `✏️ <b>${escapeHtml(item.name)}</b> Kaydını Düzenle`;
+        if (submitBtn) submitBtn.textContent = "✓ Güncelle";
+
+        form.style.display = "block";
+        form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      };
 
       document.getElementById("bday-add-form").addEventListener("submit", async (e) => {
         e.preventDefault();
         const submitBtn = e.target.querySelector('button[type="submit"]');
-        setButtonLoading(submitBtn, true, "Kaydediliyor...");
+        const editId = document.getElementById("bday-edit-id-input").value;
+        const isEditing = Boolean(editId);
+
+        setButtonLoading(submitBtn, true, isEditing ? "Güncelleniyor..." : "Kaydediliyor...");
 
         try {
           const name = document.getElementById("bday-name-input").value;
@@ -988,16 +1023,22 @@
           const notes = document.getElementById("bday-notes-input").value;
 
           if (window.BirthdaysAPI) {
-            await window.BirthdaysAPI.addBirthday({ name, birth_date, relationship, gift_ideas, notes });
-            if (window.Toast) Toast.success("Doğum günü eklendi!");
+            if (isEditing) {
+              await window.BirthdaysAPI.updateBirthday(editId, { name, birth_date, relationship, gift_ideas, notes });
+              if (window.Toast) Toast.success("Doğum günü güncellendi!");
+            } else {
+              await window.BirthdaysAPI.addBirthday({ name, birth_date, relationship, gift_ideas, notes });
+              if (window.Toast) Toast.success("Doğum günü eklendi!");
+            }
           }
 
           document.getElementById("bday-add-form").reset();
+          document.getElementById("bday-edit-id-input").value = "";
           document.getElementById("bday-add-form").style.display = "none";
           await renderBirthdaysList();
         } catch (err) {
           console.error("Birthday save error:", err);
-          if (window.Toast) Toast.error("Doğum günü eklenirken hata oluştu.");
+          if (window.Toast) Toast.error(isEditing ? "Doğum günü güncellenirken hata oluştu." : "Doğum günü eklenirken hata oluştu.");
         } finally {
           setButtonLoading(submitBtn, false);
         }

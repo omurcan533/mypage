@@ -488,7 +488,7 @@ html[data-theme="light"] .todo-check-circle {
   background: rgba(4, 7, 18, 0.86);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  z-index: 1000;
+  z-index: 100000 !important;
   display: none;
   align-items: center;
   justify-content: center;
@@ -506,6 +506,8 @@ html[data-theme="light"] .todo-check-circle {
   width: 92%;
   max-width: 520px;
   box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+  position: relative;
+  z-index: 100001 !important;
 }
 
 html[data-theme="light"] .modal-overlay {
@@ -523,17 +525,39 @@ html[data-theme="light"] .modal {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
+  gap: 12px;
 }
 .modal-title {
   font-size: 20px;
   font-weight: 700;
 }
 .modal-close {
-  background: transparent;
-  border: none;
-  font-size: 20px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
   cursor: pointer;
-  color: var(--text-muted);
+  color: var(--text-secondary);
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  transform: scale(1.05);
+}
+html[data-theme="light"] .modal-close {
+  background: rgba(0, 0, 0, 0.06);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--text-primary);
+}
+html[data-theme="light"] .modal-close:hover {
+  background: rgba(0, 0, 0, 0.12);
 }
 .form-group {
   margin-bottom: 16px;
@@ -856,6 +880,12 @@ html[data-theme="light"] .recom-step-item {
 
   .modal-title {
     font-size: 17px !important;
+  }
+
+  .modal-close {
+    width: 36px !important;
+    height: 36px !important;
+    font-size: 18px !important;
   }
 
   .dinner-recom-card {

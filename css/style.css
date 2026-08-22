@@ -871,7 +871,7 @@ html[data-theme="light"] .confirm-delete-title {
   background: rgba(0, 0, 0, 0.65);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
-  z-index: 2000;
+  z-index: 100000 !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1177,6 +1177,19 @@ html[data-theme="light"] .confirm-delete-title {
 
 .mobile-header.header-hidden {
   transform: translateY(-100%) !important;
+  pointer-events: none !important;
+}
+
+.top-controls-bar.header-hidden {
+  transform: translateY(-120%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.fb-dynamic-island.header-hidden {
+  transform: translateY(-150%) !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }
 
 .mobile-header-left {
@@ -1338,6 +1351,8 @@ html[data-theme="light"] .confirm-delete-title {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     border-radius: 0 !important;
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
+    will-change: transform;
   }
 
   .top-control-btn {
