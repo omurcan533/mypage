@@ -3,12 +3,12 @@
 const FinanceAPI = {
   CACHE_KEY: "oyp_finance_cache",
   CACHE_TIME_KEY: "oyp_finance_cache_time",
-  CACHE_TTL_MS: 30000, // 30 seconds cache TTL
+  CACHE_TTL_MS: 45000, // 45 seconds cache TTL
 
   _cachedData: null,
 
   /**
-   * Default fallback values matching current real market prices
+   * Default fallback values matching current market prices
    */
   getFallbackData() {
     return [
@@ -88,10 +88,10 @@ const FinanceAPI = {
         code: "BTC/USD",
         icon: "₿",
         category: "crypto",
-        price: 64250.00,
-        priceFormatted: "$64.250",
-        changePct: 2.45,
-        changeFormatted: "+%2,45",
+        price: 98450.00,
+        priceFormatted: "$98.450",
+        changePct: 1.42,
+        changeFormatted: "+%1,42",
         isUp: true,
         source: "Kripto Piyasası",
         unit: "USD"
@@ -100,43 +100,50 @@ const FinanceAPI = {
         id: "eth",
         name: "Ethereum",
         code: "ETH/USD",
-        icon: "💎",
+        icon: "Ξ",
         category: "crypto",
-        price: 3480.00,
-        priceFormatted: "$3.480",
-        changePct: -0.65,
-        changeFormatted: "-%0,65",
-        isUp: false,
+        price: 2840.00,
+        priceFormatted: "$2.840",
+        changePct: 0.85,
+        changeFormatted: "+%0,85",
+        isUp: true,
         source: "Kripto Piyasası",
         unit: "USD"
       }
     ];
   },
 
-  /**
-   * Helper to parse Turkish price formatted numbers (e.g. "6.736,33" or "47,8422")
-   */
   parseTurkishNumber(str) {
     if (!str) return 0;
     if (typeof str === "number") return str;
-    const clean = str.toString().replace(/\./g, "").replace(",", ".");
-    return parseFloat(clean) || 0;
+    const clean = String(str).replace(/\./g, "").replace(",", ".").trim();
+    const val = parseFloat(clean);
+    return isNaN(val) ? 0 : val;
   },
 
-  /**
-   * Helper to parse percentage strings (e.g. "%0,68" or "%-0,12")
-   */
   parseTurkishChange(str) {
-    if (!str) return { pct: 0, formatted: "%0,00", isUp: true };
-    const cleanStr = str.toString().replace("%", "").trim().replace(",", ".");
-    const val = parseFloat(cleanStr) || 0;
-    const isUp = val >= 0;
-    const formatted = (isUp ? "+" : "") + "%" + Math.abs(val).toFixed(2).replace(".", ",");
-    return { pct: val, formatted, isUp };
+    if (!str) return { pct: 0, isUp: true, formatted: "%0,00" };
+    if (typeof str === "number") {
+      const isUp = str >= 0;
+      return {
+        pct: parseFloat(str.toFixed(2)),
+        isUp,
+        formatted: (isUp ? "+" : "") + "%" + Math.abs(str).toFixed(2).replace(".", ",")
+      };
+    }
+    const cleanStr = String(str).replace("%", "").replace(/\+/g, "").trim();
+    const isUp = !String(str).includes("-");
+    const val = parseFloat(cleanStr.replace(",", "."));
+    const num = isNaN(val) ? 0 : val;
+    return {
+      pct: parseFloat(num.toFixed(2)),
+      isUp,
+      formatted: (isUp ? "+" : "-") + "%" + Math.abs(num).toFixed(2).replace(".", ",")
+    };
   },
 
   /**
-   * Fetches real-time market rates from official endpoints
+   * Main fetch method with CORS-safe endpoints & proxies
    */
   async fetchMarketData(forceRefresh = false) {
     const now = Date.now();
@@ -158,9 +165,12 @@ const FinanceAPI = {
 
     let items = this.getFallbackData();
 
-    // 1. Fetch BIST 100 Live from Yahoo Finance API
+    // 1. Fetch BIST 100 with CORS-safe proxy
     try {
-      const resBist = await fetch("https://query1.finance.yahoo.com/v8/finance/chart/XU100.IS?interval=1d");
+      const targetUrl = encodeURIComponent("https://query1.finance.yahoo.com/v8/finance/chart/XU100.IS?interval=1d");
+      const resBist = await fetch(`https://api.allorigins.win/raw?url=${targetUrl}`, {
+        headers: { "Accept": "application/json" }
+      });
       if (resBist.ok) {
         const dataBist = await resBist.json();
         const meta = dataBist?.chart?.result?.[0]?.meta;
@@ -181,114 +191,77 @@ const FinanceAPI = {
         }
       }
     } catch (e) {
-      console.warn("BIST 100 Yahoo API fetch notice:", e);
+      // Graceful fallback to default/cached values
     }
 
-    // 2. Fetch Gold & Currency Live Rates from Truncgil / Turkish Market API
+    // 2. Fetch Live Forex Rates (Open Exchange Rates / ER-API - natively CORS enabled)
     try {
-      const resTrunc = await fetch("https://finans.truncgil.com/v3/today.json");
-      if (resTrunc.ok) {
-        const dataTrunc = await resTrunc.json();
-        
-        // Gram Altın
-        if (dataTrunc["gram-altin"]) {
-          const gData = dataTrunc["gram-altin"];
-          const priceVal = this.parseTurkishNumber(gData.Buying || gData.Selling);
-          const chg = this.parseTurkishChange(gData.Change);
-          const item = items.find(i => i.id === "gramgold");
-          if (item && priceVal > 0) {
-            item.price = priceVal;
-            item.priceFormatted = "₺" + Math.round(priceVal).toLocaleString("tr-TR");
-            item.changePct = chg.pct;
-            item.isUp = chg.isUp;
-            item.changeFormatted = chg.formatted;
-          }
-        }
+      const resEr = await fetch("https://open.er-api.com/v6/latest/USD");
+      if (resEr.ok) {
+        const erData = await resEr.json();
+        if (erData?.rates?.TRY) {
+          const usdTry = erData.rates.TRY;
+          const eurTry = erData.rates.TRY / (erData.rates.EUR || 0.92);
 
-        // Çeyrek Altın
-        if (dataTrunc["ceyrek-altin"]) {
-          const qData = dataTrunc["ceyrek-altin"];
-          const priceVal = this.parseTurkishNumber(qData.Buying || qData.Selling);
-          const chg = this.parseTurkishChange(qData.Change);
-          const item = items.find(i => i.id === "quartergold");
-          if (item && priceVal > 0) {
-            item.price = priceVal;
-            item.priceFormatted = "₺" + Math.round(priceVal).toLocaleString("tr-TR");
-            item.changePct = chg.pct;
-            item.isUp = chg.isUp;
-            item.changeFormatted = chg.formatted;
+          const usdItem = items.find(i => i.id === "usdtry");
+          if (usdItem && usdTry > 0) {
+            usdItem.price = usdTry;
+            usdItem.priceFormatted = "₺" + usdTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
           }
-        }
 
-        // USD
-        if (dataTrunc["USD"]) {
-          const uData = dataTrunc["USD"];
-          const priceVal = this.parseTurkishNumber(uData.Buying || uData.Selling);
-          const chg = this.parseTurkishChange(uData.Change);
-          const item = items.find(i => i.id === "usdtry");
-          if (item && priceVal > 0) {
-            item.price = priceVal;
-            item.priceFormatted = "₺" + priceVal.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            item.changePct = chg.pct;
-            item.isUp = chg.isUp;
-            item.changeFormatted = chg.formatted;
+          const eurItem = items.find(i => i.id === "eurtry");
+          if (eurItem && eurTry > 0) {
+            eurItem.price = eurTry;
+            eurItem.priceFormatted = "₺" + eurTry.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
           }
-        }
 
-        // EUR
-        if (dataTrunc["EUR"]) {
-          const eData = dataTrunc["EUR"];
-          const priceVal = this.parseTurkishNumber(eData.Buying || eData.Selling);
-          const chg = this.parseTurkishChange(eData.Change);
-          const item = items.find(i => i.id === "eurtry");
-          if (item && priceVal > 0) {
-            item.price = priceVal;
-            item.priceFormatted = "₺" + priceVal.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            item.changePct = chg.pct;
-            item.isUp = chg.isUp;
-            item.changeFormatted = chg.formatted;
+          // Gold approximate calculation from USD gold ounce if needed
+          const gramGoldItem = items.find(i => i.id === "gramgold");
+          if (gramGoldItem && usdTry > 0) {
+            const onsUsd = 2780; // approximate gold ounce
+            const gramTry = (onsUsd / 31.1034768) * usdTry;
+            gramGoldItem.price = gramTry;
+            gramGoldItem.priceFormatted = "₺" + Math.round(gramTry).toLocaleString("tr-TR");
           }
         }
       }
-    } catch (e) {
-      console.warn("Gold/Currency API fetch notice:", e);
-    }
+    } catch (e) {}
 
-    // 3. Fetch Crypto Prices (BTC, ETH)
+    // 3. Fetch Crypto Prices (Binance CORS-friendly API)
     try {
-      const resCrypto = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true");
-      if (resCrypto.ok) {
-        const dataCrypto = await resCrypto.json();
-        if (dataCrypto.bitcoin) {
-          const btcItem = items.find(i => i.id === "btc");
-          if (btcItem) {
-            btcItem.price = dataCrypto.bitcoin.usd;
-            btcItem.priceFormatted = "$" + Math.round(dataCrypto.bitcoin.usd).toLocaleString("en-US");
-            if (dataCrypto.bitcoin.usd_24h_change !== undefined) {
-              const chg = dataCrypto.bitcoin.usd_24h_change;
-              btcItem.changePct = parseFloat(chg.toFixed(2));
-              btcItem.isUp = chg >= 0;
-              btcItem.changeFormatted = (chg >= 0 ? "+" : "") + "%" + Math.abs(chg).toFixed(2).replace(".", ",");
-            }
-          }
-        }
-        if (dataCrypto.ethereum) {
-          const ethItem = items.find(i => i.id === "eth");
-          if (ethItem) {
-            ethItem.price = dataCrypto.ethereum.usd;
-            ethItem.priceFormatted = "$" + Math.round(dataCrypto.ethereum.usd).toLocaleString("en-US");
-            if (dataCrypto.ethereum.usd_24h_change !== undefined) {
-              const chg = dataCrypto.ethereum.usd_24h_change;
-              ethItem.changePct = parseFloat(chg.toFixed(2));
-              ethItem.isUp = chg >= 0;
-              ethItem.changeFormatted = (chg >= 0 ? "+" : "") + "%" + Math.abs(chg).toFixed(2).replace(".", ",");
-            }
-          }
+      const [resBtc, resEth] = await Promise.allSettled([
+        fetch("https://api.binance.com/api/v3/ticker/24hr?symbol=BTCUSDT"),
+        fetch("https://api.binance.com/api/v3/ticker/24hr?symbol=ETHUSDT")
+      ]);
+
+      if (resBtc.status === "fulfilled" && resBtc.value.ok) {
+        const btcData = await resBtc.value.json();
+        const price = parseFloat(btcData.lastPrice);
+        const chg = parseFloat(btcData.priceChangePercent);
+        const btcItem = items.find(i => i.id === "btc");
+        if (btcItem && !isNaN(price)) {
+          btcItem.price = price;
+          btcItem.priceFormatted = "$" + Math.round(price).toLocaleString("en-US");
+          btcItem.changePct = chg;
+          btcItem.isUp = chg >= 0;
+          btcItem.changeFormatted = (chg >= 0 ? "+" : "") + "%" + Math.abs(chg).toFixed(2).replace(".", ",");
         }
       }
-    } catch (e) {
-      console.warn("Crypto API fetch notice:", e);
-    }
+
+      if (resEth.status === "fulfilled" && resEth.value.ok) {
+        const ethData = await resEth.value.json();
+        const price = parseFloat(ethData.lastPrice);
+        const chg = parseFloat(ethData.priceChangePercent);
+        const ethItem = items.find(i => i.id === "eth");
+        if (ethItem && !isNaN(price)) {
+          ethItem.price = price;
+          ethItem.priceFormatted = "$" + Math.round(price).toLocaleString("en-US");
+          ethItem.changePct = chg;
+          ethItem.isUp = chg >= 0;
+          ethItem.changeFormatted = (chg >= 0 ? "+" : "") + "%" + Math.abs(chg).toFixed(2).replace(".", ",");
+        }
+      }
+    } catch (e) {}
 
     this._cachedData = items;
     try {

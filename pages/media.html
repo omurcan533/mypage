@@ -46,24 +46,18 @@
           <li>
             <a href="habits.html"><span class="nav-icon">✅</span> <span>Alışkanlıklar</span></a>
           </li>
-          <li>
+          <!-- <li>
             <a href="projects.html"><span class="nav-icon">🚀</span> <span>Projeler</span></a>
-          </li>
+          </li> -->
           <li>
             <a href="travels.html"><span class="nav-icon">✈️</span> <span>Gezilerim</span></a>
           </li>
           <li>
-            <a href="books.html"><span class="nav-icon">📚</span> <span>Kitaplar</span></a>
+            <a href="knowledge.html"><span class="nav-icon">💡</span> <span>Bilgi</span></a>
           </li>
           <li>
-            <a href="media.html" class="active"><span class="nav-icon">🎮</span> <span>Medya & Eğlence</span></a>
+            <a href="media.html" class="active"><span class="nav-icon">🎬</span> <span>Medya & Eğlence</span></a>
           </li>
-          <li>
-            <a href="english.html"><span class="nav-icon">🇬🇧</span> <span>İngilizce</span></a>
-          </li>
-          <!-- <li>
-            <a href="portfolio.html"><span class="nav-icon">💼</span> <span>Portföyüm</span></a>
-          </li> -->
           <li>
             <a href="family.html"
               ><span class="nav-icon">👨‍👩‍👧‍👦</span>
@@ -149,81 +143,51 @@
         <div class="welcome-hero">
           <div class="hero-greeting" id="greeting-text">İyi günler</div>
           <h1 class="hero-name">
-            <span>Medya, Kültür &</span> <span class="gradient-text">Eğlence Dünyam</span> 🍿
+            <span>Medya, Sinema &</span> <span class="gradient-text">Spor Dünyam</span> 🍿
           </h1>
           <p class="hero-desc">
-            Oynadığım oyunlar, zihin açıcı genel kültür notları, takip ettiğim haberler ve favori film/dizilerim.
+            Favori filmlerim, takip ettiğim diziler, Fenerbahçe maç takvimi ve anlık finans piyasaları.
           </p>
           <div class="hero-date" id="hero-date">📅 Bugün</div>
           <div class="hero-quick-links">
             <a href="home.html" class="quick-link">🏠 Ana Sayfa</a>
             <a href="habits.html" class="quick-link">✅ Alışkanlıklar</a>
-            <a href="projects.html" class="quick-link">🚀 Projelerim</a>
             <a href="travels.html" class="quick-link">✈️ Gezilerim</a>
-            <a href="books.html" class="quick-link">📚 Kitaplar</a>
-            <a href="media.html" class="quick-link active">🎮 Medya & Eğlence</a>
-            <a href="english.html" class="quick-link">🇬🇧 İngilizce</a>
+            <a href="knowledge.html" class="quick-link">💡 Bilgi</a>
+            <a href="media.html" class="quick-link active">🎬 Medya & Eğlence</a>
             <a href="contact.html" class="quick-link">📬 İletişim</a>
             <a href="../assets/omurcan_yilmaz_CV.pdf" download="Omur_Can_Yilmaz_CV.pdf" target="_blank" class="quick-link cv-download-btn" data-i18n="home_quick_cv">📄 CV'mi İndir</a>
           </div>
         </div>
 
         <!-- Main Section Header -->
-        <!-- Main Section Header -->
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
           <div>
-            <h2 class="page-title" style="font-size: 24px; margin-bottom: 4px;">🎮 Eğlence & Kültür Panosu</h2>
-            <p class="page-subtitle">Sekmeler arasında geçiş yaparak farklı kategorileri keşfedin</p>
+            <h2 class="page-title" style="font-size: 24px; margin-bottom: 4px;">🎬 Medya & Sinema Panosu</h2>
+            <p class="page-subtitle">Filmler, diziler, maç takvimi ve borsa verileri</p>
           </div>
           <div style="display: flex; gap: 10px; align-items: center;">
-            <button type="button" class="btn btn-primary" id="add-youtube-btn" style="display: none; background: linear-gradient(135deg, #ef4444, #dc2626); border: none;">
-              ＋ YouTube Videosu Ekle
-            </button>
             <button type="button" class="btn btn-primary" id="add-media-btn" style="display: none;">
-              ＋ İçerik Ekle
+              ＋ Film / Dizi Ekle
             </button>
           </div>
         </div>
 
-        <!-- Main Category Tabs (Draggable & Reorderable) -->
+        <!-- Main Category Tabs -->
         <div class="media-tab-bar" id="main-media-tabs">
-          <button type="button" class="media-tab-btn active" data-tab="youtube" draggable="true">📺 YouTube & Videolar</button>
-          <button type="button" class="media-tab-btn" data-tab="movies_tv" draggable="true">🎬 Filmler & Diziler</button>
-          <button type="button" class="media-tab-btn" data-tab="games" draggable="true">🎮 Oyunlar</button>
-          <button type="button" class="media-tab-btn" data-tab="trivia" draggable="true">💡 Genel Kültür</button>
-          <button type="button" class="media-tab-btn" data-tab="news" draggable="true">📰 Haberler</button>
+          <button type="button" class="media-tab-btn active" data-tab="movies_tv">🎬 Filmler & Diziler</button>
+          <button type="button" class="media-tab-btn" data-tab="sports">⚽ Spor & Fenerbahçe</button>
+          <button type="button" class="media-tab-btn" data-tab="markets">📈 Borsa & Piyasalar</button>
         </div>
 
         <!-- Sub View Switcher (for Movies & TV Shows) -->
-        <div class="sub-view-bar" id="movies-sub-view-bar" style="display: none;">
+        <div class="sub-view-bar" id="movies-sub-view-bar" style="display: flex;">
           <button type="button" class="sub-view-btn active" data-sub="all">🎬 Tümü</button>
           <button type="button" class="sub-view-btn" data-sub="movies">🎥 Filmler</button>
           <button type="button" class="sub-view-btn" data-sub="tv">📺 Diziler</button>
           <button type="button" class="sub-view-btn" data-sub="watchlist">📌 İzlenecekler</button>
           <button type="button" class="sub-view-btn" data-sub="completed">✅ Tamamlananlar</button>
         </div>
-
-        <!-- Sub View Switcher (for YouTube) -->
-        <div class="sub-view-bar" id="youtube-sub-view-bar" style="display: none;">
-          <button type="button" class="sub-view-btn active" data-yt-sub="all">📺 Tüm Videolar</button>
-          <button type="button" class="sub-view-btn" data-yt-sub="tech">💻 Yazılım & Yapay Zeka</button>
-          <button type="button" class="sub-view-btn" data-yt-sub="music">🎵 Müzik & Lofi</button>
-          <button type="button" class="sub-view-btn" data-yt-sub="podcast">🎙️ Podcast & Sohbet</button>
-          <button type="button" class="sub-view-btn" data-yt-sub="science">🌌 Bilim & Belgesel</button>
-          <button type="button" class="sub-view-btn" data-yt-sub="sports">⚽ Spor & FB</button>
-        </div>
-
-        <!-- Sub View Switcher (for News) -->
-        <div class="sub-view-bar" id="news-sub-view-bar" style="display: flex;">
-          <button type="button" class="sub-view-btn" data-news-sub="all">📰 Tüm Haberler</button>
-          <button type="button" class="sub-view-btn active" data-news-sub="sports">⚽ Spor & Fenerbahçe</button>
-          <button type="button" class="sub-view-btn" data-news-sub="tech">💻 Teknoloji & Bilim</button>
-          <button type="button" class="sub-view-btn" data-news-sub="general">🌍 Gündem</button>
-          <button type="button" class="sub-view-btn" data-news-sub="markets">📈 Borsa & Piyasalar</button>
-        </div>
-
-        <!-- YouTube Cinema Player Container -->
-        <div id="youtube-player-container" style="display: none;"></div>
 
         <!-- Borsa & Finans Piyasası Container -->
         <div id="finance-market-container" style="display: none;"></div>
@@ -242,7 +206,7 @@
     <div class="modal-overlay" id="media-modal">
       <div class="modal" style="max-width: 520px;">
         <div class="modal-header">
-          <div class="modal-title" id="media-modal-title">🎬 Yeni İçerik Ekle</div>
+          <div class="modal-title" id="media-modal-title">🎬 Yeni Film / Dizi Ekle</div>
           <button class="modal-close" type="button">✕</button>
         </div>
         <form id="media-form">
@@ -250,37 +214,29 @@
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
             <div class="input-group" style="grid-column: 1/-1;">
               <label class="input-label">Başlık *</label>
-              <input type="text" class="input-field" id="media-title" placeholder="İçerik başlığı..." required />
+              <input type="text" class="input-field" id="media-title" placeholder="Film veya dizi adı..." required />
             </div>
             <div class="input-group">
-              <label class="input-label">Kategori</label>
-              <select class="input-field" id="media-category">
-                <option value="movies_tv">🎬 Film / Dizi</option>
-                <option value="trivia">💡 Genel Kültür</option>
-              </select>
-            </div>
-            <div class="input-group">
-              <label class="input-label">Alt Tür / Tip</label>
+              <label class="input-label">Tür</label>
               <select class="input-field" id="media-sub-type">
                 <option value="movie">🎥 Film</option>
                 <option value="tv">📺 Dizi</option>
-                <option value="trivia">💡 Genel Kültür Notu</option>
               </select>
             </div>
             <div class="input-group">
               <label class="input-label">Durum</label>
               <select class="input-field" id="media-status">
-                <option value="completed">✅ Tamamlandı / İzlendi</option>
-                <option value="watchlist">📌 İzlenecek / Oynanacak</option>
+                <option value="completed">✅ İzlendi</option>
+                <option value="watchlist">📌 İzlenecek</option>
               </select>
             </div>
-            <div class="input-group">
+            <div class="input-group" style="grid-column: 1/-1;">
               <label class="input-label">Puan (1-5)</label>
               <input type="number" class="input-field" id="media-rating" min="1" max="5" value="5" />
             </div>
             <div class="input-group" style="grid-column: 1/-1;">
-              <label class="input-label">Açıklama / Not</label>
-              <textarea class="input-field" id="media-note" rows="3" placeholder="Görüş ve notlarınız..." style="resize: vertical;"></textarea>
+              <label class="input-label">Açıklama / Yorum</label>
+              <textarea class="input-field" id="media-note" rows="3" placeholder="İzleme notlarınız..." style="resize: vertical;"></textarea>
             </div>
           </div>
           <div style="display: flex; gap: 10px; justify-content: flex-end;">
@@ -291,215 +247,105 @@
       </div>
     </div>
 
-    <!-- YouTube Video Add Modal -->
-    <div class="modal-overlay" id="youtube-modal">
-      <div class="modal" style="max-width: 520px; border-radius: 32px;">
-        <div class="modal-header">
-          <div class="modal-title" id="youtube-modal-title">📺 Yeni YouTube Videosu Ekle</div>
-          <button class="modal-close" type="button">✕</button>
-        </div>
-        <form id="youtube-form">
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
-            <div class="input-group" style="grid-column: 1/-1;">
-              <label class="input-label">YouTube Video Linki veya Video ID *</label>
-              <input type="text" class="input-field" id="youtube-url-input" placeholder="Örn: https://www.youtube.com/watch?v=jfKfPfyJRdk veya jfKfPfyJRdk" required />
-            </div>
-            <div class="input-group" style="grid-column: 1/-1;">
-              <label class="input-label">Video Başlığı *</label>
-              <input type="text" class="input-field" id="youtube-title-input" placeholder="Örn: Yapay Zeka Devrimi ve Geleceğimiz" required />
-            </div>
-            <div class="input-group">
-              <label class="input-label">Kanal / Kaynak Adı</label>
-              <input type="text" class="input-field" id="youtube-channel-input" placeholder="Örn: Barış Özcan, Lofi Girl..." />
-            </div>
-            <div class="input-group">
-              <label class="input-label">Kategori</label>
-              <select class="input-field" id="youtube-category-input">
-                <option value="tech">💻 Yazılım & Yapay Zeka</option>
-                <option value="music">🎵 Müzik & Lofi</option>
-                <option value="podcast">🎙️ Podcast & Sohbet</option>
-                <option value="science">🌌 Bilim & Belgesel</option>
-                <option value="sports">⚽ Spor & FB</option>
-                <option value="general">🎬 Genel / Eğlence</option>
-              </select>
-            </div>
-            <div class="input-group" style="grid-column: 1/-1;">
-              <label class="input-label">Kısa Not veya Açıklama (Opsiyonel)</label>
-              <textarea class="input-field" id="youtube-note-input" rows="2" placeholder="Video hakkında kısa not..." style="resize: vertical;"></textarea>
-            </div>
-          </div>
-          <div style="display: flex; gap: 10px; justify-content: flex-end;">
-            <button type="button" class="btn btn-ghost modal-close modal-close-btn">İptal</button>
-            <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #ef4444, #dc2626); border: none;">✓ Videoyu Ekle</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
-    <script src="../js/live_api.js"></script>
-    <script src="../js/news_api.js"></script>
-    <script src="../js/finance_api.js"></script>
+    <script src="../js/i18n.js"></script>
     <script src="../js/nav.js"></script>
+    <script src="../js/finance_api.js"></script>
     <script>
-      Nav.init();
-      Modal.setup("media-modal");
-      Modal.setup("youtube-modal");
-
-      function escapeHtml(str) {
-        if (!str) return "";
-        return String(str)
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
-      }
-
       const MEDIA_KEY = "oyp_media_items";
-
       const DEFAULT_MEDIA = [
         {
           id: "m-1",
-          title: "Inception (Başlangıç)",
+          title: "Interstellar",
           category: "movies_tv",
           subType: "movie",
           status: "completed",
           rating: 5,
-          note: "Rüyalar içinde rüyalar ve zihin hırsızlığı üzerine yapılmış zamansız bir Christopher Nolan başyapıtı.",
+          note: "Zaman, yerçekimi, sevgi ve insanlığın geleceğine dair Christopher Nolan başyapıtı.",
         },
         {
           id: "m-2",
-          title: "Breaking Bad",
+          title: "Inception",
+          category: "movies_tv",
+          subType: "movie",
+          status: "completed",
+          rating: 5,
+          note: "Rüya içinde rüya katmanları ve zihnin derinliklerine yolculuk.",
+        },
+        {
+          id: "m-3",
+          title: "Dark",
           category: "movies_tv",
           subType: "tv",
           status: "completed",
           rating: 5,
-          note: "Karakter dönüşümünün ve senaryo disiplininin sinema tarihindeki zirve dizisi.",
+          note: "Zamanda yolculuk ve nedensellik döngüleri üzerine mükemmel bir Alman dizisi.",
         },
         {
-          id: "m-3",
+          id: "m-4",
+          title: "Severance",
+          category: "movies_tv",
+          subType: "tv",
+          status: "watchlist",
+          rating: 5,
+          note: "İş ve özel hayat hafızasını bölen distopik bir ofis gerilimi.",
+        },
+        {
+          id: "m-5",
           title: "Dune: Part Two",
           category: "movies_tv",
           subType: "movie",
-          status: "watchlist",
-          rating: 5,
-          note: "Arrakis gezegenindeki epik mücadele ve görsel şölen.",
-        },
-        {
-          id: "g-1",
-          title: "The Witcher 3: Wild Hunt",
-          category: "games",
-          subType: "game",
           status: "completed",
           rating: 5,
-          note: "Geralt of Rivia ile büyüleyici bir açık dünya, aksiyon ve hikaye anlatımı.",
-        },
-        {
-          id: "g-2",
-          title: "Cyberpunk 2077: Phantom Liberty",
-          category: "games",
-          subType: "game",
-          status: "completed",
-          rating: 5,
-          note: "Night City atmosferi ve harika casusluk gerilimi DLC genişlemesi.",
-        },
-        {
-          id: "t-1",
-          title: "Nöronlar Arasındaki İletişim Hızı",
-          category: "trivia",
-          subType: "trivia",
-          status: "completed",
-          rating: 5,
-          note: "İnsan beynindeki sinir sinyalleri saatte yaklaşık 430 km hızla seyahat edebilir!",
-        },
-        {
-          id: "t-2",
-          title: "Voyager 1 Probu ve Soluk Mavi Nokta",
-          category: "trivia",
-          subType: "trivia",
-          status: "completed",
-          rating: 5,
-          note: "Voyager 1, 6 milyar km öteden Dünya'nın fotoğrafını çekerek insanlığın kozmostaki yerini hatırlattı.",
-        },
-        {
-          id: "n-fb1",
-          title: "Fenerbahçe Şampiyonlar Ligi Yolunda Kritik Virajda",
-          category: "news",
-          subType: "news_sports",
-          status: "completed",
-          rating: 5,
-          note: "UEFA Şampiyonlar Ligi 3. Ön Eleme turunda Kadıköy'de Benfica'yı ağırlayacak olan Sarı-Lacivertlilerde hazırlıklar tüm hızıyla sürüyor.",
-        },
-        {
-          id: "n-tech1",
-          title: "Kuantum Bilgisayarlar ve Yapay Zeka Devrimi",
-          category: "news",
-          subType: "news_tech",
-          status: "completed",
-          rating: 5,
-          note: "Yeni nesil kuantum çipler, kompleks optimizasyon problemlerini saniyeler içinde çözüyor.",
-        },
+          note: "Görsel ve işitsel bir şölen, Arrakis çölünde destansı bir devam filmi.",
+        }
       ];
 
       const FENERBAHCE_FIXTURES = [
         {
-          date: "11 Ağustos 2026",
-          day: "Salı 21:30",
+          date: "12 Ağustos 2026",
+          day: "Çarşamba 21:45",
           comp: "UEFA Şampiyonlar Ligi 3. Ön Eleme",
           compType: "uefa",
-          home: "Sturm Graz",
-          homeIcon: "⚪⚫",
-          away: "Fenerbahçe",
-          awayIcon: "💛💙",
-          scoreText: "0 - 1",
-          venue: "Merkur Arena (Deplasman)",
+          home: "Fenerbahçe",
+          homeIcon: "💛💙",
+          away: "Feyenoord",
+          awayIcon: "🔴⚪",
+          scoreText: "3 - 1",
+          venue: "Ülker Stadyumu Kadıköy (İç Saha)",
           isNext: false,
-          statusText: "✅ Tur Atladı (Talisca Pen.)"
+          statusText: "✅ Galibiyet (3-1)"
         },
         {
-          date: "15 Ağustos 2026",
-          day: "Cumartesi 21:30",
+          date: "17 Ağustos 2026",
+          day: "Pazartesi 21:00",
           comp: "Trendyol Süper Lig 1. Hafta",
           compType: "superlig",
-          home: "Gençlerbirliği",
-          homeIcon: "🔴⚫",
-          away: "Fenerbahçe",
-          awayIcon: "💛💙",
-          scoreText: "2 - 1",
-          venue: "Eryaman Stadyumu, Ankara (Deplasman)",
-          isNext: false,
-          statusText: "❌ Mağlubiyet (2-1)"
-        },
-        {
-          date: "18 Ağustos 2026",
-          day: "Salı 22:00",
-          comp: "UEFA Şampiyonlar Ligi Play-Off 1. Maç",
-          compType: "uefa",
           home: "Fenerbahçe",
           homeIcon: "💛💙",
-          away: "Lyon",
-          awayIcon: "🔵🔴",
-          scoreText: "1 - 1",
+          away: "Adana Demirspor",
+          awayIcon: "🔵⚪",
+          scoreText: "2 - 0",
           venue: "Ülker Stadyumu Kadıköy (İç Saha)",
           isNext: false,
-          statusText: "• Berabere (1-1)"
+          statusText: "✅ Galibiyet (2-0)"
         },
         {
-          date: "22 Ağustos 2026",
-          day: "Cumartesi 21:30",
+          date: "21 Ağustos 2026",
+          day: "Cuma 21:30",
           comp: "Trendyol Süper Lig 2. Hafta",
           compType: "superlig",
-          home: "Fenerbahçe",
-          homeIcon: "💛💙",
-          away: "Tümosan Konyaspor",
-          awayIcon: "🟢⚪",
-          scoreText: "4 - 2",
-          venue: "Ülker Stadyumu Kadıköy (İç Saha)",
+          home: "Göztepe",
+          homeIcon: "🔴🟡",
+          away: "Fenerbahçe",
+          awayIcon: "💛💙",
+          scoreText: "2 - 2",
+          venue: "Gürsel Aksel Stadyumu (Deplasman)",
           isNext: false,
-          statusText: "✅ Galibiyet (4-2)"
+          statusText: "• Beraberlik (2-2)"
         },
         {
           date: "26 Ağustos 2026",
@@ -513,7 +359,7 @@
           scoreText: "vs",
           venue: "Groupama Stadium (Deplasman)",
           isNext: true,
-          statusText: "⏳ Sıradaki Maç (3 Gün)"
+          statusText: "⏳ Sıradaki Maç"
         },
         {
           date: "30 Ağustos 2026",
@@ -546,278 +392,8 @@
       ];
 
       let allMedia = [];
-      let activeMainTab = "youtube";
+      let activeMainTab = "movies_tv";
       let activeSubView = "all";
-      let activeNewsSubView = "sports";
-      let activeYouTubeSubView = "all";
-      let currentPlayingVideoId = "";
-      let allYouTubeVideos = [];
-
-      const YOUTUBE_KEY = "oyp_youtube_videos";
-      const DEFAULT_YOUTUBE_VIDEOS = [
-        {
-          id: "yt-1",
-          videoId: "6lTzO2NqK50",
-          title: "Next-generation AI: Gemini 1.5 Architecture & Reasoning",
-          channel: "Google",
-          category: "tech",
-          note: "Yapay zeka modellerinin çok modlu kavrayış ve geniş bağlam pencereleri üzerine derinlemesine bakış.",
-        },
-        {
-          id: "yt-2",
-          videoId: "m9kC0w1r28c",
-          title: "James Webb Teleskobu ile Evrenin En Erken Dönemlerine Yolculuk",
-          channel: "Barış Özcan",
-          category: "science",
-          note: "Kozmik şafak, ilk galaksilerin doğuşu ve uzayın derinliklerindeki büyüleyici keşifler.",
-        },
-        {
-          id: "yt-3",
-          videoId: "4xDzrJKXOOY",
-          title: "Lofi Hip Hop Radio 📚 - Relax / Study / Code Chill Beats",
-          channel: "Lofi Girl",
-          category: "music",
-          note: "Kod yazarken, odaklanırken veya kitap okurken dinlenebilecek kesintisiz lo-fi akışı.",
-        },
-        {
-          id: "yt-4",
-          videoId: "fHI8X485M61",
-          title: "Synthwave Radio 🌌 - Chill synth / retro beats to code to",
-          channel: "Lofi Girl / Synthwave Boy",
-          category: "music",
-          note: "Gece kod geliştirme ve proje çalışmaları için retro-fütüristik synthwave müzikleri.",
-        },
-        {
-          id: "yt-5",
-          videoId: "aircAruvnKk",
-          title: "But what is a neural network? | Deep learning, chapter 1",
-          channel: "3Blue1Brown",
-          category: "tech",
-          note: "Yapay sinir ağlarının matematiksel ve görsel olarak en berrak anlatımı.",
-        },
-        {
-          id: "yt-6",
-          videoId: "vXf6hO0_Yio",
-          title: "Sam Altman: OpenAI, GPT-5, Sora, and AGI | Lex Fridman Podcast",
-          channel: "Lex Fridman",
-          category: "podcast",
-          note: "Yapay zeka modellerinin geleceği ve teknolojik dönüşüm üzerine vizyoner sohbet.",
-        },
-        {
-          id: "yt-7",
-          videoId: "s6zR2T9vn2c",
-          title: "Fenerbahçe SK — Unutulmaz Avrupa Zaferleri & Kadıköy Atmosferi",
-          channel: "Fenerbahçe SK",
-          category: "sports",
-          note: "Sarı-Lacivertli kulübün tarihi zaferleri ve Kadıköy'deki muazzam tribün atmosferi.",
-        }
-      ];
-
-      function getLocalYouTubeVideos() {
-        try {
-          const saved = JSON.parse(localStorage.getItem(YOUTUBE_KEY));
-          if (Array.isArray(saved) && saved.length > 0) {
-            const cleaned = saved.filter(v => v.videoId !== "jfKfPfyJRdk");
-            return cleaned.length > 0 ? cleaned : [...DEFAULT_YOUTUBE_VIDEOS];
-          }
-        } catch (e) {}
-        return [...DEFAULT_YOUTUBE_VIDEOS];
-      }
-
-      function saveLocalYouTubeVideos(videos) {
-        localStorage.setItem(YOUTUBE_KEY, JSON.stringify(videos));
-      }
-
-      function extractYouTubeId(url) {
-        if (!url) return "";
-        url = url.trim();
-        if (/^[a-zA-Z0-9_-]{11}$/.test(url)) return url;
-        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-        const match = url.match(regExp);
-        return (match && match[2].length === 11) ? match[2] : "";
-      }
-
-      function renderYouTubePlayer(forceVideoId, autoPlay = false) {
-        const container = document.getElementById("youtube-player-container");
-        if (!container) return;
-
-        if (activeMainTab !== "youtube") {
-          container.style.display = "none";
-          return;
-        }
-
-        const fallbackId = (allYouTubeVideos.length > 0 && allYouTubeVideos[0].videoId) ? allYouTubeVideos[0].videoId : "6lTzO2NqK50";
-        const vidId = forceVideoId || currentPlayingVideoId || fallbackId;
-        currentPlayingVideoId = vidId;
-
-        const currentVideo = allYouTubeVideos.find(v => v.videoId === vidId) || (allYouTubeVideos.length > 0 ? allYouTubeVideos[0] : {
-          videoId: vidId,
-          title: "Seçilen YouTube Videosu",
-          channel: "YouTube",
-          category: "general",
-          note: ""
-        });
-
-        const categoryNames = {
-          tech: "💻 Yazılım & AI",
-          music: "🎵 Müzik & Lofi",
-          podcast: "🎙️ Podcast & Sohbet",
-          science: "🌌 Bilim & Uzay",
-          sports: "⚽ Spor & FB",
-          general: "🎬 Video"
-        };
-        const catBadge = categoryNames[currentVideo.category] || "📺 YouTube";
-
-        container.style.display = "block";
-        container.innerHTML = `
-          <div class="youtube-player-section">
-            <div class="youtube-player-top">
-              <div class="youtube-title-group">
-                <div class="youtube-icon-badge">▶</div>
-                <div>
-                  <div class="youtube-main-title">
-                    <span>${escapeHtml(currentVideo.title)}</span>
-                  </div>
-                  <div class="youtube-main-sub">
-                    <span>Kanal: <strong>${escapeHtml(currentVideo.channel || "YouTube")}</strong></span> • 
-                    <span style="color:#ef4444; font-weight:700;">${catBadge}</span>
-                  </div>
-                </div>
-              </div>
-              <div class="youtube-actions">
-                <a href="https://www.youtube.com/watch?v=${vidId}" target="_blank" rel="noopener noreferrer" class="youtube-quick-btn" title="YouTube'da Aç">
-                  <span>↗</span> <span>YouTube'da Aç</span>
-                </a>
-              </div>
-            </div>
-
-            <div class="youtube-frame-wrapper">
-              <iframe 
-                src="https://www.youtube-nocookie.com/embed/${vidId}?autoplay=${autoPlay ? 1 : 0}&rel=0&modestbranding=1" 
-                title="${escapeHtml(currentVideo.title)}" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                allowfullscreen>
-              </iframe>
-            </div>
-
-            <div class="youtube-player-meta">
-              <div class="youtube-video-info-box">
-                <div class="youtube-video-info-title">⚡ Seçili Video: ${escapeHtml(currentVideo.title)}</div>
-                ${currentVideo.note ? `<div style="font-size:13px; color:var(--text-secondary); line-height:1.5; margin-top:4px;">${escapeHtml(currentVideo.note)}</div>` : ''}
-              </div>
-              <div style="display:flex; gap:8px; align-items:center;">
-                <button type="button" class="youtube-quick-btn" onclick="playNextPrevYouTube(-1)" title="Önceki Video">⏮ Önceki</button>
-                <button type="button" class="youtube-quick-btn" onclick="playNextPrevYouTube(1)" title="Sonraki Video">Sonraki ⏭</button>
-              </div>
-            </div>
-          </div>
-        `;
-      }
-
-      window.playYouTubeVideo = function(videoId, e) {
-        if (e && e.target.closest('.yt-delete-btn')) return;
-        currentPlayingVideoId = videoId;
-        renderYouTubePlayer(videoId, true);
-        renderYouTubeGrid();
-        const container = document.getElementById("youtube-player-container");
-        if (container) {
-          container.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      };
-
-      window.playNextPrevYouTube = function(direction) {
-        const filtered = getFilteredYouTubeVideos();
-        if (filtered.length === 0) return;
-        const currentIdx = filtered.findIndex(v => v.videoId === currentPlayingVideoId);
-        let nextIdx = currentIdx + direction;
-        if (nextIdx < 0) nextIdx = filtered.length - 1;
-        if (nextIdx >= filtered.length) nextIdx = 0;
-        playYouTubeVideo(filtered[nextIdx].videoId);
-      };
-
-      function getFilteredYouTubeVideos() {
-        if (activeYouTubeSubView === "all") return allYouTubeVideos;
-        return allYouTubeVideos.filter(v => v.category === activeYouTubeSubView);
-      }
-
-      window.deleteYouTubeVideo = async function(id, e) {
-        if (e) e.stopPropagation();
-        const targetVideo = allYouTubeVideos.find(v => v.id === id);
-        const videoTitle = targetVideo ? targetVideo.title : "bu videoyu";
-
-        const confirmed = window.Confirm
-          ? await window.Confirm.show({
-              title: "Videoyu Sil",
-              message: `"${videoTitle}" adlı YouTube videosunu listenizden kaldırmak istediğinize emin misiniz?`,
-              confirmText: "🗑 Evet, Sil",
-              cancelText: "İptal",
-              danger: true
-            })
-          : confirm(`"${videoTitle}" adlı videoyu silmek istediğinize emin misiniz?`);
-
-        if (!confirmed) return;
-
-        allYouTubeVideos = allYouTubeVideos.filter(v => v.id !== id);
-        saveLocalYouTubeVideos(allYouTubeVideos);
-        if (window.Toast) Toast.success("Video listenizden kaldırıldı.");
-        if (allYouTubeVideos.length > 0 && currentPlayingVideoId === (targetVideo ? targetVideo.videoId : "")) {
-          currentPlayingVideoId = allYouTubeVideos[0].videoId;
-        }
-        renderMedia();
-      };
-
-      function renderYouTubeGrid() {
-        const grid = document.getElementById("media-cards-grid");
-        if (!grid) return;
-
-        const canManage = window.Auth && typeof window.Auth.canAccessHabits === 'function' ? window.Auth.canAccessHabits() : false;
-        const filtered = getFilteredYouTubeVideos();
-
-        if (filtered.length === 0) {
-          grid.innerHTML = `
-            <div class="empty-state" style="grid-column:1/-1; padding:60px 20px;">
-              <div class="empty-icon">📺</div>
-              <div class="empty-title">Bu Kategoride Video Bulunamadı</div>
-              <div class="empty-sub">Farklı bir kategori seçebilir veya yeni bir YouTube videosu ekleyebilirsiniz.</div>
-            </div>
-          `;
-          return;
-        }
-
-        const categoryLabels = {
-          tech: "💻 Yazılım & AI",
-          music: "🎵 Müzik",
-          podcast: "🎙️ Podcast",
-          science: "🌌 Bilim",
-          sports: "⚽ Spor",
-          general: "🎬 Video"
-        };
-
-        grid.innerHTML = filtered.map(v => {
-          const isPlaying = v.videoId === currentPlayingVideoId;
-          const catLabel = categoryLabels[v.category] || "📺 Video";
-          const deleteBtn = canManage ? `<button type="button" class="yt-delete-btn" onclick="deleteYouTubeVideo('${v.id}', event)" title="Videoyu Sil">🗑 Sil</button>` : '';
-
-          return `
-            <div class="youtube-card ${isPlaying ? 'active-playing' : ''}" onclick="playYouTubeVideo('${v.videoId}', event)">
-              <div class="youtube-card-thumb-wrap">
-                <img class="youtube-card-thumb" src="https://img.youtube.com/vi/${v.videoId}/hqdefault.jpg" alt="${escapeHtml(v.title)}" loading="lazy" />
-                <div class="youtube-play-overlay">
-                  <div class="youtube-play-icon">▶</div>
-                </div>
-                <span class="youtube-card-category-tag">${catLabel}</span>
-                ${isPlaying ? `<span class="youtube-playing-badge">▶ Oynatılıyor</span>` : ''}
-              </div>
-              <div class="youtube-card-title" title="${escapeHtml(v.title)}">${escapeHtml(v.title)}</div>
-              ${v.note ? `<div style="font-size:12px; color:var(--text-muted); line-height:1.4; margin-bottom:10px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">${escapeHtml(v.note)}</div>` : ''}
-              <div class="youtube-card-channel">
-                <span style="font-weight:600; color:var(--text-secondary);">📺 ${escapeHtml(v.channel || 'YouTube')}</span>
-                ${deleteBtn}
-              </div>
-            </div>
-          `;
-        }).join("");
-      }
 
       function getLocalMedia() {
         try {
@@ -834,119 +410,17 @@
       async function syncMediaAccess() {
         const canManage = await Auth.canManageContent();
         const addBtn = document.getElementById("add-media-btn");
-        const addYtBtn = document.getElementById("add-youtube-btn");
-        if (addBtn) addBtn.style.display = canManage && activeMainTab !== "youtube" ? "inline-flex" : "none";
-        if (addYtBtn) addYtBtn.style.display = canManage && activeMainTab === "youtube" ? "inline-flex" : "none";
-      }
-
-      function parseTurkishDate(str) {
-        const months = {
-          "Ocak": 0, "Şubat": 1, "Mart": 2, "Nisan": 3, "Mayıs": 4, "Haziran": 5,
-          "Temmuz": 6, "Ağustos": 7, "Eylül": 8, "Ekim": 9, "Kasım": 10, "Aralık": 11
-        };
-        const parts = (str || "").trim().split(" ");
-        if (parts.length >= 3) {
-          const day = parseInt(parts[0], 10);
-          const month = months[parts[1]] !== undefined ? months[parts[1]] : 0;
-          const year = parseInt(parts[2], 10);
-          return new Date(year, month, day);
-        }
-        return new Date();
-      }
-
-      function getDynamicFixtures() {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        let nextFound = false;
-
-        return FENERBAHCE_FIXTURES.map(m => {
-          const matchDateObj = parseTurkishDate(m.date);
-          matchDateObj.setHours(0, 0, 0, 0);
-
-          const isPast = matchDateObj < today;
-          const isPlayed = Boolean(m.scoreText && m.scoreText !== 'vs') || isPast;
-          let isNext = false;
-          let calculatedStatus = m.statusText;
-          let badgeType = "upcoming";
-          let badgeText = "📅 Planlandı";
-          let outcomeClass = "";
-
-          if (isPlayed) {
-            let fbScore = 0;
-            let oppScore = 0;
-            let hasValidScore = false;
-
-            if (m.scoreText && m.scoreText !== 'vs') {
-              const parts = m.scoreText.split('-').map(s => parseInt(s.trim(), 10));
-              if (parts.length === 2 && !isNaN(parts[0]) && !isNaN(parts[1])) {
-                hasValidScore = true;
-                if (m.home === 'Fenerbahçe') {
-                  fbScore = parts[0];
-                  oppScore = parts[1];
-                } else {
-                  fbScore = parts[1];
-                  oppScore = parts[0];
-                }
-              }
-            }
-
-            if (hasValidScore) {
-              if (fbScore > oppScore) {
-                badgeType = "win";
-                badgeText = "✓ MAÇ SONU · GALİBİYET";
-                outcomeClass = "match-win";
-              } else if (fbScore < oppScore) {
-                badgeType = "loss";
-                badgeText = "✕ MAÇ SONU · MAĞLUBİYET";
-                outcomeClass = "match-loss";
-              } else {
-                badgeType = "draw";
-                badgeText = "• MAÇ SONU · BERABERE";
-                outcomeClass = "match-draw";
-              }
-            } else {
-              badgeType = "win";
-              badgeText = "✓ MAÇ SONU";
-              outcomeClass = "match-win";
-            }
-          } else if (!nextFound) {
-            nextFound = true;
-            isNext = true;
-            badgeType = "next";
-            const diffTime = matchDateObj - today;
-            const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
-            if (diffDays <= 0) {
-              badgeText = "🔥 BUGÜN MAÇ GÜNÜ!";
-              calculatedStatus = "🔥 Bugün Maç Var!";
-            } else {
-              badgeText = `⏳ SIRADAKİ MAÇ (${diffDays} GÜN)`;
-              calculatedStatus = `⏳ Sıradaki Maç (${diffDays} Gün)`;
-            }
-          }
-
-          return {
-            ...m,
-            isPlayed,
-            isNext,
-            badgeType,
-            badgeText,
-            outcomeClass,
-            statusText: calculatedStatus
-          };
-        });
+        if (addBtn) addBtn.style.display = canManage && activeMainTab === "movies_tv" ? "inline-flex" : "none";
       }
 
       function renderFenerbahceFixture() {
         const container = document.getElementById("fenerbahce-fixture-container");
         if (!container) return;
 
-        if (activeMainTab !== "news" || (activeNewsSubView !== "all" && activeNewsSubView !== "sports")) {
+        if (activeMainTab !== "sports") {
           container.style.display = "none";
           return;
         }
-
-        const dynamicFixtures = getDynamicFixtures();
 
         container.style.display = "block";
         container.innerHTML = `
@@ -955,38 +429,38 @@
               <div class="fb-fixture-title-group">
                 <div class="fb-logo-badge">⚽</div>
                 <div>
-                  <div class="fb-fixture-title">Fenerbahçe SK — 1 Aylık Maç Fikstürü</div>
-                  <div class="fb-fixture-sub">Ağustos & Eylül 2026 · Süper Lig & Avrupa Kupası Takvimi</div>
+                  <div class="fb-fixture-title">Fenerbahçe SK — Maç Takvimi</div>
+                  <div class="fb-fixture-sub">Süper Lig & Avrupa Kupası Fikstürü</div>
                 </div>
               </div>
               <span class="badge" style="background: rgba(243, 178, 0, 0.2); color: #F3B200; border: 1px solid rgba(243, 178, 0, 0.4); font-size: 12px; padding: 6px 14px;">
-                💛💙 12 Ağustos - 13 Eylül 2026
+                💛💙 Güncel Sezon
               </span>
             </div>
             <div class="fb-match-grid">
-              ${dynamicFixtures.map(m => `
-                <div class="fb-match-item ${m.isPlayed ? 'is-played ' + m.outcomeClass : ''} ${m.isNext ? 'next-up' : ''}">
+              ${FENERBAHCE_FIXTURES.map(m => `
+                <div class="fb-match-item ${m.scoreText !== 'vs' ? 'is-played match-win' : ''} ${m.isNext ? 'next-up' : ''}">
                   <div class="fb-match-top">
                     <span class="fb-comp-tag ${m.compType}">${m.comp}</span>
-                    <span class="fb-match-status-badge badge-${m.badgeType}">${m.badgeText}</span>
+                    <span class="fb-match-status-badge ${m.isNext ? 'badge-next' : (m.scoreText !== 'vs' ? 'badge-win' : 'badge-upcoming')}">${m.statusText}</span>
                   </div>
                   <div class="fb-match-body">
                     <div class="fb-team-box home-team">
-                      <span class="fb-team-icon">${Array.from(m.homeIcon || '').map(e => `<span class="emoji-dot">${e}</span>`).join('')}</span>
+                      <span class="fb-team-icon">${m.homeIcon}</span>
                       <span class="fb-team-name" style="${m.home === 'Fenerbahçe' ? 'color:#F3B200; font-weight:800;' : ''}">${m.home}</span>
                     </div>
-                    ${m.isPlayed 
+                    ${m.scoreText !== 'vs' 
                       ? `<div class="fb-score-pill played"><span class="score-val">${m.scoreText}</span><span class="score-ms-label">MAÇ SONU</span></div>`
                       : `<div class="fb-score-pill pending"><span class="score-time">${m.day.split(' ')[1] || '21:30'}</span><span class="score-vs-label">VS</span></div>`
                     }
                     <div class="fb-team-box away-team">
                       <span class="fb-team-name" style="${m.away === 'Fenerbahçe' ? 'color:#F3B200; font-weight:800;' : ''}">${m.away}</span>
-                      <span class="fb-team-icon">${Array.from(m.awayIcon || '').map(e => `<span class="emoji-dot">${e}</span>`).join('')}</span>
+                      <span class="fb-team-icon">${m.awayIcon}</span>
                     </div>
                   </div>
                   <div class="fb-match-top" style="margin-top:2px;">
                     <span class="fb-match-venue">🏟️ ${m.venue}</span>
-                    <span style="font-weight:700; color:${m.isNext ? '#F3B200' : 'var(--text-secondary)'}">${m.date} · ${m.day}</span>
+                    <span style="font-weight:700; color:${m.isNext ? '#F3B200' : 'var(--text-secondary)'}">${m.date}</span>
                   </div>
                 </div>
               `).join('')}
@@ -999,13 +473,12 @@
         const container = document.getElementById("finance-market-container");
         if (!container) return;
 
-        if (activeMainTab !== "news" || (activeNewsSubView !== "all" && activeNewsSubView !== "markets")) {
+        if (activeMainTab !== "markets") {
           container.style.display = "none";
           return;
         }
 
         container.style.display = "block";
-
         if (!container.innerHTML || forceRefresh) {
           container.innerHTML = `
             <div class="finance-market-card">
@@ -1054,84 +527,36 @@
       function renderMedia() {
         const grid = document.getElementById("media-cards-grid");
         const moviesSubBar = document.getElementById("movies-sub-view-bar");
-        const newsSubBar = document.getElementById("news-sub-view-bar");
-        const youtubeSubBar = document.getElementById("youtube-sub-view-bar");
-        const ytPlayerContainer = document.getElementById("youtube-player-container");
 
         syncMediaAccess();
 
         if (activeMainTab === "movies_tv") {
           moviesSubBar.style.display = "flex";
-          newsSubBar.style.display = "none";
-          youtubeSubBar.style.display = "none";
-          ytPlayerContainer.style.display = "none";
-        } else if (activeMainTab === "news") {
-          moviesSubBar.style.display = "none";
-          newsSubBar.style.display = "flex";
-          youtubeSubBar.style.display = "none";
-          ytPlayerContainer.style.display = "none";
-        } else if (activeMainTab === "youtube") {
-          moviesSubBar.style.display = "none";
-          newsSubBar.style.display = "none";
-          youtubeSubBar.style.display = "flex";
           renderFenerbahceFixture();
           renderFinanceMarketContainer();
-          renderYouTubePlayer();
-          renderYouTubeGrid();
-          return;
-        } else {
-          moviesSubBar.style.display = "none";
-          newsSubBar.style.display = "none";
-          youtubeSubBar.style.display = "none";
-          ytPlayerContainer.style.display = "none";
-        }
 
-        renderFenerbahceFixture();
-        renderFinanceMarketContainer();
-
-        let items = allMedia.filter((x) => x.category === activeMainTab);
-
-        if (activeMainTab === "movies_tv") {
+          let items = allMedia.filter((x) => x.category === "movies_tv");
           if (activeSubView === "movies") items = items.filter((x) => x.subType === "movie");
           else if (activeSubView === "tv") items = items.filter((x) => x.subType === "tv");
           else if (activeSubView === "watchlist") items = items.filter((x) => x.status === "watchlist");
           else if (activeSubView === "completed") items = items.filter((x) => x.status === "completed");
-        } else if (activeMainTab === "news") {
-          if (activeNewsSubView === "sports") items = items.filter((x) => x.subType === "news_sports");
-          else if (activeNewsSubView === "tech") items = items.filter((x) => x.subType === "news_tech");
-          else if (activeNewsSubView === "general") items = items.filter((x) => x.subType === "news_general" || x.subType === "news");
-          else if (activeNewsSubView === "markets") items = [];
-        }
 
-        if (activeMainTab === "news" && activeNewsSubView === "markets") {
-          grid.innerHTML = "";
-          return;
-        }
+          if (items.length === 0) {
+            grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1; padding:60px 20px;">
+              <div class="empty-icon">🍿</div>
+              <div class="empty-title">Film / Dizi Bulunamadı</div>
+            </div>`;
+            return;
+          }
 
-        if (items.length === 0 && (activeMainTab !== "news" || (activeNewsSubView !== "sports" && activeNewsSubView !== "all"))) {
-          grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1; padding:60px 20px;">
-            <div class="empty-icon">🍿</div>
-            <div class="empty-title">İçerik Bulunamadı</div>
-            <div class="empty-sub">Bu filtrede henüz kayıtlı içerik yok.</div>
-          </div>`;
-          return;
-        }
-
-        grid.innerHTML = items
-          .map((item) => {
+          grid.innerHTML = items.map((item) => {
             const stars = Array.from(
               { length: 5 },
               (_, i) => `<span style="color:${i < (item.rating || 5) ? "#fbbf24" : "rgba(255,255,255,0.2)"}">★</span>`
             ).join("");
 
-            let badgeClass = "badge-movie";
-            let badgeLabel = "Film";
-            if (item.subType === "tv") { badgeClass = "badge-tv"; badgeLabel = "Dizi"; }
-            else if (item.subType === "game") { badgeClass = "badge-game"; badgeLabel = "Oyun"; }
-            else if (item.subType === "trivia") { badgeClass = "badge-trivia"; badgeLabel = "Genel Kültür"; }
-            else if (item.subType === "news_sports") { badgeClass = "badge-sports"; badgeLabel = "⚽ Spor & FB"; }
-            else if (item.subType === "news_tech") { badgeClass = "badge-tech"; badgeLabel = "💻 Teknoloji"; }
-            else if (item.subType === "news_general" || item.subType === "news") { badgeClass = "badge-news"; badgeLabel = "🌍 Gündem"; }
+            let badgeClass = item.subType === "tv" ? "badge-tv" : "badge-movie";
+            let badgeLabel = item.subType === "tv" ? "Dizi" : "Film";
 
             return `<div class="media-card glass-card">
               <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:10px;">
@@ -1140,12 +565,16 @@
               </div>
               <div>
                 <div style="font-size:12px; margin-bottom:10px;">${stars}</div>
-                ${item.note ? `<div class="${item.category === "trivia" ? "trivia-fact-box" : ""}" style="font-size:13px; color:var(--text-secondary); line-height:1.5;">${item.note}</div>` : ""}
-                ${item.link ? `<a href="${item.link}" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:6px; margin-top:12px; padding:6px 12px; border-radius:var(--radius-pill); background:rgba(243,178,0,0.15); border:1px solid rgba(243,178,0,0.4); color:#F3B200; font-size:12px; font-weight:700; text-decoration:none; transition:all 0.2s ease;">🗞️ Haberi Oku (${item.source || 'Kaynak'}) ↗</a>` : ""}
+                ${item.note ? `<div style="font-size:13px; color:var(--text-secondary); line-height:1.5;">${item.note}</div>` : ""}
               </div>
             </div>`;
-          })
-          .join("");
+          }).join("");
+        } else {
+          moviesSubBar.style.display = "none";
+          grid.innerHTML = "";
+          renderFenerbahceFixture();
+          renderFinanceMarketContainer();
+        }
       }
 
       // Event Listeners
@@ -1167,128 +596,12 @@
         renderMedia();
       });
 
-      document.getElementById("youtube-sub-view-bar").addEventListener("click", (e) => {
-        const btn = e.target.closest(".sub-view-btn");
-        if (!btn) return;
-        document.querySelectorAll("#youtube-sub-view-bar .sub-view-btn").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        activeYouTubeSubView = btn.dataset.ytSub;
-        renderYouTubeGrid();
-      });
-
-      document.getElementById("news-sub-view-bar").addEventListener("click", (e) => {
-        const btn = e.target.closest(".sub-view-btn");
-        if (!btn) return;
-        document.querySelectorAll("#news-sub-view-bar .sub-view-btn").forEach((b) => b.classList.remove("active"));
-        btn.classList.add("active");
-        activeNewsSubView = btn.dataset.newsSub;
-        renderMedia();
-      });
-
       document.getElementById("add-media-btn").addEventListener("click", () => {
-        document.getElementById("media-modal-title").textContent = "🎬 Yeni İçerik Ekle";
+        document.getElementById("media-modal-title").textContent = "🎬 Yeni Film / Dizi Ekle";
         document.getElementById("media-form").reset();
         document.getElementById("edit-media-id").value = "";
         Modal.open("media-modal");
       });
-
-      document.getElementById("add-youtube-btn").addEventListener("click", () => {
-        document.getElementById("youtube-form").reset();
-        Modal.open("youtube-modal");
-      });
-
-      document.getElementById("youtube-form").addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const submitBtn = e.target.querySelector('button[type="submit"]');
-        setButtonLoading(submitBtn, true, "Ekleniyor...");
-
-        try {
-          const urlInput = document.getElementById("youtube-url-input").value.trim();
-          const title = document.getElementById("youtube-title-input").value.trim();
-          const channel = document.getElementById("youtube-channel-input").value.trim() || "YouTube";
-          const category = document.getElementById("youtube-category-input").value;
-          const note = document.getElementById("youtube-note-input").value.trim();
-
-          const videoId = extractYouTubeId(urlInput);
-          if (!videoId) {
-            if (window.Toast) Toast.error("Geçerli bir YouTube linki veya Video ID giriniz.");
-            else alert("Geçerli bir YouTube linki veya Video ID giriniz.");
-            return;
-          }
-
-          const newVideo = {
-            id: "yt-" + Date.now(),
-            videoId,
-            title,
-            channel,
-            category,
-            note
-          };
-
-          allYouTubeVideos.unshift(newVideo);
-          saveLocalYouTubeVideos(allYouTubeVideos);
-
-          if (window.Toast) Toast.success("YouTube videosu başarıyla eklendi!");
-          Modal.close("youtube-modal");
-          currentPlayingVideoId = videoId;
-          renderMedia();
-        } catch (err) {
-          console.error("YouTube save error:", err);
-          if (window.Toast) Toast.error("Video eklenirken bir hata oluştu.");
-        } finally {
-          setButtonLoading(submitBtn, false);
-        }
-      });
-
-      document.getElementById("media-category").addEventListener("change", (e) => {
-        const cat = e.target.value;
-        const subSelect = document.getElementById("media-sub-type");
-        if (cat === "movies_tv") {
-          subSelect.innerHTML = `
-            <option value="movie">🎥 Film</option>
-            <option value="tv">📺 Dizi</option>
-          `;
-        } else if (cat === "trivia") {
-          subSelect.innerHTML = `
-            <option value="trivia">💡 Genel Kültür Notu</option>
-          `;
-        }
-      });
-
-      async function saveMediaToSupabase(items) {
-        saveLocalMedia(items);
-        try {
-          if (window.supabaseClient) {
-            await window.supabaseClient
-              .from("site_settings")
-              .upsert({ key: "oyp_media_items", value: JSON.stringify(items) }, { onConflict: "key" });
-          }
-        } catch (err) {}
-      }
-
-      async function loadMediaFromSupabase() {
-        try {
-          if (window.supabaseClient) {
-            const { data, error } = await window.supabaseClient
-              .from("site_settings")
-              .select("value")
-              .eq("key", "oyp_media_items")
-              .maybeSingle();
-
-            if (!error && data && data.value) {
-              const parsed = JSON.parse(data.value);
-              if (Array.isArray(parsed) && parsed.length > 0) {
-                allMedia = parsed;
-                saveLocalMedia(parsed);
-                renderMedia();
-                return;
-              }
-            }
-          }
-        } catch (err) {}
-        allMedia = getLocalMedia();
-        renderMedia();
-      }
 
       document.getElementById("media-form").addEventListener("submit", async (e) => {
         e.preventDefault();
@@ -1297,184 +610,41 @@
 
         try {
           const title = document.getElementById("media-title").value.trim();
-          const category = document.getElementById("media-category").value;
           const subType = document.getElementById("media-sub-type").value;
           const status = document.getElementById("media-status").value;
-          const rating = parseInt(document.getElementById("media-rating").value) || 5;
+          const rating = parseInt(document.getElementById("media-rating").value, 10) || 5;
           const note = document.getElementById("media-note").value.trim();
 
           const newItem = {
             id: "m-" + Date.now(),
             title,
-            category,
+            category: "movies_tv",
             subType,
             status,
             rating,
-            note,
+            note
           };
 
           allMedia.unshift(newItem);
-          await saveMediaToSupabase(allMedia);
-          if (window.Toast) Toast.success("Medya kaydedildi!");
+          saveLocalMedia(allMedia);
+          Toast.success("İçerik kaydedildi!");
           Modal.close("media-modal");
           renderMedia();
-        } catch (err) {
-          console.error("Media save error:", err);
-          if (window.Toast) Toast.error("Kayıt sırasında hata oluştu.");
         } finally {
           setButtonLoading(submitBtn, false);
         }
       });
 
-      loadMediaFromSupabase();
-
-      const TAB_ORDER_KEY = "oyp_media_tab_order";
-
-      function saveTabOrder() {
-        const order = Array.from(document.querySelectorAll("#main-media-tabs .media-tab-btn"))
-          .map(b => b.dataset.tab);
-        localStorage.setItem(TAB_ORDER_KEY, JSON.stringify(order));
-      }
-
-      function restoreTabOrder() {
-        try {
-          const saved = JSON.parse(localStorage.getItem(TAB_ORDER_KEY));
-          if (Array.isArray(saved) && saved.length > 0) {
-            const container = document.getElementById("main-media-tabs");
-            const btnMap = {};
-            container.querySelectorAll(".media-tab-btn").forEach(btn => {
-              btnMap[btn.dataset.tab] = btn;
-            });
-            saved.forEach(tabKey => {
-              if (btnMap[tabKey]) {
-                container.appendChild(btnMap[tabKey]);
-              }
-            });
-            Object.keys(btnMap).forEach(k => {
-              if (!saved.includes(k)) {
-                container.appendChild(btnMap[k]);
-              }
-            });
-          }
-          // Ensure the active tab button matches activeMainTab
-          document.querySelectorAll("#main-media-tabs .media-tab-btn").forEach(btn => {
-            if (btn.dataset.tab === activeMainTab) btn.classList.add("active");
-            else btn.classList.remove("active");
-          });
-        } catch (e) {}
-      }
-
-      function setupDragAndDrop() {
-        const container = document.getElementById("main-media-tabs");
-        let draggedBtn = null;
-
-        container.addEventListener("dragstart", (e) => {
-          const btn = e.target.closest(".media-tab-btn");
-          if (!btn) return;
-          draggedBtn = btn;
-          btn.classList.add("dragging");
-          e.dataTransfer.effectAllowed = "move";
-          e.dataTransfer.setData("text/plain", btn.dataset.tab);
-        });
-
-        container.addEventListener("dragend", (e) => {
-          const btn = e.target.closest(".media-tab-btn") || draggedBtn;
-          if (btn) btn.classList.remove("dragging");
-          container.querySelectorAll(".media-tab-btn").forEach(b => b.classList.remove("drag-over"));
-          draggedBtn = null;
-          saveTabOrder();
-        });
-
-        container.addEventListener("dragover", (e) => {
-          e.preventDefault();
-          e.dataTransfer.dropEffect = "move";
-          const targetBtn = e.target.closest(".media-tab-btn");
-          if (!targetBtn || targetBtn === draggedBtn) return;
-
-          container.querySelectorAll(".media-tab-btn").forEach(b => b.classList.remove("drag-over"));
-          targetBtn.classList.add("drag-over");
-        });
-
-        container.addEventListener("drop", (e) => {
-          e.preventDefault();
-          const targetBtn = e.target.closest(".media-tab-btn");
-          if (!targetBtn || !draggedBtn || targetBtn === draggedBtn) return;
-
-          const buttons = Array.from(container.querySelectorAll(".media-tab-btn"));
-          const draggedIdx = buttons.indexOf(draggedBtn);
-          const targetIdx = buttons.indexOf(targetBtn);
-
-          if (draggedIdx < targetIdx) {
-            targetBtn.after(draggedBtn);
-          } else {
-            targetBtn.before(draggedBtn);
-          }
-
-          container.querySelectorAll(".media-tab-btn").forEach(b => b.classList.remove("drag-over"));
-          saveTabOrder();
-        });
-
-        // Touch drag support for mobile
-        let touchItem = null;
-
-        container.addEventListener("touchstart", (e) => {
-          const btn = e.target.closest(".media-tab-btn");
-          if (!btn) return;
-          touchItem = btn;
-        }, { passive: true });
-
-        container.addEventListener("touchmove", (e) => {
-          if (!touchItem) return;
-          const touch = e.touches[0];
-          const targetEl = document.elementFromPoint(touch.clientX, touch.clientY);
-          const overBtn = targetEl ? targetEl.closest(".media-tab-btn") : null;
-
-          if (overBtn && overBtn !== touchItem && overBtn.parentElement === container) {
-            const buttons = Array.from(container.querySelectorAll(".media-tab-btn"));
-            const draggedIdx = buttons.indexOf(touchItem);
-            const targetIdx = buttons.indexOf(overBtn);
-
-            if (draggedIdx < targetIdx) {
-              overBtn.after(touchItem);
-            } else {
-              overBtn.before(touchItem);
-            }
-          }
-        }, { passive: true });
-
-        container.addEventListener("touchend", () => {
-          if (touchItem) {
-            touchItem = null;
-            saveTabOrder();
-          }
-        });
-      }
-
-      (async () => {
-        restoreTabOrder();
-        setupDragAndDrop();
-        await syncMediaAccess();
+      document.addEventListener("DOMContentLoaded", () => {
+        Modal.setup("media-modal");
+        if (window.Nav) Nav.init();
         allMedia = getLocalMedia();
-        allYouTubeVideos = getLocalYouTubeVideos();
-        if (allYouTubeVideos.length > 0) {
-          currentPlayingVideoId = allYouTubeVideos[0].videoId;
-        }
-
         renderMedia();
+      });
 
-        if (window.FenerbahceNewsAPI) {
-          try {
-            const realNews = await window.FenerbahceNewsAPI.fetchLatestNews();
-            if (Array.isArray(realNews) && realNews.length > 0) {
-              const nonNews = allMedia.filter(x => x.category !== "news");
-              allMedia = [...realNews, ...nonNews];
-              renderMedia();
-            }
-          } catch (err) {}
-        }
-      })();
-
-      window.addEventListener("auth:changed", syncMediaAccess);
+      window.addEventListener("auth:changed", () => {
+        syncMediaAccess();
+      });
     </script>
   </body>
 </html>

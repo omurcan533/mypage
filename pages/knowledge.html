@@ -1,0 +1,1791 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Bilgi & Öğrenme — Ömür Can Yılmaz</title>
+    <script>
+      (function() {
+        var t = localStorage.getItem('oyp_theme') || localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
+    <link rel="icon" type="image/png" sizes="48x48" href="../favicon-48x48.png" />
+    <link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="../favicon-192x192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="../favicon-512x512.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png" />
+    <link rel="shortcut icon" href="../favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="../favicon.svg" />
+    <link rel="manifest" href="../site.webmanifest" />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="../sitemap.xml" />
+    <link rel="stylesheet" href="../css/style.css" />
+    <style>
+      /* ===== KNOWLEDGE MAIN TAB SWITCHER ===== */
+      .knowledge-master-tabs {
+        display: flex;
+        gap: 10px;
+        background: var(--bg-card);
+        padding: 6px;
+        border-radius: var(--radius-pill);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--shadow-sm);
+        margin-bottom: 28px;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        width: fit-content;
+        flex-wrap: wrap;
+      }
+      .knowledge-master-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 24px;
+        border-radius: var(--radius-pill);
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-secondary);
+        border: 1px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        user-select: none;
+        font-family: inherit;
+      }
+      .knowledge-master-tab:hover {
+        color: var(--text-primary);
+        background: var(--bg-card-hover);
+      }
+      .knowledge-master-tab.active {
+        background: var(--accent);
+        color: #ffffff;
+        border-color: var(--accent);
+        box-shadow: 0 4px 18px var(--accent-glow);
+      }
+
+      /* Sections Visibility */
+      .knowledge-tab-panel {
+        display: none;
+        animation: fadeIn 0.3s ease;
+      }
+      .knowledge-tab-panel.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(6px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      /* ===== BOOKS SECTION STYLES (From original books.html) ===== */
+      .books-stats{display:grid;grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));gap:12px;margin-bottom:24px;}
+      .books-stat-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:16px 20px;display:flex;align-items:center;gap:14px;cursor:pointer;user-select:none;transition:all .2s cubic-bezier(.16,1,.3,1);}
+      .books-stat-card:hover{border-color:var(--accent);background:var(--bg-card-hover);transform:translateY(-2px);box-shadow:0 6px 20px rgba(108,99,255,.12);}
+      .books-stat-card.active{border-color:var(--accent) !important;background:rgba(108,99,255,.14) !important;box-shadow:0 0 0 1px var(--accent), 0 6px 20px rgba(108,99,255,.22) !important;}
+      .books-stat-card.active .books-stat-value{color:var(--accent-light);}
+      .books-stat-icon{font-size:26px;flex-shrink:0;}
+      .books-stat-value{font-size:24px;font-weight:800;color:var(--text-primary);line-height:1;transition:color .2s ease;}
+      .books-stat-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;}
+      .books-controls-row{display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:28px;}
+      .books-search-wrap{position:relative;flex:1;min-width:260px;}
+      .books-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);pointer-events:none;}
+      .books-search-input{width:100%;padding:10px 36px 10px 38px;background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-pill);font-size:13px;font-weight:500;color:var(--text-primary);font-family:inherit;outline:none;transition:var(--transition);}
+      .books-search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);background:var(--bg-card-hover);}
+      .books-search-input::placeholder{color:var(--text-muted);}
+      .books-search-clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.1);border:none;color:var(--text-muted);font-size:11px;display:none;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);}
+      .books-search-clear:hover{background:rgba(255,255,255,.2);color:var(--text-primary);}
+      .books-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:24px;}
+      .book-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-xl);overflow:hidden;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;}
+      .book-card:hover{transform:translateY(-6px);border-color:rgba(108,99,255,.4);box-shadow:0 20px 60px rgba(108,99,255,.18),0 4px 20px rgba(0,0,0,.4);}
+      .book-cover-wrap{position:relative;width:100%;aspect-ratio:3/4;overflow:hidden;flex-shrink:0;}
+      .book-cover-img{width:100%;height:100%;object-fit:cover;transition:transform .4s ease;}
+      .book-card:hover .book-cover-img{transform:scale(1.05);}
+      .book-cover-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;font-size:48px;color:rgba(255,255,255,.85);}
+      .book-cover-ph .bip{font-size:13px;font-weight:700;text-align:center;padding:0 12px;line-height:1.3;color:rgba(255,255,255,.9);}
+      .book-fav-badge{position:absolute;top:10px;right:10px;font-size:18px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));z-index:2;}
+      .book-status-badge{position:absolute;top:10px;left:10px;padding:5px 12px;border-radius:var(--radius-pill);font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;z-index:3;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);line-height:1;display:inline-flex;align-items:center;gap:5px;box-shadow:0 4px 14px rgba(0,0,0,.5);text-shadow:0 1px 2px rgba(0,0,0,.7);}
+      .status-reading{background:rgba(12,74,110,.92);border:1px solid #0ea5e9;color:#ffffff;box-shadow:0 4px 14px rgba(0,0,0,.5),0 0 10px rgba(14,165,233,.35);}
+      .status-completed{background:rgba(6,78,59,.92);border:1px solid #10b981;color:#ffffff;box-shadow:0 4px 14px rgba(0,0,0,.5),0 0 10px rgba(16,185,129,.35);}
+      .status-want_to_read{background:rgba(120,53,15,.92);border:1px solid #f59e0b;color:#ffffff;box-shadow:0 4px 14px rgba(0,0,0,.5),0 0 10px rgba(245,158,11,.35);}
+      [data-theme="light"] .status-completed, html[data-theme="light"] .status-completed, body.light-theme .status-completed{background:#059669;border-color:#047857;color:#ffffff;}
+      [data-theme="light"] .status-reading, html[data-theme="light"] .status-reading, body.light-theme .status-reading{background:#0284c7;border-color:#0369a1;color:#ffffff;}
+      [data-theme="light"] .status-want_to_read, html[data-theme="light"] .status-want_to_read, body.light-theme .status-want_to_read{background:#d97706;border-color:#b45309;color:#ffffff;}
+      .book-card-body{padding:16px;flex:1;display:flex;flex-direction:column;gap:6px;}
+      .book-title{font-size:15px;font-weight:700;color:var(--text-primary);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+      .book-author{font-size:12px;color:var(--text-secondary);font-weight:500;}
+      .book-genre-pill{display:inline-block;padding:2px 10px;border-radius:var(--radius-pill);font-size:11px;font-weight:600;background:rgba(108,99,255,.12);color:var(--accent-light);border:1px solid rgba(108,99,255,.2);width:fit-content;}
+      .book-stars{display:flex;gap:2px;}
+      .star{font-size:14px;}
+      .star.filled{color:#fbbf24;}
+      .star.empty{color:rgba(255,255,255,.2);}
+      .book-review-preview{font-size:12px;color:var(--text-muted);line-height:1.5;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:4px;flex:1;}
+      .book-card-footer{display:flex;gap:8px;padding:12px 16px;border-top:1px solid var(--glass-border);}
+      .book-admin-btn{flex:1;padding:7px 0;border-radius:var(--radius-md);font-size:12px;font-weight:600;border:1px solid var(--glass-border);background:transparent;cursor:pointer;transition:var(--transition);color:var(--text-secondary);}
+      .book-admin-btn:hover{border-color:var(--accent);color:var(--accent-light);}
+      .book-admin-btn.danger:hover{border-color:var(--rose);color:var(--rose);background:rgba(251,113,133,.08);}
+      .book-detail-wrap{display:grid;grid-template-columns:200px 1fr;}
+      .book-detail-cover-col{display:flex;align-items:stretch;}
+      .book-detail-cover-col img{width:100%;height:100%;object-fit:cover;}
+      .book-detail-cover-ph{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;font-size:52px;color:rgba(255,255,255,.8);padding:24px;}
+      .book-detail-body{padding:28px;display:flex;flex-direction:column;gap:14px;overflow-y:auto;max-height:80vh;}
+      .book-detail-title{font-size:22px;font-weight:800;color:var(--text-primary);line-height:1.25;}
+      .book-detail-author{font-size:14px;color:var(--accent-light);font-weight:600;margin-top:4px;}
+      .book-detail-section-lbl{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+      .book-detail-text{font-size:14px;color:var(--text-secondary);line-height:1.7;white-space:pre-wrap;}
+      .book-detail-notes-box{background:rgba(108,99,255,.06);border:1px solid rgba(108,99,255,.15);border-radius:var(--radius-md);padding:14px 16px;}
+      .bk-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.15);color:white;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;transition:var(--transition);}
+      .bk-close:hover{background:rgba(255,255,255,.15);}
+      .star-input-row{display:flex;gap:6px;}
+      .star-inp{font-size:26px;cursor:pointer;color:rgba(255,255,255,.22);transition:all .15s ease;line-height:1;user-select:none;}
+      .star-inp.sel,.star-inp.hov{color:#fbbf24;transform:scale(1.15);}
+      .books-empty{grid-column:1/-1;text-align:center;padding:80px 40px;}
+      .books-empty-icon{font-size:64px;margin-bottom:16px;}
+      .books-empty-title{font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:8px;}
+      .books-empty-sub{font-size:14px;color:var(--text-muted);}
+      .books-hero{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:28px;flex-wrap:wrap;}
+      .books-hero h1{font-size:28px;font-weight:800;color:var(--text-primary);margin-bottom:4px;}
+      .books-hero p{font-size:14px;color:var(--text-muted);}
+      .g0{background:linear-gradient(135deg,#1e1b4b,#4f46e5);}
+      .g1{background:linear-gradient(135deg,#1a1a2e,#e94560);}
+      .g2{background:linear-gradient(135deg,#0a3d2e,#00b4d8);}
+      .g3{background:linear-gradient(135deg,#2c1810,#d97706);}
+      .g4{background:linear-gradient(135deg,#1a0533,#7c3aed);}
+      .g5{background:linear-gradient(135deg,#0f2027,#2c5364);}
+
+      /* ===== TRIVIA (GENEL KÜLTÜR) SECTION STYLES ===== */
+      .trivia-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px;}
+      .trivia-stat-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:16px 20px;display:flex;align-items:center;gap:14px;transition:var(--transition);}
+      .trivia-stat-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+      .trivia-stat-icon{font-size:26px;width:48px;height:48px;border-radius:var(--radius-md);background:rgba(245,158,11,.12);color:#f59e0b;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+      .trivia-stat-val{font-size:24px;font-weight:800;color:var(--text-primary);}
+      .trivia-stat-lbl{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;}
+      .trivia-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;margin-bottom:40px;}
+      .trivia-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-xl);padding:22px;display:flex;flex-direction:column;gap:14px;transition:var(--transition);position:relative;}
+      .trivia-card:hover{transform:translateY(-4px);border-color:rgba(108,99,255,.45);box-shadow:0 16px 36px rgba(0,0,0,.35),0 0 20px rgba(108,99,255,.15);}
+      .trivia-card-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+      .trivia-tag{font-size:11px;font-weight:700;padding:4px 10px;border-radius:var(--radius-pill);background:rgba(245,158,11,.12);color:#f59e0b;border:1px solid rgba(245,158,11,.25);}
+      .trivia-card-title{font-size:17px;font-weight:800;color:var(--text-primary);line-height:1.35;}
+      .trivia-card-body{font-size:13.5px;color:var(--text-secondary);line-height:1.65;background:rgba(255,255,255,.025);border:1px solid var(--glass-border);border-radius:var(--radius-md);padding:12px 14px;flex:1;}
+      .trivia-card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--glass-border);font-size:12px;}
+      .trivia-copy-btn{padding:5px 12px;border-radius:var(--radius-pill);font-size:11px;font-weight:600;background:var(--bg-card);border:1px solid var(--glass-border);color:var(--text-secondary);cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:5px;}
+      .trivia-copy-btn:hover{border-color:var(--accent);color:var(--accent-light);background:var(--bg-card-hover);}
+
+      /* ===== ENGLISH HUB STYLES (From english.html) ===== */
+      .en-stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:28px;}
+      .en-stat-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:18px 22px;display:flex;align-items:center;gap:16px;transition:var(--transition);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);}
+      .en-stat-card:hover{border-color:var(--glass-border-hover);background:var(--bg-card-hover);transform:translateY(-2px);box-shadow:var(--shadow-sm);}
+      .en-stat-icon{font-size:28px;width:52px;height:52px;border-radius:var(--radius-md);background:rgba(108,99,255,.12);color:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+      .en-stat-val{font-size:26px;font-weight:800;color:var(--text-primary);line-height:1.1;}
+      .en-stat-lbl{font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin-top:4px;}
+      .en-places-header{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:24px;}
+      .en-tab-bar{display:flex;gap:8px;flex-wrap:wrap;background:var(--bg-card);padding:6px;border-radius:var(--radius-pill);border:1px solid var(--glass-border);}
+      .en-tab-btn{padding:8px 18px;border-radius:var(--radius-pill);font-size:13px;font-weight:600;border:1px solid transparent;background:transparent;color:var(--text-secondary);cursor:pointer;transition:var(--transition);display:inline-flex;align-items:center;gap:6px;}
+      .en-tab-btn:hover{color:var(--text-primary);background:rgba(255,255,255,.04);}
+      .en-tab-btn.active{background:var(--accent);color:#ffffff;box-shadow:0 4px 16px var(--accent-glow);}
+      .en-search-wrap{position:relative;flex:1;min-width:240px;max-width:360px;}
+      .en-search-input{width:100%;padding:10px 16px 10px 38px;background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-pill);font-size:13px;color:var(--text-primary);outline:none;transition:var(--transition);font-family:inherit;}
+      .en-search-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow);background:var(--bg-card-hover);}
+      .en-search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text-muted);pointer-events:none;}
+      .en-places-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:22px;margin-bottom:40px;}
+      .en-place-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-xl);overflow:hidden;cursor:pointer;transition:all .3s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);position:relative;}
+      .en-place-card:hover{transform:translateY(-6px);border-color:rgba(108,99,255,.4);box-shadow:0 20px 40px rgba(0,0,0,.35),0 0 20px rgba(108,99,255,.15);}
+      .en-place-cover-wrap{position:relative;width:100%;height:180px;overflow:hidden;}
+      .en-place-img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
+      .en-place-card:hover .en-place-img{transform:scale(1.06);}
+      .en-place-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.1) 0%,rgba(0,0,0,.75) 100%);}
+      .en-place-tag{position:absolute;top:12px;left:12px;padding:4px 12px;border-radius:var(--radius-pill);font-size:11px;font-weight:700;background:rgba(0,0,0,.6);color:#ffffff;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.15);}
+      .en-place-icon-badge{position:absolute;bottom:12px;right:14px;width:44px;height:44px;border-radius:50%;background:rgba(15,23,42,.85);border:2px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 12px rgba(0,0,0,.4);}
+      .en-card-admin-actions{position:absolute;top:12px;right:12px;display:flex;gap:6px;z-index:5;}
+      .en-mini-btn{width:30px;height:30px;border-radius:50%;background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.2);color:#ffffff;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);}
+      .en-mini-btn:hover{background:var(--accent);transform:scale(1.1);}
+      .en-mini-btn.delete:hover{background:var(--rose);}
+      .en-place-body{padding:20px;display:flex;flex-direction:column;gap:6px;flex:1;}
+      .en-place-title{font-size:18px;font-weight:700;color:var(--text-primary);line-height:1.3;}
+      .en-place-sub{font-size:13px;color:var(--accent-light);font-weight:600;}
+      .en-place-desc{font-size:13px;color:var(--text-secondary);line-height:1.5;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1;}
+      .en-place-footer{display:flex;align-items:center;gap:8px;margin-top:14px;padding-top:14px;border-top:1px solid var(--glass-border);}
+      .en-badge{padding:4px 10px;border-radius:var(--radius-pill);font-size:11px;font-weight:600;background:rgba(255,255,255,.06);color:var(--text-secondary);}
+      .en-badge.sections{background:rgba(56,189,248,.12);color:#38bdf8;}
+      .en-badge.phrases{background:rgba(168,85,247,.12);color:#c084fc;}
+      .en-card-arrow{margin-left:auto;font-size:12px;font-weight:700;color:var(--accent-light);transition:transform .2s ease;}
+      .en-place-card:hover .en-card-arrow{transform:translateX(4px);}
+      .en-breadcrumb-bar{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+      .en-back-btn{padding:6px 14px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;background:var(--bg-card);border:1px solid var(--glass-border);color:var(--text-secondary);cursor:pointer;transition:var(--transition);}
+      .en-back-btn:hover{border-color:var(--accent);color:var(--text-primary);}
+      .en-breadcrumb-sep{color:var(--text-muted);}
+      .en-breadcrumb-current{font-size:13px;font-weight:600;color:var(--text-primary);}
+      .en-place-hero-banner{border-radius:var(--radius-xl);padding:28px 32px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:20px;color:#ffffff;box-shadow:var(--shadow-md);position:relative;overflow:hidden;}
+      .en-hero-content{display:flex;align-items:center;gap:20px;}
+      .en-hero-icon{font-size:48px;width:76px;height:76px;border-radius:var(--radius-lg);background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(12px);flex-shrink:0;}
+      .en-hero-title{font-size:24px;font-weight:800;line-height:1.2;}
+      .en-hero-en-title{font-size:16px;font-weight:500;opacity:.85;}
+      .en-hero-desc{font-size:14px;opacity:.9;margin-top:6px;max-width:600px;line-height:1.5;}
+      .en-sections-tabs-wrap{margin-bottom:24px;overflow-x:auto;padding-bottom:4px;}
+      .en-sections-tabs{display:flex;gap:10px;}
+      .en-sec-tab-btn{padding:10px 18px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--glass-border);color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:10px;transition:var(--transition);white-space:nowrap;font-family:inherit;}
+      .en-sec-tab-btn:hover{border-color:var(--glass-border-hover);background:var(--bg-card-hover);color:var(--text-primary);}
+      .en-sec-tab-btn.active{background:rgba(108,99,255,.15);border-color:var(--accent);color:var(--text-primary);box-shadow:0 0 20px var(--accent-glow);}
+      .en-sec-badge{padding:3px 8px;border-radius:var(--radius-pill);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;}
+      .en-sec-badge.beginner{background:rgba(16,185,129,.2);color:#34d399;border:1px solid rgba(16,185,129,.4);}
+      .en-sec-badge.intermediate{background:rgba(245,158,11,.2);color:#fbbf24;border:1px solid rgba(245,158,11,.4);}
+      /* Active Section Card & Phrases */
+      .en-active-section-card {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        margin-bottom: 40px;
+        backdrop-filter: blur(12px);
+      }
+      .en-sec-header-row {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--glass-border);
+      }
+      .en-sec-level-badge, .en-sec-lvl-pill {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: var(--radius-pill);
+        font-size: 11px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .en-sec-level-badge.beginner, .en-sec-lvl-pill.beginner {
+        background: rgba(16, 185, 129, 0.15);
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+      }
+      .en-sec-level-badge.intermediate, .en-sec-lvl-pill.intermediate {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+      }
+      .en-sec-level-badge.advanced, .en-sec-lvl-pill.advanced {
+        background: rgba(244, 63, 94, 0.15);
+        color: #f43f5e;
+        border: 1px solid rgba(244, 63, 94, 0.3);
+      }
+      .en-sec-title, .en-sec-current-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--text-primary);
+      }
+      .en-sec-desc {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-top: 6px;
+        line-height: 1.5;
+      }
+      .en-sec-actions, .en-sec-top-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      /* English Hub Buttons */
+      .en-btn {
+        padding: 9px 18px;
+        border-radius: var(--radius-pill);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: var(--transition);
+        font-family: inherit;
+        border: 1px solid transparent;
+        line-height: 1.4;
+      }
+      .en-btn.btn-primary, .btn-primary {
+        background: var(--accent);
+        color: #ffffff;
+        border-color: var(--accent);
+      }
+      .en-btn.btn-primary:hover, .btn-primary:hover {
+        background: var(--accent-dark);
+        box-shadow: 0 4px 16px var(--accent-glow);
+        transform: translateY(-1px);
+      }
+      .en-btn.btn-accent, .btn-accent {
+        background: rgba(108, 99, 255, 0.15);
+        border: 1px solid var(--accent);
+        color: var(--accent-light);
+      }
+      .en-btn.btn-accent:hover, .btn-accent:hover {
+        background: var(--accent);
+        color: #ffffff;
+        transform: translateY(-1px);
+      }
+      .en-btn.btn-accent.active, .btn-accent.active {
+        background: var(--accent);
+        color: #ffffff;
+        box-shadow: 0 4px 16px var(--accent-glow);
+      }
+      .en-btn.btn-glass, .btn-glass {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        color: var(--text-secondary);
+      }
+      .en-btn.btn-glass:hover, .btn-glass:hover {
+        border-color: var(--glass-border-hover);
+        color: var(--text-primary);
+        background: var(--bg-card-hover);
+        transform: translateY(-1px);
+      }
+      .en-btn.btn-sm, .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+
+      /* Dialogue Phrases List */
+      .en-phrases-list, .en-phrases-feed {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        width: 100%;
+        padding: 6px 0;
+        margin-bottom: 40px;
+      }
+      .en-phrase-card {
+        width: 100%;
+        max-width: 86%;
+        border: 1px solid var(--glass-border);
+        padding: 18px 22px;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      }
+      .en-phrase-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+      }
+      .en-phrase-card.staff-role, .en-phrase-card.staff {
+        align-self: flex-start;
+        margin-right: auto;
+        border-radius: 20px 20px 20px 4px;
+        background: rgba(30, 41, 59, 0.75);
+        border: 1px solid rgba(168, 85, 247, 0.35);
+        border-left: 4px solid #a855f7;
+      }
+      [data-theme="light"] .en-phrase-card.staff-role, [data-theme="light"] .en-phrase-card.staff {
+        background: #ffffff;
+        border: 1px solid rgba(168, 85, 247, 0.35);
+        border-left: 4px solid #9333ea;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      }
+      .en-phrase-card.customer-role, .en-phrase-card.customer {
+        align-self: flex-end;
+        margin-left: auto;
+        border-radius: 20px 20px 4px 20px;
+        background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.15));
+        border: 1px solid rgba(56, 189, 248, 0.35);
+        border-right: 4px solid #38bdf8;
+      }
+      [data-theme="light"] .en-phrase-card.customer-role, [data-theme="light"] .en-phrase-card.customer {
+        background: linear-gradient(135deg, #f0f9ff, #eff6ff);
+        border: 1px solid rgba(56, 189, 248, 0.45);
+        border-right: 4px solid #0284c7;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+      }
+      .en-phrase-header, .en-phrase-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .en-speaker-badge, .en-speaker-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-primary);
+      }
+      .en-phrase-actions{display:flex;gap:6px;}
+      .en-icon-action-btn{width:32px;height:32px;border-radius:50%;background:var(--bg-card);border:1px solid var(--glass-border);color:var(--text-muted);font-size:13px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:var(--transition);}
+      .en-icon-action-btn:hover{border-color:var(--accent);color:var(--text-primary);transform:scale(1.08);}
+      .en-icon-action-btn.starred{color:#fbbf24;border-color:rgba(251,191,36,.4);background:rgba(251,191,36,.1);}
+      .en-icon-action-btn.danger:hover{border-color:var(--rose);color:var(--rose);}
+      .en-phrase-tr-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
+      .en-lang-flag{font-size:16px;flex-shrink:0;margin-top:2px;}
+      .en-sentence-tr{font-size:16px;font-weight:600;color:var(--text-primary);line-height:1.45;}
+      .en-phrase-toggle-row{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+      .en-toggle-en-btn{padding:7px 16px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;background:rgba(108,99,255,.1);border:1px solid rgba(108,99,255,.3);color:var(--accent-light);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .2s ease;}
+      .en-toggle-en-btn:hover{background:var(--accent);color:#ffffff;border-color:var(--accent);transform:translateY(-1px);}
+      .en-toggle-en-btn.active{background:var(--accent);color:#ffffff;}
+      .en-audio-btn{padding:6px 14px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;background:var(--bg-card);border:1px solid var(--glass-border);color:var(--text-secondary);cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:var(--transition);}
+      .en-audio-btn:hover{border-color:#38bdf8;color:#38bdf8;background:rgba(56,189,248,.08);}
+      .en-phrase-en-box{max-height:0;opacity:0;overflow:hidden;transition:all .35s cubic-bezier(.4,0,.2,1);border-radius:var(--radius-md);background:rgba(108,99,255,.06);border:1px solid transparent;}
+      .en-phrase-en-box.revealed{max-height:200px;opacity:1;padding:14px 16px;margin-top:8px;border-color:rgba(108,99,255,.25);}
+      .en-phrase-en-content{display:flex;align-items:flex-start;gap:10px;}
+      .en-sentence-en{font-size:15px;font-weight:700;color:#ffffff;letter-spacing:.01em;line-height:1.45;}
+      [data-theme="light"] .en-sentence-en{color:#1e1b4b;}
+      .en-phrase-note{margin-top:10px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.1);font-size:12px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;}
+      .en-vocab-header-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-xl);padding:24px;margin-bottom:28px;}
+      .en-vocab-top-row{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px;}
+      .en-vocab-title{font-size:22px;font-weight:800;color:var(--text-primary);}
+      .en-vocab-desc{font-size:13px;color:var(--text-secondary);margin-top:4px;}
+      .en-vocab-view-switcher{display:flex;gap:8px;flex-wrap:wrap;}
+      .en-view-mode-btn{padding:7px 14px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;background:var(--bg-card);border:1px solid var(--glass-border);color:var(--text-secondary);cursor:pointer;transition:var(--transition);}
+      .en-view-mode-btn.active{background:var(--accent);border-color:var(--accent);color:#ffffff;}
+      .en-vocab-controls-row{display:flex;flex-direction:column;gap:14px;}
+      .en-filter-pills-row{display:flex;gap:8px;flex-wrap:wrap;}
+      .en-filter-pill{padding:6px 14px;border-radius:var(--radius-pill);font-size:12px;font-weight:600;background:var(--bg-card);border:1px solid var(--glass-border);color:var(--text-secondary);cursor:pointer;transition:var(--transition);}
+      .en-filter-pill:hover{border-color:var(--accent);color:var(--text-primary);}
+      .en-filter-pill.active{background:rgba(108,99,255,.15);border-color:var(--accent);color:var(--accent-light);}
+      .en-vocab-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px;margin-bottom:40px;}
+      .en-vocab-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:16px 18px;display:flex;flex-direction:column;gap:10px;transition:var(--transition);backdrop-filter:blur(10px);min-width:0;overflow:hidden;}
+      .en-vocab-card:hover{border-color:var(--glass-border-hover);background:var(--bg-card-hover);transform:translateY(-2px);}
+      .en-vocab-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+      .en-vocab-word-row{flex:1;min-width:0;}
+      .en-vocab-word{font-size:16.5px;font-weight:800;line-height:1.3;color:var(--text-primary);word-break:break-word;}
+      .en-vocab-pron{font-size:12px;color:var(--accent-light);font-family:monospace;display:block;margin-top:3px;}
+      .en-vocab-header-actions{display:flex;align-items:center;gap:4px;flex-shrink:0;margin-left:auto;}
+      .en-vocab-meaning-row{font-size:13.5px;color:var(--text-primary);font-weight:500;line-height:1.4;}
+      .en-vocab-meaning-label{font-size:12px;color:var(--text-muted);margin-right:4px;}
+      .en-vocab-meaning{font-weight:600;}
+      .en-vocab-ex-box{background:rgba(255,255,255,.03);border-radius:var(--radius-md);padding:8px 12px;font-size:12px;margin-top:2px;}
+      .en-vex-en{color:var(--text-secondary);font-weight:500;}
+      .en-vex-tr{color:var(--text-muted);margin-top:2px;}
+      .en-vocab-footer{display:flex;align-items:center;gap:6px;margin-top:auto;padding-top:10px;border-top:1px solid var(--glass-border);}
+      .en-vpill{padding:3px 8px;border-radius:var(--radius-pill);font-size:10.5px;font-weight:600;display:inline-flex;align-items:center;}
+      .en-vpill.cat{background:rgba(255,255,255,.05);color:var(--text-muted);}
+      .en-vpill.lvl{background:rgba(108,99,255,.12);color:var(--accent-light);font-weight:700;}
+      .en-master-pill-btn{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:var(--radius-pill);font-size:11px;font-weight:700;cursor:pointer;transition:all .2s ease;margin-left:auto;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:var(--text-muted);white-space:nowrap;}
+      .en-master-pill-btn:hover{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);color:#34d399;transform:scale(1.03);}
+      .en-master-pill-btn.mastered{background:rgba(16,185,129,.18) !important;border-color:rgba(16,185,129,.45) !important;color:#34d399 !important;box-shadow:0 0 10px rgba(16,185,129,.15);}
+      .en-master-pill-btn.mastered:hover{background:rgba(239,68,68,.15) !important;border-color:rgba(239,68,68,.4) !important;color:#f87171 !important;}
+      .en-flashcard-wrapper{display:flex;flex-direction:column;align-items:center;gap:20px;margin:20px 0 40px;perspective:1000px;}
+      .en-flashcard-counter{font-size:13px;font-weight:700;color:var(--accent-light);text-transform:uppercase;letter-spacing:.08em;}
+      .en-flashcard-3d{width:100%;max-width:480px;min-height:280px;position:relative;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.4,0,.2,1);cursor:pointer;}
+      .en-flashcard-3d.flipped{transform:rotateY(180deg);}
+      .en-flashcard-side{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:var(--radius-xl);background:var(--bg-card);border:2px solid var(--glass-border);padding:32px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.3);}
+      .en-flashcard-side.back{transform:rotateY(180deg);background:linear-gradient(135deg,rgba(108,99,255,.12),rgba(15,23,42,.95));border-color:var(--accent);}
+      .en-fc-tag{font-size:12px;font-weight:700;color:var(--accent-light);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px;}
+      .en-fc-word{font-size:28px;font-weight:800;color:var(--text-primary);margin-bottom:6px;}
+      .en-fc-pron{font-size:14px;color:var(--text-muted);font-family:monospace;margin-bottom:16px;}
+      .en-fc-meaning{font-size:24px;font-weight:700;color:#ffffff;margin-bottom:14px;}
+      [data-theme="light"] .en-fc-meaning{color:#0f172a;}
+      .en-fc-audio-btn{padding:8px 18px;border-radius:var(--radius-pill);font-size:13px;font-weight:600;background:rgba(108,99,255,.15);border:1px solid var(--accent);color:var(--accent-light);cursor:pointer;transition:var(--transition);margin-top:8px;}
+      .en-fc-audio-btn:hover{background:var(--accent);color:#ffffff;}
+      .en-fc-hint{font-size:11px;color:var(--text-muted);margin-top:18px;}
+      .en-flashcard-controls{display:flex;gap:12px;}
+      .en-quiz-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-xl);padding:32px;max-width:640px;margin:0 auto 40px;box-shadow:var(--shadow-md);}
+      .en-quiz-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+      .en-quiz-badge{padding:4px 12px;border-radius:var(--radius-pill);font-size:12px;font-weight:700;background:rgba(108,99,255,.15);color:var(--accent-light);}
+      .en-quiz-score-live{font-size:13px;font-weight:700;color:var(--text-muted);}
+      .en-quiz-prompt{margin-bottom:24px;}
+      .en-quiz-label{font-size:13px;color:var(--text-muted);margin-bottom:8px;}
+      .en-quiz-question-text{font-size:20px;font-weight:800;color:var(--text-primary);}
+      .en-quiz-options{display:flex;flex-direction:column;gap:10px;}
+      .en-quiz-opt-btn{padding:14px 18px;border-radius:var(--radius-lg);background:var(--bg-card);border:1px solid var(--glass-border);color:var(--text-primary);font-size:14px;font-weight:600;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px;transition:var(--transition);font-family:inherit;}
+      .en-quiz-opt-btn:hover:not(:disabled){border-color:var(--accent);background:var(--bg-card-hover);transform:translateX(4px);}
+      .en-quiz-opt-btn.correct{background:rgba(16,185,129,.2);border-color:#10b981;color:#34d399;}
+      .en-quiz-opt-btn.wrong{background:rgba(244,63,94,.2);border-color:#f43f5e;color:#fb7185;}
+      .en-opt-letter{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+      .en-quiz-feedback{margin-top:20px;padding:16px 20px;border-radius:var(--radius-md);display:flex;align-items:center;font-size:14px;font-weight:600;}
+      .en-quiz-feedback.correct{background:rgba(16,185,129,.15);color:#34d399;border:1px solid rgba(16,185,129,.3);}
+      .en-quiz-feedback.wrong{background:rgba(244,63,94,.15);color:#fb7185;border:1px solid rgba(244,63,94,.3);}
+      .en-quiz-results{text-align:center;padding:20px 0;}
+      .en-quiz-trophy{font-size:56px;margin-bottom:12px;}
+      .en-quiz-res-title{font-size:24px;font-weight:800;color:var(--text-primary);}
+      .en-mastered-btn{padding:5px 12px;border-radius:var(--radius-pill);font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:var(--transition);font-family:inherit;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);color:#34d399;}
+      .en-mastered-btn:hover{background:rgba(16,185,129,.2);border-color:#10b981;transform:translateY(-1px);}
+      .en-mastered-btn.mastered{background:#10b981;color:#ffffff;border-color:#10b981;box-shadow:0 0 14px rgba(16,185,129,.4);}
+      .en-vocab-card.is-mastered{border-color:rgba(16,185,129,.35);background:linear-gradient(135deg,rgba(16,185,129,.04),rgba(255,255,255,.02));}
+      .en-quiz-config-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;background:rgba(255,255,255,.03);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:14px 18px;margin-bottom:24px;}
+      .en-quiz-config-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+      .en-quiz-config-label{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.04em;}
+      .en-quiz-select{background-color:#1e293b !important;border:1px solid rgba(255,255,255,.18) !important;color:#ffffff !important;border-radius:var(--radius-md);padding:8px 34px 8px 14px;font-size:13.5px;font-weight:600;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23818cf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;background-size:14px;transition:all .2s ease;}
+      .en-quiz-select:hover,.en-quiz-select:focus{border-color:var(--accent) !important;box-shadow:0 0 0 3px rgba(108,99,255,.25);}
+      .en-quiz-select option{background-color:#1e293b !important;color:#ffffff !important;padding:10px 14px;font-weight:500;}
+      html[data-theme="light"] .en-quiz-select{background-color:#ffffff !important;color:#0f172a !important;border-color:#cbd5e1 !important;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23475569' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");}
+      html[data-theme="light"] .en-quiz-select option{background-color:#ffffff !important;color:#0f172a !important;}
+      .en-quiz-type-box{display:flex;flex-direction:column;gap:14px;margin-top:16px;}
+      .en-quiz-type-input-wrap{display:flex;gap:10px;}
+      .en-quiz-type-input{flex:1;background:var(--bg-card);border:2px solid var(--glass-border);border-radius:var(--radius-lg);padding:14px 18px;color:var(--text-primary);font-size:16px;font-weight:600;outline:none;transition:var(--transition);font-family:inherit;}
+      .en-quiz-type-input:focus{border-color:var(--accent);box-shadow:0 0 16px var(--accent-glow);}
+      .en-quiz-type-input.correct{border-color:#10b981;background:rgba(16,185,129,.08);}
+      .en-quiz-type-input.wrong{border-color:#f43f5e;background:rgba(244,63,94,.08);}
+      .en-audio-prompt-btn{display:inline-flex;align-items:center;gap:10px;padding:14px 24px;border-radius:var(--radius-pill);background:linear-gradient(135deg,rgba(108,99,255,.2),rgba(34,211,238,.15));border:1px solid var(--accent);color:var(--accent-light);font-size:15px;font-weight:700;cursor:pointer;transition:var(--transition);box-shadow:0 4px 16px var(--accent-glow);margin:12px 0;}
+      .en-audio-prompt-btn:hover{background:var(--accent);color:#ffffff;transform:scale(1.03);}
+      .en-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(8px);z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;}
+      .en-modal-backdrop.open{display:flex;}
+      .en-modal-dialog{background:#0f172a;border:1px solid var(--glass-border);border-radius:var(--radius-xl);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:26px;box-shadow:var(--shadow-lg);animation:modalSlideUp .3s ease;}
+      [data-theme="light"] .en-modal-dialog{background:#ffffff;}
+      .en-modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+      .en-modal-header h3{font-size:18px;font-weight:800;color:var(--text-primary);}
+      .en-modal-close{width:32px;height:32px;border-radius:50%;background:var(--bg-card);border:1px solid var(--glass-border);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;}
+      .en-form{display:flex;flex-direction:column;gap:14px;}
+      .en-form-group{display:flex;flex-direction:column;gap:6px;}
+      .en-form-group label{font-size:12px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em;}
+      .en-form-group input,.en-form-group textarea,.en-form-group select{padding:10px 14px;border-radius:var(--radius-md);background:var(--bg-card);border:1px solid var(--glass-border);color:var(--text-primary);font-size:13px;font-family:inherit;outline:none;}
+      .en-form-group input:focus,.en-form-group textarea:focus,.en-form-group select:focus{border-color:var(--accent);}
+      .en-form-row{display:flex;gap:12px;}
+      .en-modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:10px;}
+      .en-toast{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:var(--radius-pill);background:#0f172a;color:#ffffff;font-size:13px;font-weight:600;border:1px solid rgba(255,255,255,.15);box-shadow:0 10px 30px rgba(0,0,0,.5);z-index:10000;display:flex;align-items:center;gap:8px;opacity:0;transform:translateY(20px);transition:all .3s ease;}
+      .en-toast.show{opacity:1;transform:translateY(0);}
+      .en-empty-state{text-align:center;padding:60px 20px;background:var(--bg-card);border:1px dashed var(--glass-border);border-radius:var(--radius-xl);}
+      .en-empty-icon{font-size:48px;margin-bottom:12px;}
+      .en-empty-state h3{font-size:16px;font-weight:700;color:var(--text-primary);margin-bottom:12px;}
+
+      @media(max-width:900px){
+        .books-stats{grid-template-columns:1fr 1fr;}
+        .books-controls-row{flex-direction:column;align-items:stretch;}
+        .books-search-wrap{max-width:100%;}
+        .en-stats-row{grid-template-columns:1fr 1fr;}
+        .en-places-header{flex-direction:column;align-items:stretch;}
+        .en-search-wrap{max-width:100%;}
+        .en-hero-content{flex-direction:column;align-items:flex-start;text-align:left;}
+      }
+      @media(max-width:640px){
+        .books-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+        #book-detail-modal .modal{max-height:88vh !important;max-height:88dvh !important;overflow-y:auto !important;-webkit-overflow-scrolling:touch;}
+        .book-detail-wrap{grid-template-columns:1fr !important;}
+        .book-detail-cover-col{min-height:180px !important;max-height:220px !important;}
+        .book-detail-body{max-height:none !important;overflow:visible !important;padding:20px 18px 40px 18px !important;}
+        .bk-close{position:fixed;top:20px;right:20px;z-index:20;}
+        .en-stats-row{grid-template-columns:1fr;}
+        .en-places-grid{grid-template-columns:1fr;}
+        .en-phrase-card{max-width:95%;padding:14px 16px;}
+        .knowledge-master-tabs{width:100%;}
+        .knowledge-master-tab{flex:1;justify-content:center;padding:9px 12px;font-size:13px;}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bg-orbs"></div>
+    <div class="app-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <div class="logo-icon"><img src="../favicon.svg" alt="Ö" class="logo-icon-img" /></div>
+          <div>
+            <div class="logo-text">Ömür Can</div>
+            <div class="logo-sub" data-i18n="nav_personal_space">Kişisel Alan</div>
+          </div>
+        </div>
+        <span class="nav-group-label" data-i18n="nav_navigation">Navigasyon</span>
+        <ul class="nav-links">
+          <li><a href="home.html"><span class="nav-icon">🏠</span><span data-i18n="nav_home">Ana Sayfa</span></a></li>
+          <li><a href="habits.html"><span class="nav-icon">✅</span><span data-i18n="nav_habits">Alışkanlıklar</span></a></li>
+          <!-- <li><a href="projects.html"><span class="nav-icon">🚀</span><span data-i18n="nav_projects">Projeler</span></a></li> -->
+          <li><a href="travels.html"><span class="nav-icon">✈️</span><span data-i18n="nav_travels">Geziler</span></a></li>
+          <li class="active"><a href="knowledge.html" class="active"><span class="nav-icon">💡</span><span data-i18n="nav_knowledge">Bilgi</span></a></li>
+          <li><a href="media.html"><span class="nav-icon">🎬</span><span>Medya & Eğlence</span></a></li>
+          <li><a href="family.html"><span class="nav-icon">👨‍👩‍👧‍👦</span><span data-i18n="nav_family">Ailem</span></a></li>
+          <li><a href="contact.html"><span class="nav-icon">📬</span><span data-i18n="nav_contact">İletişim</span></a></li>
+        </ul>
+        <div class="sidebar-bottom">
+          <div style="display: flex; gap: 4px; margin-bottom: 16px; justify-content: center;">
+            <button id="lang-tr" onclick="i18n.setLang('tr')" style="background: transparent; border: 1px solid var(--glass-border); color: var(--text-secondary); border-radius: 4px; padding: 4px 8px; cursor: pointer;">TR</button>
+            <button id="lang-en" onclick="i18n.setLang('en')" style="background: transparent; border: 1px solid var(--glass-border); color: var(--text-secondary); border-radius: 4px; padding: 4px 8px; cursor: pointer;">EN</button>
+            <button id="theme-toggle" style="background: transparent; border: 1px solid var(--glass-border); color: var(--text-secondary); border-radius: 4px; padding: 4px 8px; cursor: pointer; flex: 1;">☀️ Açık Tema</button>
+          </div>
+          <div class="user-info">
+            <div class="user-avatar" id="nav-user-avatar">Ö</div>
+            <div>
+              <div class="user-name" id="nav-user-name">Ömür Can</div>
+              <div class="user-role" id="nav-user-role">Admin</div>
+            </div>
+          </div>
+          <button class="logout-btn" id="logout-btn"><span>🚪</span> <span data-i18n="nav_logout">Çıkış Yap</span></button>
+        </div>
+      </aside>
+
+      <!-- MAIN CONTENT -->
+      <main class="main-content">
+        <!-- Global Hero Header -->
+        <div class="welcome-hero">
+          <div class="hero-greeting" id="greeting-text">İyi günler</div>
+          <h1 class="hero-name">
+            <span>Bilgi, Öğrenme &</span>
+            <span class="gradient-text">Gelişim Dünyam</span> 💡
+          </h1>
+          <p class="hero-desc">
+            Okuduğum kitaplar, İngilizce pratik kalıplarım, mekan senaryoları ve zihin açıcı genel kültür notları tek bir merkezde.
+          </p>
+          <div class="hero-date" id="hero-date">📅 Bugün</div>
+          <div class="hero-quick-links">
+            <a href="home.html" class="quick-link">🏠 Ana Sayfa</a>
+            <a href="habits.html" class="quick-link" data-i18n="home_quick_habits">✅ Alışkanlıklar</a>
+            <a href="travels.html" class="quick-link" data-i18n="home_quick_travels">✈️ Gezilerim</a>
+            <a href="knowledge.html" class="quick-link active">💡 Bilgi</a>
+            <a href="media.html" class="quick-link">🎬 Medya & Eğlence</a>
+            <a href="contact.html" class="quick-link">📬 İletişim</a>
+            <a href="../assets/omurcan_yilmaz_CV.pdf" download="Omur_Can_Yilmaz_CV.pdf" target="_blank" class="quick-link cv-download-btn" data-i18n="home_quick_cv">📄 CV'mi İndir</a>
+          </div>
+        </div>
+
+        <!-- 3 MAIN MASTER TABS SWITCHER -->
+        <div class="knowledge-master-tabs" id="knowledge-master-tabs">
+          <button type="button" class="knowledge-master-tab active" data-tab="books" onclick="switchKnowledgeTab('books')">
+            📚 Kitaplar
+          </button>
+          <button type="button" class="knowledge-master-tab" data-tab="english" onclick="switchKnowledgeTab('english')">
+            🇬🇧 İngilizce
+          </button>
+          <button type="button" class="knowledge-master-tab" data-tab="trivia" onclick="switchKnowledgeTab('trivia')">
+            💡 Genel Kültür
+          </button>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- TAB 1: 📚 KİTAPLAR (EXACT ORIGINAL BOOKS IMPLEMENTATION) -->
+        <!-- ========================================================= -->
+        <div id="panel-books" class="knowledge-tab-panel active">
+          <div class="books-hero">
+            <div>
+              <h1>📚 Okuduklarım</h1>
+              <p>Kitaplar, yorumlar ve notlarım &mdash; zihnimi besleyen yapıtlar</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="view-mode-toggle" id="book-view-toggle">
+                <button type="button" class="view-mode-btn active" data-mode="grid">🎴 Kart</button>
+                <button type="button" class="view-mode-btn" data-mode="compact">📋 Sıkışık</button>
+              </div>
+              <button class="btn btn-primary" id="add-book-btn" style="display:none;">+ Kitap Ekle</button>
+            </div>
+          </div>
+          <div class="books-stats" id="books-stats-filter">
+            <div class="books-stat-card active" data-filter="all" role="button" tabindex="0" title="Tüm Kitapları Göster">
+              <div class="books-stat-icon">📖</div>
+              <div>
+                <div class="books-stat-value" id="stat-total">0</div>
+                <div class="books-stat-label">Toplam Kitap</div>
+              </div>
+            </div>
+            <div class="books-stat-card" data-filter="completed" role="button" tabindex="0" title="Tamamlanan Kitapları Filtrele">
+              <div class="books-stat-icon">✅</div>
+              <div>
+                <div class="books-stat-value" id="stat-completed">0</div>
+                <div class="books-stat-label">Tamamlandı</div>
+              </div>
+            </div>
+            <div class="books-stat-card" data-filter="reading" role="button" tabindex="0" title="Okunmakta Olan Kitapları Filtrele">
+              <div class="books-stat-icon">🔵</div>
+              <div>
+                <div class="books-stat-value" id="stat-reading">0</div>
+                <div class="books-stat-label">Okunuyor</div>
+              </div>
+            </div>
+            <div class="books-stat-card" data-filter="want_to_read" role="button" tabindex="0" title="Okunacak Kitapları Filtrele">
+              <div class="books-stat-icon">📌</div>
+              <div>
+                <div class="books-stat-value" id="stat-want">0</div>
+                <div class="books-stat-label">Okunacak</div>
+              </div>
+            </div>
+            <div class="books-stat-card" data-filter="favorite" role="button" tabindex="0" title="Favori Kitapları Filtrele">
+              <div class="books-stat-icon">❤️</div>
+              <div>
+                <div class="books-stat-value" id="stat-favorites">0</div>
+                <div class="books-stat-label">Favoriler</div>
+              </div>
+            </div>
+          </div>
+          <div class="books-controls-row">
+            <div class="books-search-wrap">
+              <span class="books-search-icon">🔍</span>
+              <input
+                type="text"
+                id="book-search-input"
+                class="books-search-input"
+                placeholder="Kitap ismi veya yazar ara... (Kısayol: /)"
+                autocomplete="off"
+                aria-label="Kitap ismi veya yazar ara"
+              />
+              <button type="button" id="book-search-clear" class="books-search-clear" title="Aramayı Temizle">✕</button>
+            </div>
+          </div>
+          <div class="books-grid" id="books-grid">
+            <div class="books-empty"><div class="books-empty-icon">📚</div><div class="books-empty-title">Yükleniyor...</div></div>
+          </div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- TAB 2: 🇬🇧 İNGİLİZCE (EXACT ORIGINAL ENGLISH IMPLEMENTATION) -->
+        <!-- ========================================================= -->
+        <div id="panel-english" class="knowledge-tab-panel">
+          <!-- Top Overview Stats -->
+          <div class="en-stats-row">
+            <div class="en-stat-card">
+              <div class="en-stat-icon">🏢</div>
+              <div>
+                <div class="en-stat-val" id="stat-places">0</div>
+                <div class="en-stat-lbl">Mekan & Senaryo</div>
+              </div>
+            </div>
+            <div class="en-stat-card">
+              <div class="en-stat-icon">📑</div>
+              <div>
+                <div class="en-stat-val" id="stat-sections">0</div>
+                <div class="en-stat-lbl">Zorluk Bölümü</div>
+              </div>
+            </div>
+            <div class="en-stat-card">
+              <div class="en-stat-icon">💬</div>
+              <div>
+                <div class="en-stat-val" id="stat-phrases">0</div>
+                <div class="en-stat-lbl">Pratik Cümle & Diyalog</div>
+              </div>
+            </div>
+            <div class="en-stat-card">
+              <div class="en-stat-icon">📚</div>
+              <div>
+                <div class="en-stat-val" id="stat-vocab">0</div>
+                <div class="en-stat-lbl">Kelime Defteri</div>
+              </div>
+            </div>
+            <div class="en-stat-card" style="border-color: rgba(16, 185, 129, 0.35); background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), var(--bg-card));">
+              <div class="en-stat-icon" style="background: rgba(16, 185, 129, 0.15); color: #34d399;">🎓</div>
+              <div>
+                <div class="en-stat-val" id="stat-mastered" style="color: #34d399;">0</div>
+                <div class="en-stat-lbl">Ezberlenen Kelime</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Row (Admin Place Add) -->
+          <div style="display: flex; justify-content: flex-end; margin-bottom: 16px;">
+            <button id="admin-add-place-btn" class="en-btn btn-primary" style="display: none;" onclick="EnglishApp.addPlaceModal()">
+              <span>＋</span> <span>Yeni Mekan Ekle</span>
+            </button>
+          </div>
+
+          <!-- Dynamic English Main View Container (Mekanlar, Kelime Defteri, Quiz vs.) -->
+          <div id="main-view-container"></div>
+        </div>
+
+        <!-- ========================================================= -->
+        <!-- TAB 3: 💡 GENEL KÜLTÜR (CURATED TRIVIA IMPLEMENTATION) -->
+        <!-- ========================================================= -->
+        <div id="panel-trivia" class="knowledge-tab-panel">
+          <div class="books-hero">
+            <div>
+              <h1>💡 Genel Kültür & İlginç Bilgiler</h1>
+              <p>Bilim, tarih, psikoloji, teknoloji ve evrene dair ufkumuzu açan notlar</p>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <button class="btn btn-primary" id="add-trivia-btn" onclick="openAddTriviaModal()" style="display:none;">+ Yeni Bilgi Ekle</button>
+            </div>
+          </div>
+
+          <div class="trivia-stats-grid">
+            <div class="trivia-stat-card">
+              <div class="trivia-stat-icon">💡</div>
+              <div>
+                <div class="trivia-stat-val" id="trivia-stat-total">0</div>
+                <div class="trivia-stat-lbl">Toplam Not</div>
+              </div>
+            </div>
+            <div class="trivia-stat-card">
+              <div class="trivia-stat-icon" style="color: #38bdf8; background: rgba(56, 189, 248, 0.12);">🔬</div>
+              <div>
+                <div class="trivia-stat-val" id="trivia-stat-science">0</div>
+                <div class="trivia-stat-lbl">Bilim & Doğa</div>
+              </div>
+            </div>
+            <div class="trivia-stat-card">
+              <div class="trivia-stat-icon" style="color: #a855f7; background: rgba(168, 85, 247, 0.12);">🏛️</div>
+              <div>
+                <div class="trivia-stat-val" id="trivia-stat-history">0</div>
+                <div class="trivia-stat-lbl">Tarih & Kültür</div>
+              </div>
+            </div>
+            <div class="trivia-stat-card">
+              <div class="trivia-stat-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.12);">💻</div>
+              <div>
+                <div class="trivia-stat-val" id="trivia-stat-tech">0</div>
+                <div class="trivia-stat-lbl">Teknoloji & Zeka</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="books-controls-row">
+            <div class="en-filter-pills-row" id="trivia-category-filters">
+              <button type="button" class="en-filter-pill active" data-cat="all" onclick="filterTriviaCategory('all')">✨ Tümü</button>
+              <button type="button" class="en-filter-pill" data-cat="science" onclick="filterTriviaCategory('science')">🔬 Bilim & Uzay</button>
+              <button type="button" class="en-filter-pill" data-cat="history" onclick="filterTriviaCategory('history')">🏛️ Tarih & Medeniyet</button>
+              <button type="button" class="en-filter-pill" data-cat="psychology" onclick="filterTriviaCategory('psychology')">🧠 Psikoloji & Zihin</button>
+              <button type="button" class="en-filter-pill" data-cat="world" onclick="filterTriviaCategory('world')">🌍 Doğa & Dünya</button>
+              <button type="button" class="en-filter-pill" data-cat="tech" onclick="filterTriviaCategory('tech')">💻 Teknoloji</button>
+            </div>
+            <div class="books-search-wrap" style="max-width: 320px;">
+              <span class="books-search-icon">🔍</span>
+              <input type="text" class="books-search-input" id="trivia-search-input" placeholder="Bilgi ara..." oninput="handleTriviaSearch(this.value)" />
+            </div>
+          </div>
+
+          <div class="trivia-grid" id="trivia-grid">
+            <!-- JS Rendered Trivia Cards -->
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- BOOK MODALS (From books.html) -->
+    <!-- ========================================================= -->
+    <!-- Book Detail Modal -->
+    <div class="modal-overlay" id="book-detail-modal">
+      <div class="modal" style="max-width:700px;padding:0;overflow:hidden;position:relative;">
+        <button class="bk-close modal-close" id="book-detail-close" onclick="Modal.close('book-detail-modal')" type="button" aria-label="Kapat">✕</button>
+        <div id="book-detail-content" class="book-detail-wrap"></div>
+      </div>
+    </div>
+
+    <!-- Book Form Modal -->
+    <div class="modal-overlay" id="book-form-modal">
+      <div class="modal" style="max-width:560px;">
+        <div class="modal-header">
+          <div class="modal-title" id="book-form-title">📚 Yeni Kitap</div>
+          <button class="modal-close" type="button" aria-label="Kapat" onclick="Modal.close('book-form-modal')">✕</button>
+        </div>
+        <form id="book-form">
+          <input type="hidden" id="edit-book-id" />
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">Kitap Adı *</label>
+              <input type="text" class="input-field" id="book-title" placeholder="Kitap adı..." required maxlength="120" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Yazar *</label>
+              <input type="text" class="input-field" id="book-author" placeholder="Yazar adı..." required maxlength="80" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Tür</label>
+              <input type="text" class="input-field" id="book-genre" placeholder="Roman, Bilim, Felsefe..." maxlength="40" />
+            </div>
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">Kapak Görseli URL</label>
+              <input type="url" class="input-field" id="book-cover-url" placeholder="https://... (isteğe bağlı)" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Durum *</label>
+              <select class="input-field" id="book-status">
+                <option value="completed">✅ Tamamlandı</option>
+                <option value="reading">🔵 Okunuyor</option>
+                <option value="want_to_read">📌 Okunacak</option>
+              </select>
+            </div>
+            <div class="input-group" style="display:flex;align-items:center;padding-top:20px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-primary);user-select:none;">
+                <input type="checkbox" id="book-fav" style="width:16px;height:16px;accent-color:var(--accent);" />
+                ❤️ Favorilere Ekle
+              </label>
+            </div>
+            <div class="input-group">
+              <label class="input-label">Başlama Tarihi</label>
+              <input type="date" class="input-field" id="book-started" />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Bitirme Tarihi</label>
+              <input type="date" class="input-field" id="book-finished" />
+            </div>
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">Puanım</label>
+              <div class="star-input-row" id="star-input-row">
+                <span class="star-inp" data-v="1">★</span>
+                <span class="star-inp" data-v="2">★</span>
+                <span class="star-inp" data-v="3">★</span>
+                <span class="star-inp" data-v="4">★</span>
+                <span class="star-inp" data-v="5">★</span>
+              </div>
+              <input type="hidden" id="book-rating" value="0" />
+            </div>
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">Yorum / İnceleme</label>
+              <textarea class="input-field" id="book-review" rows="3" placeholder="Kitap hakkındaki düşüncelerin..." style="resize:vertical;"></textarea>
+            </div>
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">✍️ Alıntılar & Önemli Cümleler</label>
+              <textarea class="input-field" id="book-quotes" rows="3" placeholder="Kitaptan unutulmaz sözler, pasajlar veya alıntılar..." style="resize:vertical;"></textarea>
+            </div>
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">📌 Önemli Yerler & Çıkarımlar</label>
+              <textarea class="input-field" id="book-takeaways" rows="3" placeholder="Kitaptan edindiğin ana fikirler ve dersler..." style="resize:vertical;"></textarea>
+            </div>
+            <div class="input-group" style="grid-column:1/-1;">
+              <label class="input-label">Genel Notlar</label>
+              <textarea class="input-field" id="book-notes" rows="2" placeholder="Diğer ek notlar..." style="resize:vertical;"></textarea>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;justify-content:flex-end;">
+            <button type="button" class="btn btn-ghost modal-close modal-close-btn">İptal</button>
+            <button type="submit" class="btn btn-primary" id="book-save-btn">✓ Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- TRIVIA MODALS -->
+    <!-- ========================================================= -->
+    <div class="modal-overlay" id="trivia-modal">
+      <div class="modal" style="max-width: 520px;">
+        <div class="modal-header">
+          <div class="modal-title" id="trivia-modal-title">💡 Yeni Genel Kültür Notu Ekle</div>
+          <button class="modal-close" type="button">✕</button>
+        </div>
+        <form id="trivia-form">
+          <input type="hidden" id="edit-trivia-id" />
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px;">
+            <div class="input-group">
+              <label class="input-label">Bilgi Başlığı *</label>
+              <input type="text" class="input-field" id="trivia-title-input" placeholder="Örn: Nöronlar Arasındaki İletişim Hızı" required />
+            </div>
+            <div class="input-group">
+              <label class="input-label">Kategori *</label>
+              <select class="input-field" id="trivia-category-input">
+                <option value="science">🔬 Bilim & Uzay</option>
+                <option value="history">🏛️ Tarih & Medeniyet</option>
+                <option value="psychology">🧠 Psikoloji & Zihin</option>
+                <option value="world">🌍 Doğa & Dünya</option>
+                <option value="tech">💻 Teknoloji & Yapay Zeka</option>
+              </select>
+            </div>
+            <div class="input-group">
+              <label class="input-label">İlginç Bilgi Detayı *</label>
+              <textarea class="input-field" id="trivia-fact-input" rows="4" placeholder="Bu ilginç bilgi hakkında detaylı açıklama..." required style="resize: vertical;"></textarea>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="btn btn-ghost modal-close modal-close-btn">İptal</button>
+            <button type="submit" class="btn btn-primary">✓ Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/i18n.js"></script>
+    <script src="../js/nav.js"></script>
+    <script src="../js/english.js"></script>
+
+    <!-- KNOWLEDGE & BOOKS & TRIVIA ORCHESTRATOR SCRIPT -->
+    <script>
+      // ===== 1. MASTER TAB SWITCHING =====
+      function switchKnowledgeTab(tabName) {
+        document.querySelectorAll('.knowledge-master-tab').forEach(b => {
+          b.classList.toggle('active', b.dataset.tab === tabName);
+        });
+        document.querySelectorAll('.knowledge-tab-panel').forEach(p => {
+          p.classList.toggle('active', p.id === `panel-${tabName}`);
+        });
+
+        // Trigger view renders if needed
+        if (tabName === 'english' && window.EnglishApp) {
+          if (typeof EnglishApp.render === 'function') EnglishApp.render();
+          if (typeof EnglishApp.renderStats === 'function') EnglishApp.renderStats();
+        } else if (tabName === 'books') {
+          loadBooks();
+        } else if (tabName === 'trivia') {
+          renderTriviaCards();
+        }
+      }
+
+      // ===== 2. BOOKS LOGIC (Full Original) =====
+      const BOOKS_STORAGE_KEY = 'oyp_books';
+      let allBooks = [];
+      let activeFilter = 'all';
+      let selectedRating = 0;
+      let isAdmin = false;
+
+      function getLocalBooks() {
+        try {
+          return JSON.parse(localStorage.getItem(BOOKS_STORAGE_KEY)) || [];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveLocalBooks(b) {
+        localStorage.setItem(BOOKS_STORAGE_KEY, JSON.stringify(b));
+      }
+
+      async function syncBookAccess() {
+        isAdmin = await Auth.canManageContent();
+        const addBtn = document.getElementById('add-book-btn');
+        if (addBtn) addBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+        const addTrBtn = document.getElementById('add-trivia-btn');
+        if (addTrBtn) addTrBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+        const addPlaceBtn = document.getElementById('admin-add-place-btn');
+        if (addPlaceBtn) addPlaceBtn.style.display = isAdmin ? 'inline-flex' : 'none';
+      }
+
+      async function fetchBooks() {
+        let sbBooks = null;
+        try {
+          const { data, error } = await window.supabaseClient
+            .from('books')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (!error && data) {
+            sbBooks = data;
+          }
+        } catch (err) {
+          console.warn('Supabase fetch error:', err);
+        }
+
+        const isUuid = (id) => typeof id === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        const user = await Auth.getUser();
+        if (user && sbBooks) {
+          const local = getLocalBooks();
+          const unpushed = local.filter((b) => !isUuid(b.id));
+          if (unpushed.length > 0) {
+            for (const item of unpushed) {
+              const bd = {
+                id: generateUUID(),
+                title: item.title,
+                author: item.author,
+                genre: item.genre || null,
+                cover_url: item.cover_url || null,
+                status: item.status || 'completed',
+                is_favorite: !!item.is_favorite,
+                started_at: item.started_at || null,
+                finished_at: item.finished_at || null,
+                rating: item.rating || null,
+                review: item.review || null,
+                notes: item.notes || null,
+              };
+              const { data: insData, error: insErr } = await window.supabaseClient
+                .from('books')
+                .insert([bd])
+                .select();
+              if (!insErr && insData && insData.length > 0) {
+                sbBooks.unshift(insData[0]);
+              }
+            }
+            saveLocalBooks(sbBooks);
+          }
+        }
+
+        if (sbBooks && sbBooks.length > 0) {
+          saveLocalBooks(sbBooks);
+          return sbBooks;
+        }
+
+        const local = getLocalBooks();
+        if (local && local.length > 0) return local;
+
+        // Default initial book demo
+        const demoBooks = [
+          {
+            id: "b-1",
+            title: "Atomik Alışkanlıklar",
+            author: "James Clear",
+            genre: "Kişisel Gelişim",
+            cover_url: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80",
+            status: "completed",
+            rating: 5,
+            is_favorite: true,
+            review: "Küçük değişimlerin olağanüstü sonuçlar doğurabileceğini gösteren başyapıt.",
+            quotes: "Her eylem, gelecekte olmak istediğiniz kişiye verdiğiniz bir oydur."
+          },
+          {
+            id: "b-2",
+            title: "Kürk Mantolu Madonna",
+            author: "Sabahattin Ali",
+            genre: "Edebiyat / Roman",
+            cover_url: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80",
+            status: "completed",
+            rating: 5,
+            is_favorite: true,
+            review: "İç dünyamızın derinliklerine ve derin sevgiye dair unutulmaz bir klasik.",
+            quotes: "Bir ruh, ancak bir benzerini bulduğu zaman ve bir varlık, ancak bir diğeriyle tamamlandığı zaman yürüyebilir."
+          }
+        ];
+        saveLocalBooks(demoBooks);
+        return demoBooks;
+      }
+
+      function generateUUID() {
+        if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+          return crypto.randomUUID();
+        }
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+          const r = (Math.random() * 16) | 0;
+          const v = c === "x" ? r : (r & 0x3) | 0x8;
+          return v.toString(16);
+        });
+      }
+
+      async function saveBook(bd) {
+        const id = document.getElementById('edit-book-id').value;
+        const user = await Auth.getUser();
+        let savedBook = null;
+
+        const payload = { ...bd };
+        if (!id) payload.id = generateUUID();
+
+        if (user) {
+          try {
+            const supabasePayload = { ...payload };
+            delete supabasePayload.key_takeaways;
+            delete supabasePayload.quotes;
+            if (payload.quotes || payload.key_takeaways) {
+              supabasePayload.notes = [
+                payload.quotes ? `✍️ Alıntılar:\n${payload.quotes}` : '',
+                payload.key_takeaways ? `📌 Önemli Yerler:\n${payload.key_takeaways}` : '',
+                payload.notes || ''
+              ].filter(Boolean).join('\n\n---\n\n');
+            }
+
+            let res;
+            if (id) {
+              res = await window.supabaseClient.from('books').update(supabasePayload).eq('id', id).select();
+            } else {
+              res = await window.supabaseClient.from('books').insert([supabasePayload]).select();
+            }
+
+            if (res.data && res.data.length > 0) savedBook = res.data[0];
+          } catch (err) {
+            console.warn('Supabase save error:', err);
+          }
+        }
+
+        const local = getLocalBooks();
+        if (id) {
+          const idx = local.findIndex(b => String(b.id) === String(id));
+          const bookData = savedBook || { ...bd, id };
+          if (idx !== -1) local[idx] = { ...local[idx], ...bookData };
+          else local.unshift(bookData);
+        } else {
+          const newBook = savedBook || { ...bd, id: 'book-' + Date.now(), created_at: new Date().toISOString() };
+          local.unshift(newBook);
+        }
+        saveLocalBooks(local);
+        return true;
+      }
+
+      async function deleteBook(id) {
+        if (!(await Auth.canManageContent())) {
+          Toast.error("Bu işlem için admin girişi gerekli.");
+          return false;
+        }
+
+        const local = getLocalBooks();
+        const book = local.find(b => String(b.id) === String(id));
+        const bookTitle = book?.title ? `“${book.title}”` : "bu kitabı";
+
+        if (!confirm(`${bookTitle} kütüphanenizden silmek istediğinizden emin misiniz?`)) return false;
+
+        const user = await Auth.getUser();
+        if (user) {
+          try {
+            await window.supabaseClient.from('books').delete().eq('id', id);
+          } catch (err) {}
+        }
+
+        const updatedLocal = local.filter(b => String(b.id) !== String(id));
+        saveLocalBooks(updatedLocal);
+        Toast.success("Kitap silindi.");
+        await loadBooks();
+        return true;
+      }
+
+      const GRADS = ['g0','g1','g2','g3','g4','g5'];
+      const STATUS_MAP = {
+        completed: ['status-completed', '✅ Tamamlandı'],
+        reading: ['status-reading', '🔵 Okunuyor'],
+        want_to_read: ['status-want_to_read', '📌 Okunacak']
+      };
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      function highlightMatch(text, query) {
+        if (!text) return '';
+        const safe = escapeHtml(text);
+        if (!query || !query.trim()) return safe;
+        const cleanQuery = query.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        try {
+          const regex = new RegExp(`(${cleanQuery})`, 'gi');
+          return safe.replace(regex, '<mark style="background:rgba(108,99,255,0.35);color:inherit;padding:0 2px;border-radius:3px;">$1</mark>');
+        } catch {
+          return safe;
+        }
+      }
+
+      function starsHtml(r) {
+        return '<div class="book-stars">' + [1,2,3,4,5].map(i => '<span class="star ' + (i<=r?'filled':'empty') + '">' + (i<=r?'★':'☆') + '</span>').join('') + '</div>';
+      }
+
+      let currentBookViewMode = 'grid';
+      let bookSearchQuery = '';
+
+      function renderBooks(books, query = '') {
+        const grid = document.getElementById('books-grid');
+        if (!grid) return;
+
+        if (!books.length) {
+          if (query) {
+            grid.className = 'books-grid';
+            grid.innerHTML = `
+              <div class="books-empty">
+                <div class="books-empty-icon">🔍</div>
+                <div class="books-empty-title">"${escapeHtml(query)}" ile eşleşen kitap bulunamadı</div>
+                <button type="button" class="btn btn-outline" onclick="clearBookSearch()" style="margin-top:16px; border-radius:var(--radius-pill); font-size:12px; padding:6px 18px; cursor:pointer;">✕ Aramayı Temizle</button>
+              </div>`;
+            return;
+          }
+          grid.innerHTML = '<div class="books-empty"><div class="books-empty-icon">📚</div><div class="books-empty-title">Henüz kitap yok</div><div class="books-empty-sub">' + (isAdmin ? 'İlk kitabını ekle!' : 'Yakında kitaplar eklenecek.') + '</div></div>';
+          return;
+        }
+
+        grid.className = currentBookViewMode === 'compact' ? 'books-grid compact-grid' : 'books-grid';
+
+        grid.innerHTML = books.map((b, i) => {
+          const [sc, st] = STATUS_MAP[b.status] || STATUS_MAP.completed;
+          const gc = GRADS[i % 6];
+          const cov = b.cover_url
+            ? '<img class="book-cover-img" src="' + b.cover_url + '" alt="' + escapeHtml(b.title) + '" loading="lazy" onerror="bookImgError(this)"><div class="book-cover-ph ' + gc + '" style="display:none">📚<div class="bip">' + escapeHtml(b.title) + '</div></div>'
+            : '<div class="book-cover-ph ' + gc + '">📚<div class="bip">' + escapeHtml(b.title) + '</div></div>';
+          const safeTitle = escapeHtml(b.title || '');
+          const highlightedTitle = highlightMatch(b.title, query);
+          const highlightedAuthor = highlightMatch(b.author, query);
+          const af = isAdmin
+            ? '<div class="book-card-footer"><button class="book-admin-btn book-edit-btn" data-id="' + b.id + '">✏️ Düzenle</button><button class="book-admin-btn danger book-delete-btn" data-id="' + b.id + '" data-title="' + safeTitle + '">🗑 Sil</button></div>'
+            : '';
+
+          if (currentBookViewMode === 'compact') {
+            return '<div class="book-card compact-card book-card-clickable" data-id="' + b.id + '">'
+              + '<div style="display:flex;align-items:center;gap:12px;flex:1;">'
+              + '<div class="book-cover" style="width:36px;height:36px;font-size:18px;display:flex;align-items:center;justify-content:center;">📚</div>'
+              + '<div><div style="font-weight:700;font-size:15px;color:var(--text-primary);">' + highlightedTitle + (b.is_favorite ? ' ❤️' : '') + '</div>'
+              + '<div style="font-size:12px;color:var(--text-secondary);">&mdash; ' + highlightedAuthor + (b.genre ? ' • ' + escapeHtml(b.genre) : '') + '</div></div>'
+              + '</div>'
+              + '<div style="display:flex;align-items:center;gap:14px;">'
+              + '<span class="book-status-badge ' + sc + '" style="position:static;">' + st + '</span>'
+              + (b.rating ? starsHtml(b.rating) : '')
+              + af
+              + '</div></div>';
+          }
+
+          return '<div class="book-card book-card-clickable" data-id="' + b.id + '">'
+            + '<div class="book-cover-wrap">' + cov
+            + '<div class="book-status-badge ' + sc + '">' + st + '</div>'
+            + (b.is_favorite ? '<div class="book-fav-badge">❤️</div>' : '')
+            + '</div><div class="book-card-body">'
+            + '<div class="book-title">' + highlightedTitle + '</div>'
+            + '<div class="book-author">&mdash; ' + highlightedAuthor + '</div>'
+            + (b.genre ? '<div class="book-genre-pill">' + escapeHtml(b.genre) + '</div>' : '')
+            + (b.rating ? starsHtml(b.rating) : '')
+            + (b.review ? '<div class="book-review-preview">' + escapeHtml(b.review) + '</div>' : '')
+            + '</div>' + af + '</div>';
+        }).join('');
+      }
+
+      function bookImgError(img) {
+        img.style.display = 'none';
+        if (img.nextElementSibling) img.nextElementSibling.style.display = 'flex';
+      }
+
+      function updateStats(books) {
+        document.getElementById('stat-total').textContent = books.length;
+        document.getElementById('stat-completed').textContent = books.filter(b => b.status === 'completed').length;
+        document.getElementById('stat-reading').textContent = books.filter(b => b.status === 'reading').length;
+        document.getElementById('stat-want').textContent = books.filter(b => b.status === 'want_to_read').length;
+        const favEl = document.getElementById('stat-favorites');
+        if (favEl) favEl.textContent = books.filter(b => b.is_favorite).length;
+      }
+
+      function applyFilter() {
+        let f = [...allBooks];
+        if (activeFilter === 'favorite') f = f.filter(b => b.is_favorite);
+        else if (activeFilter !== 'all') f = f.filter(b => b.status === activeFilter);
+
+        if (bookSearchQuery) {
+          const q = bookSearchQuery.toLocaleLowerCase('tr').trim();
+          f = f.filter(b => (b.title||'').toLocaleLowerCase('tr').includes(q) || (b.author||'').toLocaleLowerCase('tr').includes(q));
+        }
+
+        renderBooks(f, bookSearchQuery);
+      }
+
+      async function loadBooks() {
+        allBooks = await fetchBooks();
+        updateStats(allBooks);
+        applyFilter();
+      }
+
+      function extractBookDetails(b) {
+        let quotes = (b.quotes || "").trim();
+        let takeaways = (b.key_takeaways || "").trim();
+        let rawNotes = (b.notes || "").trim();
+
+        if (!quotes && rawNotes) {
+          const qMatches = [];
+          const qRegex = /✍️\s*Alıntılar:\s*([\s\S]*?)(?=(?:\n\s*---\s*|\n\s*📌|\n\s*✍️|$))/gi;
+          let m;
+          while ((m = qRegex.exec(rawNotes)) !== null) {
+            if (m[1] && m[1].trim()) qMatches.push(m[1].trim());
+          }
+          if (qMatches.length > 0) quotes = qMatches.join("\n\n---\n\n");
+        }
+
+        if (!takeaways && rawNotes) {
+          const tMatches = [];
+          const tRegex = /📌\s*Önemli Yerler:\s*([\s\S]*?)(?=(?:\n\s*---\s*|\n\s*📌|\n\s*✍️|$))/gi;
+          let m;
+          while ((m = tRegex.exec(rawNotes)) !== null) {
+            if (m[1] && m[1].trim()) tMatches.push(m[1].trim());
+          }
+          if (tMatches.length > 0) takeaways = tMatches.join("\n\n---\n\n");
+        }
+
+        let cleanNotes = rawNotes
+          .replace(/✍️\s*Alıntılar:\s*[\s\S]*?(?=(?:\n\s*---\s*|\n\s*📌|\n\s*✍️|$))/gi, "")
+          .replace(/📌\s*Önemli Yerler:\s*[\s\S]*?(?=(?:\n\s*---\s*|\n\s*📌|\n\s*✍️|$))/gi, "")
+          .replace(/---\s*/g, "")
+          .trim();
+
+        return { quotes, takeaways, cleanNotes };
+      }
+
+      function openBookDetail(id) {
+        const b = allBooks.find(x => String(x.id) === String(id));
+        if (!b) return;
+        const [sc, st] = STATUS_MAP[b.status] || STATUS_MAP.completed;
+        const gc = GRADS[allBooks.indexOf(b) % 6];
+        const cov = b.cover_url
+          ? '<img src="' + b.cover_url + '" style="width:100%;height:100%;object-fit:cover;" onerror="bookImgError(this)"><div class="book-detail-cover-ph ' + gc + '" style="display:none">📚<div style="font-size:14px;font-weight:700;text-align:center;padding:0 16px;">' + b.title + '</div></div>'
+          : '<div class="book-detail-cover-ph ' + gc + '">📚<div style="font-size:14px;font-weight:700;text-align:center;padding:0 16px;">' + b.title + '</div></div>';
+        const dates = [b.started_at ? 'Başladı: ' + b.started_at : '', b.finished_at ? 'Bitti: ' + b.finished_at : ''].filter(Boolean).join(' &nbsp;&middot;&nbsp; ');
+
+        const ext = extractBookDetails(b);
+
+        document.getElementById('book-detail-content').innerHTML = `
+          <div class="book-detail-cover-col">${cov}</div>
+          <div class="book-detail-body">
+            <div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+                <span class="book-status-badge ${sc}" style="position:static;">${st}</span>
+                ${b.is_favorite ? '<span>❤️ Favori</span>' : ''}
+              </div>
+              <div class="book-detail-title">${escapeHtml(b.title)}</div>
+              <div class="book-detail-author">&mdash; ${escapeHtml(b.author)} ${b.genre ? '&bull; ' + escapeHtml(b.genre) : ''}</div>
+              ${b.rating ? '<div style="margin-top:8px;">' + starsHtml(b.rating) + '</div>' : ''}
+              ${dates ? '<div style="font-size:12px;color:var(--text-muted);margin-top:6px;">' + dates + '</div>' : ''}
+            </div>
+
+            ${b.review ? `<div><div class="book-detail-section-lbl">İnceleme & Düşünceler</div><div class="book-detail-text">${escapeHtml(b.review)}</div></div>` : ''}
+            ${ext.quotes ? `<div><div class="book-detail-section-lbl">✍️ Alıntılar & Önemli Cümleler</div><div class="book-detail-text book-detail-notes-box">${escapeHtml(ext.quotes)}</div></div>` : ''}
+            ${ext.takeaways ? `<div><div class="book-detail-section-lbl">📌 Önemli Yerler & Çıkarımlar</div><div class="book-detail-text book-detail-notes-box">${escapeHtml(ext.takeaways)}</div></div>` : ''}
+            ${ext.cleanNotes ? `<div><div class="book-detail-section-lbl">Genel Notlar</div><div class="book-detail-text book-detail-notes-box">${escapeHtml(ext.cleanNotes)}</div></div>` : ''}
+          </div>
+        `;
+        Modal.open('book-detail-modal');
+      }
+
+      function openBookForm(b = null) {
+        document.getElementById('book-form').reset();
+        document.getElementById('edit-book-id').value = b ? b.id : '';
+        document.getElementById('book-form-title').textContent = b ? '✏️ Kitabı Düzenle' : '📚 Yeni Kitap';
+
+        if (b) {
+          document.getElementById('book-title').value = b.title || '';
+          document.getElementById('book-author').value = b.author || '';
+          document.getElementById('book-genre').value = b.genre || '';
+          document.getElementById('book-cover-url').value = b.cover_url || '';
+          document.getElementById('book-status').value = b.status || 'completed';
+          document.getElementById('book-fav').checked = !!b.is_favorite;
+          document.getElementById('book-started').value = b.started_at || '';
+          document.getElementById('book-finished').value = b.finished_at || '';
+          document.getElementById('book-review').value = b.review || '';
+
+          const ext = extractBookDetails(b);
+          document.getElementById('book-quotes').value = ext.quotes;
+          document.getElementById('book-takeaways').value = ext.takeaways;
+          document.getElementById('book-notes').value = ext.cleanNotes;
+
+          setRating(b.rating || 0);
+        } else {
+          setRating(0);
+        }
+        Modal.open('book-form-modal');
+      }
+
+      function setRating(v) {
+        selectedRating = v;
+        document.getElementById('book-rating').value = v;
+        document.querySelectorAll('#star-input-row .star-inp').forEach(s => {
+          s.classList.toggle('sel', parseInt(s.dataset.v, 10) <= v);
+        });
+      }
+
+      function clearBookSearch() {
+        const inp = document.getElementById('book-search-input');
+        if (inp) {
+          inp.value = '';
+          bookSearchQuery = '';
+          const clr = document.getElementById('book-search-clear');
+          if (clr) clr.style.display = 'none';
+          applyFilter();
+        }
+      }
+
+      // ===== 3. TRIVIA (GENEL KÜLTÜR) LOGIC =====
+      const TRIVIA_KEY = 'oyp_trivia_notes_v2';
+      const DEFAULT_TRIVIA = [
+        {
+          id: "t-1",
+          title: "Nöronlar Arasındaki İletişim Hızı",
+          category: "science",
+          tag: "🔬 Bilim & Uzay",
+          fact: "İnsan beynindeki sinir sinyalleri saatte yaklaşık 430 km hızla seyahat edebilir! Bu hız Formula 1 araçlarından bile daha yüksektir."
+        },
+        {
+          id: "t-2",
+          title: "Voyager 1 Probu ve Soluk Mavi Nokta",
+          category: "science",
+          tag: "🔬 Bilim & Uzay",
+          fact: "Voyager 1, 6 milyar km öteden Dünya'nın fotoğrafını çekerek insanlığın kozmostaki yerini hatırlattı. Carl Sagan bu noktaya 'Soluk Mavi Nokta' adını vermiştir."
+        },
+        {
+          id: "t-3",
+          title: "Dünyanın En Eski Tapınağı: Göbeklitepe",
+          category: "history",
+          tag: "🏛️ Tarih & Medeniyet",
+          fact: "Şanlıurfa'da bulunan Göbeklitepe, M.Ö. 9600 yılına tarihlenerek insanlık tarihindeki bilinen en eski anıtsal tapınak kompleksidir ve yerleşik hayata geçiş teorilerini kökten değiştirmiştir."
+        },
+        {
+          id: "t-4",
+          title: "Pomodoro Tekniği ve Zeigarnik Etkisi",
+          category: "psychology",
+          tag: "🧠 Psikoloji & Zihin",
+          fact: "Zeigarnik Etkisi'ne göre beynimiz tamamlanmamış işleri, tamamlananlara göre çok daha net ve canlı hatırlar. Bu prensip üretkenlik ve ertelemeyi yenmede en büyük yardımcımızdır."
+        },
+        {
+          id: "t-5",
+          title: "Okyanusların Yalnızca %5'i Keşfedildi",
+          category: "world",
+          tag: "🌍 Doğa & Dünya",
+          fact: "İnsanlık olarak Ay ve Mars'ın yüzey haritasını, Dünya'nın derin okyanus tabanlarından çok daha detaylı biliyoruz."
+        },
+        {
+          id: "t-6",
+          title: "İlk Bilgisayar Programcısı: Ada Lovelace",
+          category: "tech",
+          tag: "💻 Teknoloji",
+          fact: "1843 yılında Charles Babbage'ın Mekanik Analitik Motoru için algoritma yazan Ada Lovelace, tarihin ilk bilgisayar programcısı olarak kabul edilir."
+        }
+      ];
+
+      let activeTriviaCategory = 'all';
+      let triviaSearchQuery = '';
+
+      function getLocalTrivia() {
+        try {
+          const t = JSON.parse(localStorage.getItem(TRIVIA_KEY));
+          if (Array.isArray(t) && t.length > 0) return t;
+        } catch {}
+        localStorage.setItem(TRIVIA_KEY, JSON.stringify(DEFAULT_TRIVIA));
+        return DEFAULT_TRIVIA;
+      }
+
+      function saveLocalTrivia(list) {
+        localStorage.setItem(TRIVIA_KEY, JSON.stringify(list));
+      }
+
+      function updateTriviaStats(list) {
+        document.getElementById('trivia-stat-total').textContent = list.length;
+        document.getElementById('trivia-stat-science').textContent = list.filter(x => x.category === 'science').length;
+        document.getElementById('trivia-stat-history').textContent = list.filter(x => x.category === 'history').length;
+        document.getElementById('trivia-stat-tech').textContent = list.filter(x => x.category === 'tech').length;
+      }
+
+      function filterTriviaCategory(cat) {
+        activeTriviaCategory = cat;
+        document.querySelectorAll('#trivia-category-filters .en-filter-pill').forEach(b => {
+          b.classList.toggle('active', b.dataset.cat === cat);
+        });
+        renderTriviaCards();
+      }
+
+      function handleTriviaSearch(q) {
+        triviaSearchQuery = q;
+        renderTriviaCards();
+      }
+
+      function copyTriviaFact(id, btn) {
+        const item = getLocalTrivia().find(x => x.id === id);
+        if (!item) return;
+        navigator.clipboard.writeText(item.fact).then(() => {
+          const orig = btn.innerHTML;
+          btn.innerHTML = '✓ Kopyalandı!';
+          btn.style.color = '#34d399';
+          btn.style.borderColor = '#10b981';
+          setTimeout(() => {
+            btn.innerHTML = orig;
+            btn.style.color = '';
+            btn.style.borderColor = '';
+          }, 1800);
+        });
+      }
+
+      function renderTriviaCards() {
+        const grid = document.getElementById('trivia-grid');
+        if (!grid) return;
+
+        let list = getLocalTrivia();
+        updateTriviaStats(list);
+
+        if (activeTriviaCategory !== 'all') {
+          list = list.filter(t => t.category === activeTriviaCategory);
+        }
+
+        if (triviaSearchQuery) {
+          const q = triviaSearchQuery.toLocaleLowerCase('tr').trim();
+          list = list.filter(t => (t.title||'').toLocaleLowerCase('tr').includes(q) || (t.fact||'').toLocaleLowerCase('tr').includes(q));
+        }
+
+        if (list.length === 0) {
+          grid.innerHTML = `<div class="books-empty" style="grid-column: 1/-1;"><div class="books-empty-icon">💡</div><div class="books-empty-title">Bilgi bulunamadı</div></div>`;
+          return;
+        }
+
+        grid.innerHTML = list.map(t => `
+          <div class="trivia-card">
+            <div class="trivia-card-top">
+              <span class="trivia-tag">${escapeHtml(t.tag || '💡 Genel Kültür')}</span>
+              ${isAdmin ? `<button class="en-mini-btn delete" onclick="deleteTriviaItem('${t.id}')" title="Sil">🗑</button>` : ''}
+            </div>
+            <div class="trivia-card-title">${escapeHtml(t.title)}</div>
+            <div class="trivia-card-body">${escapeHtml(t.fact)}</div>
+            <div class="trivia-card-footer">
+              <span style="color: var(--text-muted);">✨ İlginç Bilgi</span>
+              <button type="button" class="trivia-copy-btn" onclick="copyTriviaFact('${t.id}', this)">
+                📋 Panoya Kopyala
+              </button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      function openAddTriviaModal() {
+        document.getElementById('trivia-form').reset();
+        document.getElementById('edit-trivia-id').value = '';
+        Modal.open('trivia-modal');
+      }
+
+      function deleteTriviaItem(id) {
+        if (!confirm("Bu bilgiyi silmek istediğinizden emin misiniz?")) return;
+        let list = getLocalTrivia().filter(t => t.id !== id);
+        saveLocalTrivia(list);
+        Toast.success("Not silindi.");
+        renderTriviaCards();
+      }
+
+      // Global reliable close handler for any modal close button
+      document.addEventListener('click', (e) => {
+        const closeBtn = e.target.closest('.modal-close, .modal-close-btn, .bk-close, #book-detail-close');
+        if (closeBtn) {
+          e.stopPropagation();
+          const modal = closeBtn.closest('.modal-overlay');
+          if (modal && modal.id) {
+            Modal.close(modal.id);
+          }
+        }
+      });
+
+      // ===== EVENT LISTENERS & INITIALIZATION =====
+        document.addEventListener('DOMContentLoaded', async () => {
+          Modal.setup('book-detail-modal');
+          Modal.setup('book-form-modal');
+          Modal.setup('trivia-modal');
+          // Ensure close button works reliably
+          const bookDetailCloseBtn = document.getElementById('book-detail-close');
+          if (bookDetailCloseBtn) bookDetailCloseBtn.addEventListener('click', () => Modal.close('book-detail-modal'));
+
+
+        if (window.Nav) Nav.init();
+
+        // 1. Init Books
+        await syncBookAccess();
+        await loadBooks();
+
+        // 2. Init English App
+        if (window.EnglishApp) {
+          EnglishApp.init();
+        }
+
+        // 3. Init Trivia
+        renderTriviaCards();
+
+        // View Mode Toggle for Books
+        const viewToggle = document.getElementById('book-view-toggle');
+        if (viewToggle) {
+          viewToggle.addEventListener('click', e => {
+            const btn = e.target.closest('.view-mode-btn');
+            if (!btn) return;
+            viewToggle.querySelectorAll('.view-mode-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentBookViewMode = btn.dataset.mode || 'grid';
+            applyFilter();
+          });
+        }
+
+        // Books Filter Stats Bar Click
+        const statsFilter = document.getElementById('books-stats-filter');
+        if (statsFilter) {
+          statsFilter.addEventListener('click', e => {
+            const card = e.target.closest('.books-stat-card');
+            if (!card) return;
+            statsFilter.querySelectorAll('.books-stat-card').forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            activeFilter = card.dataset.filter || 'all';
+            applyFilter();
+          });
+        }
+
+        // Search in Books
+        const bSearch = document.getElementById('book-search-input');
+        const bSearchClear = document.getElementById('book-search-clear');
+        if (bSearch) {
+          bSearch.addEventListener('input', () => {
+            bookSearchQuery = bSearch.value.trim();
+            if (bSearchClear) bSearchClear.style.display = bookSearchQuery ? 'flex' : 'none';
+            applyFilter();
+          });
+        }
+        if (bSearchClear) bSearchClear.addEventListener('click', clearBookSearch);
+
+        // Books Grid Click Delegation
+        const bGrid = document.getElementById('books-grid');
+        if (bGrid) {
+          bGrid.addEventListener('click', e => {
+            const editBtn = e.target.closest('.book-edit-btn');
+            const delBtn = e.target.closest('.book-delete-btn');
+            const card = e.target.closest('.book-card-clickable');
+
+            if (editBtn) {
+              e.stopPropagation();
+              const b = allBooks.find(x => String(x.id) === String(editBtn.dataset.id));
+              if (b) openBookForm(b);
+              return;
+            }
+            if (delBtn) {
+              e.stopPropagation();
+              deleteBook(delBtn.dataset.id);
+              return;
+            }
+            if (card) {
+              openBookDetail(card.dataset.id);
+            }
+          });
+        }
+
+        // Star rating picker
+        const starRow = document.getElementById('star-input-row');
+        if (starRow) {
+          starRow.addEventListener('click', e => {
+            const s = e.target.closest('.star-inp');
+            if (!s) return;
+            setRating(parseInt(s.dataset.v, 10));
+          });
+        }
+
+        // Add Book Button
+        const addBBtn = document.getElementById('add-book-btn');
+        if (addBBtn) addBBtn.addEventListener('click', () => openBookForm());
+
+        // Book Form Submit
+        const bForm = document.getElementById('book-form');
+        if (bForm) {
+          bForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            const title = document.getElementById('book-title').value.trim();
+            const author = document.getElementById('book-author').value.trim();
+            const genre = document.getElementById('book-genre').value.trim();
+            const cover_url = document.getElementById('book-cover-url').value.trim();
+            const status = document.getElementById('book-status').value;
+            const is_favorite = document.getElementById('book-fav').checked;
+            const started_at = document.getElementById('book-started').value || null;
+            const finished_at = document.getElementById('book-finished').value || null;
+            const rating = selectedRating || null;
+            const review = document.getElementById('book-review').value.trim();
+            const quotes = document.getElementById('book-quotes').value.trim();
+            const key_takeaways = document.getElementById('book-takeaways').value.trim();
+            const notes = document.getElementById('book-notes').value.trim();
+
+            const saveBtn = document.getElementById('book-save-btn');
+            if (saveBtn) setButtonLoading(saveBtn, true, 'Kaydediliyor...');
+
+            try {
+              await saveBook({
+                title, author, genre, cover_url, status, is_favorite,
+                started_at, finished_at, rating, review, quotes, key_takeaways, notes
+              });
+              Toast.success('Kitap kaydedildi!');
+              Modal.close('book-form-modal');
+              await loadBooks();
+            } finally {
+              if (saveBtn) setButtonLoading(saveBtn, false);
+            }
+          });
+        }
+
+        // Trivia Form Submit
+        const tForm = document.getElementById('trivia-form');
+        if (tForm) {
+          tForm.addEventListener('submit', e => {
+            e.preventDefault();
+            const title = document.getElementById('trivia-title-input').value.trim();
+            const category = document.getElementById('trivia-category-input').value;
+            const fact = document.getElementById('trivia-fact-input').value.trim();
+
+            const catMap = {
+              science: "🔬 Bilim & Uzay",
+              history: "🏛️ Tarih & Medeniyet",
+              psychology: "🧠 Psikoloji & Zihin",
+              world: "🌍 Doğa & Dünya",
+              tech: "💻 Teknoloji"
+            };
+
+            const newItem = {
+              id: "t-" + Date.now(),
+              title,
+              category,
+              tag: catMap[category] || "💡 Genel Kültür",
+              fact
+            };
+
+            const list = getLocalTrivia();
+            list.unshift(newItem);
+            saveLocalTrivia(list);
+            Toast.success("Yeni genel kültür notu eklendi!");
+            Modal.close('trivia-modal');
+            renderTriviaCards();
+          });
+        }
+      });
+
+      window.addEventListener('auth:changed', async () => {
+        await syncBookAccess();
+        await loadBooks();
+        renderTriviaCards();
+      });
+    </script>
+  </body>
+</html>

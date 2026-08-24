@@ -919,25 +919,46 @@ html[data-theme="light"] .confirm-delete-title {
   color: var(--text-primary);
 }
 
+/* ===== MODAL CLOSE BUTTON (UNIVERSAL RED-HOVER CIRCLE) ===== */
 .modal-close {
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: var(--bg-card);
-  border: 1px solid var(--glass-border);
-  color: var(--text-secondary);
-  display: flex;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 16px;
-  transition: var(--transition);
+  line-height: 1;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   cursor: pointer;
   flex-shrink: 0;
+  padding: 0;
+  outline: none;
 }
 
 .modal-close:hover {
-  background: var(--bg-card-hover);
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.modal-close:active {
+  background: #dc2626 !important;
+}
+
+html[data-theme="light"] .modal-close {
+  background: rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   color: var(--text-primary);
+}
+
+html[data-theme="light"] .modal-close:hover {
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
 }
 
 /* ===== BADGE / TAG ===== */
@@ -2808,16 +2829,92 @@ html.light-theme .footer-bottom {
 }
 
 .lightbox-overlay {
-  z-index: 3000 !important;
-  background: rgba(0, 0, 0, 0.92) !important;
-  backdrop-filter: blur(14px) !important;
-  -webkit-backdrop-filter: blur(14px) !important;
+  z-index: 200000 !important;
+  background: #090a0f !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Hide background modal when lightbox is open to eliminate background repaint cost */
+body:has(#photo-lightbox-modal.open) #wishlist-detail-modal {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.lightbox-close-btn {
+  position: absolute;
+  top: -14px;
+  right: -14px;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #ffffff;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 200010;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
 .lightbox-close-btn:hover {
-  background: rgba(239, 68, 68, 0.85) !important;
-  border-color: transparent !important;
-  transform: scale(1.1);
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.lightbox-close-btn:active {
+  background: #dc2626 !important;
+}
+
+@media (max-width: 768px) {
+  .lightbox-close-btn {
+    top: -10px;
+    right: -10px;
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+}
+
+#photo-lightbox-img {
+  max-width: 90vw;
+  max-height: 82vh;
+  object-fit: contain;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  transform: translateZ(0);
+}
+
+#photo-lightbox-caption {
+  margin-top: 14px;
+  background: #14151f;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 8px 22px;
+  border-radius: var(--radius-pill);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  max-width: 90vw;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+@media (max-width: 768px) {
+  .lightbox-close-btn {
+    top: 16px;
+    right: 16px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+    background: rgba(30, 30, 40, 0.85);
+    border-color: rgba(255, 255, 255, 0.3);
+  }
 }
 
 .wishlist-city-content-wrap {

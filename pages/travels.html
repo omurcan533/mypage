@@ -290,12 +290,12 @@
               <span data-i18n="nav_habits">Alışkanlıklar</span></a
             >
           </li>
-          <li>
+          <!-- <li>
             <a href="projects.html"
               ><span class="nav-icon">🚀</span>
               <span data-i18n="nav_projects">Projeler</span></a
             >
-          </li>
+          </li> -->
           <li>
             <a href="travels.html" class="active"
               ><span class="nav-icon">✈️</span>
@@ -303,35 +303,17 @@
             >
           </li>
           <li>
-            <a href="contact.html"
-              ><span class="nav-icon">📬</span>
-              <span data-i18n="nav_contact">İletişim</span></a
-            >
-          </li>
-          <li>
-            <a href="books.html"
-              ><span class="nav-icon">📚</span>
-              <span>Kitaplar</span></a
+            <a href="knowledge.html"
+              ><span class="nav-icon">💡</span>
+              <span data-i18n="nav_knowledge">Bilgi</span></a
             >
           </li>
           <li>
             <a href="media.html"
-              ><span class="nav-icon">🎮</span>
+              ><span class="nav-icon">🎬</span>
               <span>Medya & Eğlence</span></a
             >
           </li>
-          <li>
-            <a href="english.html"
-              ><span class="nav-icon">🇬🇧</span>
-              <span>İngilizce</span></a
-            >
-          </li>
-          <!-- <li>
-            <a href="portfolio.html"
-              ><span class="nav-icon">💼</span>
-              <span>Portföyüm</span></a
-            >
-          </li> -->
           <li>
             <a href="family.html"
               ><span class="nav-icon">👨‍👩‍👧‍👦</span>
@@ -426,11 +408,9 @@
           <div class="hero-quick-links">
             <a href="home.html" class="quick-link">🏠 Ana Sayfa</a>
             <a href="habits.html" class="quick-link" data-i18n="home_quick_habits">✅ Alışkanlıklar</a>
-            <a href="projects.html" class="quick-link" data-i18n="home_quick_projects">🚀 Projelerim</a>
             <a href="travels.html" class="quick-link active" data-i18n="home_quick_travels">✈️ Gezilerim</a>
-            <a href="books.html" class="quick-link">📚 Kitaplar</a>
-            <a href="media.html" class="quick-link">🎮 Medya & Eğlence</a>
-            <a href="english.html" class="quick-link">🇬🇧 İngilizce</a>
+            <a href="knowledge.html" class="quick-link">💡 Bilgi</a>
+            <a href="media.html" class="quick-link">🎬 Medya & Eğlence</a>
             <a href="contact.html" class="quick-link">📬 İletişim</a>
             <a href="../assets/omurcan_yilmaz_CV.pdf" download="Omur_Can_Yilmaz_CV.pdf" target="_blank" class="quick-link cv-download-btn" data-i18n="home_quick_cv">📄 CV'mi İndir</a>
           </div>
@@ -444,6 +424,31 @@
           <a href="events.html" class="te-tab-btn" id="travel-tab-events">
             📅 Etkinlikler & Planlarım <span class="te-tab-badge-lock">Admin</span>
           </a>
+        </div>
+
+        <!-- Travel Wishlist (Gezilecek Yerler & Şehir Haritam) — herkes görebilir, sadece admin düzenleyebilir -->
+        <div id="admin-travel-wishlist-section" class="wishlist-section" style="display: none; margin-bottom: 36px;">
+          <div class="wishlist-header-row">
+            <div>
+              <h2 class="wishlist-title">
+                📍 Gezilecek Yerler & Şehir Haritam
+              </h2>
+              <p class="page-subtitle" style="margin-top: 2px;">
+                Şehir şehir, semt semt gitmek istediğim mekanlar ve seyahat istek listem
+              </p>
+            </div>
+            <button type="button" class="btn btn-primary" id="add-wishlist-item-btn" style="display: none;">
+              ＋ Yeni Yer Ekle
+            </button>
+          </div>
+
+          <div class="wishlist-filter-bar" id="wishlist-city-filter">
+            <!-- Dynamic city filter tabs injected via JS -->
+          </div>
+
+          <div class="wishlist-cities-grid" id="wishlist-cities-container">
+            <!-- Dynamic city & district cards injected via JS -->
+          </div>
         </div>
 
         <div class="travel-header-row">
@@ -490,31 +495,6 @@
         </div>
 
         <div id="travels-container"></div>
-
-        <!-- Travel Wishlist (Gezilecek Yerler & Şehir Haritam) — herkes görebilir, sadece admin düzenleyebilir -->
-        <div id="admin-travel-wishlist-section" class="wishlist-section" style="display: none;">
-          <div class="wishlist-header-row">
-            <div>
-              <h2 class="wishlist-title">
-                📍 Gezilecek Yerler & Şehir Haritam
-              </h2>
-              <p class="page-subtitle" style="margin-top: 2px;">
-                Şehir şehir, semt semt gitmek istediğim mekanlar ve seyahat istek listem
-              </p>
-            </div>
-            <button type="button" class="btn btn-primary" id="add-wishlist-item-btn" style="display: none;">
-              ＋ Yeni Yer Ekle
-            </button>
-          </div>
-
-          <div class="wishlist-filter-bar" id="wishlist-city-filter">
-            <!-- Dynamic city filter tabs injected via JS -->
-          </div>
-
-          <div class="wishlist-cities-grid" id="wishlist-cities-container">
-            <!-- Dynamic city & district cards injected via JS -->
-          </div>
-        </div>
       </main>
     </div>
 
@@ -726,7 +706,7 @@
         <div id="wishlist-detail-cover" style="position: relative; width: 100%; height: 260px; overflow: hidden; background: rgba(0,0,0,0.3); display: none;">
           <img id="wishlist-detail-img" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; cursor: zoom-in;" onclick="openPhotoLightbox(event)" title="Tam ekran görüntülemek için tıklayın" />
           <button type="button" class="wishlist-detail-fullscreen-btn" onclick="openPhotoLightbox(event)" title="Fotoğrafı Tam Ekran Gör">⛶ Tam Ekran</button>
-          <button type="button" class="modal-close" style="position: absolute; top: 14px; right: 14px; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); border-radius: 50%; width: 32px; height: 32px; color: white; display: flex; align-items: center; justify-content: center; z-index: 10; border: none; cursor: pointer; font-size: 14px;">✕</button>
+          <button type="button" class="modal-close" style="position: absolute; top: 14px; right: 14px; z-index: 10;" aria-label="Kapat">✕</button>
         </div>
         <div id="wishlist-detail-header-fallback" class="modal-header" style="display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--glass-border);">
           <div class="modal-title" id="wishlist-detail-title-fallback">📍 Mekan Detayı</div>
@@ -783,9 +763,9 @@
     <!-- Fullscreen Photo Lightbox Modal -->
     <div class="modal-overlay lightbox-overlay" id="photo-lightbox-modal">
       <div style="position: relative; max-width: 94vw; max-height: 92vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-        <button type="button" class="modal-close lightbox-close-btn" style="position: absolute; top: -14px; right: -14px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.25); color: white; border-radius: 50%; width: 40px; height: 40px; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; transition: transform 0.2s ease;">✕</button>
-        <img id="photo-lightbox-img" src="" alt="" style="max-width: 90vw; max-height: 82vh; object-fit: contain; border-radius: 20px; box-shadow: 0 25px 70px rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.12);" />
-        <div id="photo-lightbox-caption" style="margin-top: 14px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.15); padding: 8px 22px; border-radius: var(--radius-pill); color: white; font-size: 14px; font-weight: 600; text-align: center; max-width: 90vw;"></div>
+        <button type="button" class="modal-close lightbox-close-btn" aria-label="Kapat">✕</button>
+        <img id="photo-lightbox-img" src="" alt="" />
+        <div id="photo-lightbox-caption"></div>
       </div>
     </div>
 

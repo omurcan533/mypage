@@ -804,12 +804,11 @@ const Nav = {
         <ul class="footer-links">
           <li><a href="home.html">🏠 Ana Sayfa</a></li>
           <li><a href="habits.html">✅ Alışkanlıklar</a></li>
-          <li><a href="projects.html">🚀 Projelerim</a></li>
+          <!-- <li><a href="projects.html">🚀 Projelerim</a></li> -->
           <li><a href="travels.html">✈️ Gezilerim</a></li>
-          <li><a href="books.html">📚 Kitaplar</a></li>
-          <li><a href="media.html">🎮 Medya & Eğlence</a></li>
-          <li><a href="english.html">🇬🇧 İngilizce</a></li>
-          <!-- <li><a href="portfolio.html">💼 Portföyüm</a></li> -->
+          <li><a href="knowledge.html">💡 Bilgi</a></li>
+          <li><a href="media.html">🎬 Medya & Eğlence</a></li>
+          <li><a href="family.html">👨‍👩‍👧‍👦 Ailem</a></li>
           <li><a href="contact.html">📬 İletişim</a></li>
         </ul>
       </div>

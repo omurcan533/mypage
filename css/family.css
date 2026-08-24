@@ -532,32 +532,40 @@ html[data-theme="light"] .modal {
   font-weight: 700;
 }
 .modal-close {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 16px;
+  line-height: 1;
   cursor: pointer;
-  color: var(--text-secondary);
-  transition: all 0.2s ease;
+  color: #ffffff;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
   flex-shrink: 0;
+  padding: 0;
+  outline: none;
 }
 .modal-close:hover {
-  background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
-  transform: scale(1.05);
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
+}
+.modal-close:active {
+  background: #dc2626 !important;
 }
 html[data-theme="light"] .modal-close {
-  background: rgba(0, 0, 0, 0.06);
-  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.15);
   color: var(--text-primary);
 }
 html[data-theme="light"] .modal-close:hover {
-  background: rgba(0, 0, 0, 0.12);
+  background: #ef4444 !important;
+  border-color: #ef4444 !important;
+  color: #ffffff !important;
 }
 .form-group {
   margin-bottom: 16px;

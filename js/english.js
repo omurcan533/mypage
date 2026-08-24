@@ -979,6 +979,10 @@ const EnglishApp = {
     }
   },
 
+  syncStats() {
+    this.renderStats();
+  },
+
   renderStats() {
     const totalPlaces = this.places.length;
     let totalSections = 0;
