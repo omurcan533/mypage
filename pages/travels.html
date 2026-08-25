@@ -22,6 +22,51 @@
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/events.css" />
     <style>
+      /* Collapsible section styles */
+      .collapsible-header {
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: var(--radius-xl);
+        padding: 10px 14px;
+        margin: -10px -14px 20px -14px;
+      }
+      .collapsible-header:hover {
+        background: rgba(255, 255, 255, 0.035);
+      }
+      [data-theme="light"] .collapsible-header:hover {
+        background: rgba(0, 0, 0, 0.03);
+      }
+      .collapse-toggle-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--glass-border);
+        color: var(--text-secondary);
+        font-size: 12px;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), background var(--transition), color var(--transition);
+        flex-shrink: 0;
+        cursor: pointer;
+      }
+      .collapsible-header:hover .collapse-toggle-icon {
+        background: rgba(108, 99, 255, 0.15);
+        color: var(--accent-light);
+        border-color: rgba(108, 99, 255, 0.35);
+      }
+      .collapsible-section.collapsed .collapse-toggle-icon {
+        transform: rotate(-90deg);
+      }
+      .collapsible-section.collapsed .collapsible-content {
+        display: none;
+      }
+      .collapsible-section {
+        transition: all 0.3s ease;
+      }
+
       .travel-header-row {
         display: flex;
         align-items: flex-start;
@@ -81,6 +126,7 @@
         transition: var(--transition);
         animation: fadeInUp 0.4s ease;
         position: relative;
+        cursor: pointer;
       }
 
       .travel-card:hover {
@@ -426,75 +472,90 @@
           </a>
         </div>
 
-        <!-- Travel Wishlist (Gezilecek Yerler & Şehir Haritam) — herkes görebilir, sadece admin düzenleyebilir -->
-        <div id="admin-travel-wishlist-section" class="wishlist-section" style="display: none; margin-bottom: 36px;">
-          <div class="wishlist-header-row">
+        <!-- Section 1: Travel Wishlist (Gezilecek Yerler & Şehir Haritam) -->
+        <div id="admin-travel-wishlist-section" class="wishlist-section collapsible-section" style="display: none; margin-bottom: 36px;">
+          <div class="wishlist-header-row collapsible-header" id="wishlist-collapse-toggle">
             <div>
               <h2 class="wishlist-title">
-                📍 Gezilecek Yerler & Şehir Haritam
+                📍 <span>Gezilecek Yerler & Şehir Haritam</span>
               </h2>
               <p class="page-subtitle" style="margin-top: 2px;">
                 Şehir şehir, semt semt gitmek istediğim mekanlar ve seyahat istek listem
               </p>
             </div>
-            <button type="button" class="btn btn-primary" id="add-wishlist-item-btn" style="display: none;">
-              ＋ Yeni Yer Ekle
-            </button>
-          </div>
-
-          <div class="wishlist-filter-bar" id="wishlist-city-filter">
-            <!-- Dynamic city filter tabs injected via JS -->
-          </div>
-
-          <div class="wishlist-cities-grid" id="wishlist-cities-container">
-            <!-- Dynamic city & district cards injected via JS -->
-          </div>
-        </div>
-
-        <div class="travel-header-row">
-          <div class="page-header" style="margin-bottom: 0">
-            <h1 class="page-title">
-              ✈️ <span data-i18n="travels_title">Geziler</span>
-            </h1>
-            <p class="page-subtitle" data-i18n="travels_subtitle">
-              Gittiğim yerler, anılar ve keşifler
-            </p>
-          </div>
-          <div style="display:flex; align-items:center; gap:12px;">
-            <div class="view-mode-toggle" id="travel-view-toggle">
-              <button type="button" class="view-mode-btn active" data-mode="grid">🎴 Kart</button>
-              <button type="button" class="view-mode-btn" data-mode="compact">📋 Sıkışık</button>
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <button type="button" class="btn btn-primary" id="add-wishlist-item-btn" style="display: none;" onclick="event.stopPropagation()">
+                ＋ Yeni Yer Ekle
+              </button>
+              <div class="collapse-toggle-icon" id="wishlist-toggle-icon" title="Aç / Kapat">
+                ▼
+              </div>
             </div>
-            <button class="btn btn-primary" id="add-travel-btn">
-              ＋ Gezi Ekle
-            </button>
+          </div>
+
+          <div class="collapsible-content" id="wishlist-collapse-content">
+            <div class="wishlist-filter-bar" id="wishlist-city-filter">
+              <!-- Dynamic city filter tabs injected via JS -->
+            </div>
+
+            <div class="wishlist-cities-grid" id="wishlist-cities-container">
+              <!-- Dynamic city & district cards injected via JS -->
+            </div>
           </div>
         </div>
 
-        <!-- Stats bar -->
-        <div class="travel-world-bar" id="travel-stats-bar">
-          <div class="world-stat">
-            <span class="world-stat-val" id="ts-trips">0</span>
-            <span class="world-stat-label">Gezi</span>
+        <!-- Section 2: Geziler Main Section -->
+        <div id="travels-main-section" class="travels-main-section collapsible-section" style="margin-bottom: 36px;">
+          <div class="travel-header-row collapsible-header" id="travels-collapse-toggle" style="margin-bottom: 20px;">
+            <div class="page-header" style="margin-bottom: 0">
+              <h1 class="page-title">
+                ✈️ <span data-i18n="travels_title">Geziler</span>
+              </h1>
+              <p class="page-subtitle" data-i18n="travels_subtitle">
+                Gittiğim yerler, anılar ve keşifler
+              </p>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="view-mode-toggle" id="travel-view-toggle" onclick="event.stopPropagation()">
+                <button type="button" class="view-mode-btn active" data-mode="grid">🎴 Kart</button>
+                <button type="button" class="view-mode-btn" data-mode="compact">📋 Sıkışık</button>
+              </div>
+              <button class="btn btn-primary" id="add-travel-btn" onclick="event.stopPropagation()">
+                ＋ Gezi Ekle
+              </button>
+              <div class="collapse-toggle-icon" id="travels-toggle-icon" title="Aç / Kapat">
+                ▼
+              </div>
+            </div>
           </div>
-          <div class="world-divider"></div>
-          <div class="world-stat">
-            <span class="world-stat-val" id="ts-countries">0</span>
-            <span class="world-stat-label">Ülke</span>
-          </div>
-          <div class="world-divider"></div>
-          <div class="world-stat">
-            <span class="world-stat-val" id="ts-cities">0</span>
-            <span class="world-stat-label">Şehir</span>
-          </div>
-          <div class="world-divider"></div>
-          <div class="world-stat">
-            <span class="world-stat-val" id="ts-continents">0</span>
-            <span class="world-stat-label">Kıta</span>
+
+          <div class="collapsible-content" id="travels-collapse-content">
+            <!-- Stats bar -->
+            <div class="travel-world-bar" id="travel-stats-bar">
+              <div class="world-stat">
+                <span class="world-stat-val" id="ts-trips">0</span>
+                <span class="world-stat-label">Gezi</span>
+              </div>
+              <div class="world-divider"></div>
+              <div class="world-stat">
+                <span class="world-stat-val" id="ts-countries">0</span>
+                <span class="world-stat-label">Ülke</span>
+              </div>
+              <div class="world-divider"></div>
+              <div class="world-stat">
+                <span class="world-stat-val" id="ts-cities">0</span>
+                <span class="world-stat-label">Şehir</span>
+              </div>
+              <div class="world-divider"></div>
+              <div class="world-stat">
+                <span class="world-stat-val" id="ts-continents">0</span>
+                <span class="world-stat-label">Kıta</span>
+              </div>
+            </div>
+
+            <div id="travels-container"></div>
           </div>
         </div>
-
-        <div id="travels-container"></div>
       </main>
     </div>
 
@@ -729,6 +790,58 @@
             <button type="button" class="btn btn-ghost modal-close">Kapat</button>
             <a id="wishlist-detail-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: 13px; padding: 8px 18px;">
               🗺️ Google Haritalar'da Aç ↗
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Travel City Detail Modal (Gezilerim Şehir Detayı) -->
+    <div class="modal-overlay" id="travel-detail-modal">
+      <div class="modal" style="max-width: 580px; padding: 0; overflow: hidden; border-radius: 32px;">
+        <div id="travel-detail-banner-wrap" style="position: relative; width: 100%; height: 260px; overflow: hidden; background: linear-gradient(135deg, rgba(108, 99, 255, 0.4), rgba(59, 130, 246, 0.2)); display: flex; align-items: center; justify-content: center;">
+          <img id="travel-detail-img" src="" alt="" style="width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; display: none;" onclick="openPhotoLightbox(event, this.src, document.getElementById('travel-detail-title').textContent)" title="Tam ekran görüntülemek için tıklayın" />
+          <div id="travel-detail-banner-fallback" style="font-size: 72px; filter: drop-shadow(0 4px 14px rgba(0,0,0,0.5));">🌍</div>
+          <button type="button" id="travel-detail-fullscreen-btn" class="wishlist-detail-fullscreen-btn" onclick="openPhotoLightbox(event, document.getElementById('travel-detail-img').src, document.getElementById('travel-detail-title').textContent)" style="display: none;" title="Fotoğrafı Tam Ekran Gör">⛶ Tam Ekran</button>
+          <button type="button" class="modal-close" style="position: absolute; top: 14px; right: 14px; z-index: 10; background: rgba(0,0,0,0.55); backdrop-filter: blur(8px); border-radius: 50%; width: 34px; height: 34px; color: white; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.25);" aria-label="Kapat">✕</button>
+        </div>
+
+        <div style="padding: 24px 28px; max-height: calc(85vh - 260px); overflow-y: auto;">
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span id="travel-detail-continent" class="wishlist-category-tag" style="font-size: 12px; padding: 4px 12px;"></span>
+              <span id="travel-detail-flag" style="font-size: 20px;"></span>
+            </div>
+            <div id="travel-detail-rating" class="travel-rating" style="margin: 0; font-size: 16px;"></div>
+          </div>
+
+          <h2 id="travel-detail-title" style="font-size: 26px; font-weight: 800; color: var(--text-primary); margin: 0 0 4px; line-height: 1.25;"></h2>
+          <div id="travel-detail-country" style="font-size: 14px; font-weight: 600; color: var(--accent-light); margin-bottom: 12px;"></div>
+
+          <div id="travel-detail-date-wrap" style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 8px 14px; margin-bottom: 16px;">
+            📅 <span id="travel-detail-date"></span>
+          </div>
+
+          <div id="travel-detail-note-wrap" style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 18px; display: none;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-light); margin-bottom: 6px;">📖 Anılar & Gezi Notları</div>
+            <div id="travel-detail-note" style="font-size: 13.5px; color: var(--text-primary); line-height: 1.65; white-space: pre-line;"></div>
+          </div>
+
+          <div id="travel-detail-tags-wrap" style="margin-bottom: 18px; display: none;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 8px;">🏷️ Keşifler & Etiketler</div>
+            <div id="travel-detail-tags" style="display: flex; flex-wrap: wrap; gap: 6px;"></div>
+          </div>
+
+          <div id="travel-detail-wishlist-wrap" style="margin-bottom: 20px; display: none; background: rgba(108, 99, 255, 0.05); border: 1px dashed rgba(108, 99, 255, 0.25); border-radius: var(--radius-lg); padding: 14px 16px;">
+            <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--accent-light); margin-bottom: 8px;">📍 Bu Şehirdeki İstek Listesi Mekanları</div>
+            <div id="travel-detail-wishlist-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: flex-end; align-items: center; padding-top: 8px; border-top: 1px solid var(--glass-border);">
+            <button type="button" class="btn btn-ghost modal-close">Kapat</button>
+            <button type="button" class="btn btn-outline" id="travel-detail-edit-btn" style="display: none;">✏️ Düzenle</button>
+            <a id="travel-detail-link" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="display: none; align-items: center; gap: 6px; text-decoration: none; font-size: 13px; padding: 8px 18px;">
+              🔗 Gezi Linki / Harita ↗
             </a>
           </div>
         </div>
@@ -1100,14 +1213,14 @@
                   .join("");
                 const monthStr = formatTravelMonth(t.dateStart, t.dateEnd);
                 const actionsMarkup = canManage
-                  ? `<div class="travel-card-footer">
-                      <button type="button" class="travel-admin-btn travel-edit-btn" data-id="${t.id}">✏️ Düzenle</button>
-                      <button type="button" class="travel-admin-btn danger travel-delete-btn" data-id="${t.id}">🗑 Sil</button>
+                  ? `<div class="travel-card-footer" onclick="event.stopPropagation()">
+                      <button type="button" class="travel-admin-btn travel-edit-btn" data-id="${t.id}" onclick="event.stopPropagation(); editTravel('${t.id}')">✏️ Düzenle</button>
+                      <button type="button" class="travel-admin-btn danger travel-delete-btn" data-id="${t.id}" onclick="event.stopPropagation(); deleteTravel('${t.id}')">🗑 Sil</button>
                     </div>`
                   : "";
 
                 const bannerContent = t.image
-                  ? `<img class="travel-card-img" src="${escapeHtml(t.image)}" alt="${escapeHtml(t.city)}" loading="lazy" style="cursor: zoom-in;" onclick="openPhotoLightbox(event, '${escapeHtml(t.image)}', '${escapeHtml(t.city)}, ${escapeHtml(t.country)} (${t.flag || "🌍"})')" title="Tam ekran görmek için tıklayın" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                  ? `<img class="travel-card-img" src="${escapeHtml(t.image)}" alt="${escapeHtml(t.city)}" loading="lazy" style="cursor: zoom-in;" onclick="event.stopPropagation(); openPhotoLightbox(event, '${escapeHtml(t.image)}', '${escapeHtml(t.city)}, ${escapeHtml(t.country)} (${t.flag || "🌍"})')" title="Tam ekran görmek için tıklayın" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
                      <div class="travel-card-fallback" style="display:none; width:100%; height:100%; align-items:center; justify-content:center;">
                        <span class="flag">${t.flag || "🌍"}</span>
                      </div>
@@ -1115,8 +1228,8 @@
                   : `<span class="flag">${t.flag || "🌍"}</span>`;
 
                 const linkMarkup = t.link
-                  ? `<div style="margin-top: 10px;">
-                       <a href="${escapeHtml(t.link)}" target="_blank" rel="noopener noreferrer" class="quick-link" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; padding:3px 10px; border-radius:var(--radius-pill); text-decoration:none;">
+                  ? `<div style="margin-top: 10px;" onclick="event.stopPropagation()">
+                       <a href="${escapeHtml(t.link)}" target="_blank" rel="noopener noreferrer" class="quick-link" onclick="event.stopPropagation()" style="display:inline-flex; align-items:center; gap:5px; font-size:11px; padding:3px 10px; border-radius:var(--radius-pill); text-decoration:none;">
                          🔗 <span>Gezi Linki / Harita ↗</span>
                        </a>
                      </div>`
@@ -1130,7 +1243,7 @@
                        </div>`
                     : `<span style="font-size:22px;">${t.flag || "🌍"}</span>`;
 
-                  return `<div class="travel-card compact-card" style="border-left: 4px solid ${t.color || "#6c63ff"};">
+                  return `<div class="travel-card compact-card" style="border-left: 4px solid ${t.color || "#6c63ff"};" onclick="openTravelDetailModal('${t.id}', event)">
                     <div style="display:flex; align-items:center; gap:12px; flex:1;">
                       ${compactThumb}
                       <div>
@@ -1139,14 +1252,14 @@
                       </div>
                     </div>
                     <div style="display:flex; align-items:center; gap:16px;">
-                      ${t.link ? `<a href="${escapeHtml(t.link)}" target="_blank" rel="noopener noreferrer" class="quick-link" style="font-size:11px; padding:3px 8px; border-radius:var(--radius-pill);">🔗 Link ↗</a>` : ''}
+                      ${t.link ? `<a href="${escapeHtml(t.link)}" target="_blank" rel="noopener noreferrer" class="quick-link" onclick="event.stopPropagation()" style="font-size:11px; padding:3px 8px; border-radius:var(--radius-pill);">🔗 Link ↗</a>` : ''}
                       <div class="travel-rating">${stars}</div>
                       ${actionsMarkup}
                     </div>
                   </div>`;
                 }
 
-                return `<div class="travel-card">
+                return `<div class="travel-card" onclick="openTravelDetailModal('${t.id}', event)">
           <div class="travel-card-banner" style="background: linear-gradient(135deg, ${t.color || "#6c63ff"}44, ${t.color || "#6c63ff"}11);">
             ${bannerContent}
           </div>
@@ -1338,10 +1451,14 @@
         if (addTravelBtn) addTravelBtn.style.display = isAdmin ? "inline-flex" : "none";
       }
 
+      Modal.setup("travel-modal");
+      Modal.setup("travel-detail-modal");
+
       (async () => {
         await syncTravelAccess();
         await renderTravels();
         await renderWishlist();
+        initCollapsibles();
       })();
       window.addEventListener("auth:changed", async () => {
         await syncTravelAccess();
@@ -1700,6 +1817,156 @@
         await renderWishlist();
       };
 
+      // Travel City Detail Modal (Gezilerim Şehir Detay Penceresi)
+      window.openTravelDetailModal = function(id, e) {
+        if (e && (e.target.closest('.travel-admin-btn') || e.target.closest('a') || e.target.closest('button'))) {
+          return;
+        }
+        const t = allTravelsList.find(x => String(x.id) === String(id));
+        if (!t) return;
+
+        const bannerWrap = document.getElementById("travel-detail-banner-wrap");
+        const imgEl = document.getElementById("travel-detail-img");
+        const fallbackEl = document.getElementById("travel-detail-banner-fallback");
+        const fullscreenBtn = document.getElementById("travel-detail-fullscreen-btn");
+
+        bannerWrap.style.background = `linear-gradient(135deg, ${t.color || "#6c63ff"}55, ${t.color || "#6c63ff"}22)`;
+        fallbackEl.textContent = t.flag || "🌍";
+
+        if (t.image && t.image.trim()) {
+          imgEl.src = t.image.trim();
+          imgEl.alt = t.city;
+          imgEl.style.display = "block";
+          fallbackEl.style.display = "none";
+          fullscreenBtn.style.display = "inline-flex";
+        } else {
+          imgEl.style.display = "none";
+          fallbackEl.style.display = "block";
+          fullscreenBtn.style.display = "none";
+        }
+
+        document.getElementById("travel-detail-title").textContent = `${t.city} ${t.flag || ""}`;
+        document.getElementById("travel-detail-country").textContent = t.country || "";
+        document.getElementById("travel-detail-continent").textContent = `🌐 ${t.continent || "Avrupa"}`;
+        document.getElementById("travel-detail-flag").textContent = t.flag || "";
+
+        // Stars
+        const rating = t.rating || 5;
+        let starHtml = "";
+        for (let i = 1; i <= 5; i++) {
+          starHtml += `<span class="star ${i <= rating ? "filled" : ""}" style="color: ${i <= rating ? '#fbbf24' : 'rgba(255,255,255,0.2)'}; font-size: 18px;">★</span>`;
+        }
+        document.getElementById("travel-detail-rating").innerHTML = starHtml;
+
+        // Date
+        const monthStr = formatTravelMonth(t.dateStart, t.dateEnd);
+        const dateWrap = document.getElementById("travel-detail-date-wrap");
+        if (monthStr) {
+          document.getElementById("travel-detail-date").textContent = `Ziyaret: ${monthStr}`;
+          dateWrap.style.display = "flex";
+        } else {
+          dateWrap.style.display = "none";
+        }
+
+        // Notes
+        const noteWrap = document.getElementById("travel-detail-note-wrap");
+        const noteEl = document.getElementById("travel-detail-note");
+        if (t.note && t.note.trim()) {
+          noteEl.textContent = t.note.trim();
+          noteWrap.style.display = "block";
+        } else {
+          noteWrap.style.display = "none";
+        }
+
+        // Tags
+        const tagsWrap = document.getElementById("travel-detail-tags-wrap");
+        const tagsEl = document.getElementById("travel-detail-tags");
+        if (t.tags && t.tags.length > 0) {
+          tagsEl.innerHTML = t.tags.map(tg => `<span class="travel-tag" style="font-size: 11px; padding: 4px 10px; background: rgba(108,99,255,0.12); color: var(--accent-light); border: 1px solid rgba(108,99,255,0.25);">#${escapeHtml(tg)}</span>`).join("");
+          tagsWrap.style.display = "block";
+        } else {
+          tagsWrap.style.display = "none";
+        }
+
+        // Wishlist preview for this city
+        const wlWrap = document.getElementById("travel-detail-wishlist-wrap");
+        const wlList = document.getElementById("travel-detail-wishlist-list");
+        if (allWishlistItems && allWishlistItems.length > 0) {
+          const cityWl = allWishlistItems.filter(w => w.city && w.city.toLowerCase().trim() === t.city.toLowerCase().trim());
+          if (cityWl.length > 0) {
+            wlList.innerHTML = cityWl.map(w => `
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:12.5px; padding:6px 0; border-bottom:1px solid rgba(255,255,255,0.06);">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span>${w.is_visited ? '✅' : '📍'}</span>
+                  <span style="font-weight:600; color:var(--text-primary);">${escapeHtml(w.place_name)}</span>
+                  <span style="color:var(--text-muted); font-size:11px;">(${escapeHtml(w.district)})</span>
+                </div>
+                <span class="wishlist-category-tag" style="font-size:10px; padding:2px 8px;">${escapeHtml(w.category)}</span>
+              </div>
+            `).join("");
+            wlWrap.style.display = "block";
+          } else {
+            wlWrap.style.display = "none";
+          }
+        } else {
+          wlWrap.style.display = "none";
+        }
+
+        // Link button
+        const linkBtn = document.getElementById("travel-detail-link");
+        if (t.link && t.link.trim()) {
+          linkBtn.href = t.link.trim();
+          linkBtn.style.display = "inline-flex";
+        } else {
+          linkBtn.style.display = "none";
+        }
+
+        // Edit button for admin
+        const editBtn = document.getElementById("travel-detail-edit-btn");
+        const isAdmin = window.Auth && window.Auth.canAccessHabits();
+        if (isAdmin && editBtn) {
+          editBtn.style.display = "inline-flex";
+          editBtn.onclick = () => {
+            Modal.close("travel-detail-modal");
+            editTravel(t.id);
+          };
+        } else if (editBtn) {
+          editBtn.style.display = "none";
+        }
+
+        Modal.open("travel-detail-modal");
+      };
+
+      // Collapsible Sections Manager
+      function initCollapsibles() {
+        const wishlistSec = document.getElementById("admin-travel-wishlist-section");
+        const travelsSec = document.getElementById("travels-main-section");
+        
+        const isWishlistCollapsed = localStorage.getItem("oyp_collapse_wishlist") === "1";
+        const isTravelsCollapsed = localStorage.getItem("oyp_collapse_travels") === "1";
+
+        if (wishlistSec && isWishlistCollapsed) wishlistSec.classList.add("collapsed");
+        if (travelsSec && isTravelsCollapsed) travelsSec.classList.add("collapsed");
+
+        const wishlistToggle = document.getElementById("wishlist-collapse-toggle");
+        if (wishlistToggle) {
+          wishlistToggle.onclick = (e) => {
+            if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a')) return;
+            wishlistSec.classList.toggle("collapsed");
+            localStorage.setItem("oyp_collapse_wishlist", wishlistSec.classList.contains("collapsed") ? "1" : "0");
+          };
+        }
+
+        const travelsToggle = document.getElementById("travels-collapse-toggle");
+        if (travelsToggle) {
+          travelsToggle.onclick = (e) => {
+            if (e.target.closest('button') || e.target.closest('input') || e.target.closest('a') || e.target.closest('.view-mode-toggle')) return;
+            travelsSec.classList.toggle("collapsed");
+            localStorage.setItem("oyp_collapse_travels", travelsSec.classList.contains("collapsed") ? "1" : "0");
+          };
+        }
+      }
+
       // City Cover Modal Logic
       window.openCityCoverModal = function(cityName) {
         const current = window.TravelWishlistAPI.getCityCover(cityName);
@@ -1711,25 +1978,34 @@
 
       const cityCoverForm = document.getElementById("city-cover-form");
       if (cityCoverForm) {
-        cityCoverForm.addEventListener("submit", (e) => {
+        cityCoverForm.addEventListener("submit", async (e) => {
           e.preventDefault();
+          const submitBtn = cityCoverForm.querySelector('[type="submit"]');
+          setButtonLoading(submitBtn, true, "Kaydediliyor...");
           const cityName = document.getElementById("city-cover-name").value.trim();
           const url = document.getElementById("city-cover-url-input").value.trim();
-          window.TravelWishlistAPI.setCityCover(cityName, url);
-          Modal.close("city-cover-modal");
-          if (window.Toast) Toast.success(`${cityName} kapak fotoğrafı güncellendi!`);
-          renderWishlist();
+          try {
+            await window.TravelWishlistAPI.setCityCover(cityName, url);
+            Modal.close("city-cover-modal");
+            if (window.Toast) Toast.success(`${cityName} kapak fotoğrafı Supabase'e kalıcı olarak kaydedildi!`);
+            await renderWishlist();
+          } catch (err) {
+            console.error("City cover save error:", err);
+            if (window.Toast) Toast.error("Fotoğraf kaydedilirken hata oluştu.");
+          } finally {
+            setButtonLoading(submitBtn, false);
+          }
         });
       }
 
       const cityCoverResetBtn = document.getElementById("city-cover-reset-btn");
       if (cityCoverResetBtn) {
-        cityCoverResetBtn.addEventListener("click", () => {
+        cityCoverResetBtn.addEventListener("click", async () => {
           const cityName = document.getElementById("city-cover-name").value.trim();
-          window.TravelWishlistAPI.setCityCover(cityName, "");
+          await window.TravelWishlistAPI.setCityCover(cityName, "");
           Modal.close("city-cover-modal");
           if (window.Toast) Toast.info(`${cityName} kapak fotoğrafı varsayılana sıfırlandı.`);
-          renderWishlist();
+          await renderWishlist();
         });
       }
     </script>

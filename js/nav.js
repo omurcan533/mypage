@@ -921,7 +921,7 @@ const Nav = {
             </div>
             <div class="input-group" style="margin-bottom: 14px;">
               <label class="input-label">Şifre</label>
-              <input type="password" class="input-field" id="admin-access-password" placeholder="yılmaz" required autocomplete="current-password" />
+              <input type="password" class="input-field" id="admin-access-password" placeholder="••••••••" required autocomplete="current-password" />
             </div>
             <div class="admin-access-error" id="admin-access-error"></div>
             <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">

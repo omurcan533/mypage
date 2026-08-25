@@ -91,10 +91,14 @@ const INITIAL_WISHLIST = [
 
 window.TravelWishlistAPI = {
   _memoryCache: null,
+  _cityCovers: null,
 
   getCityCover(cityName) {
     if (!cityName) return "";
     const norm = cityName.toLowerCase().trim();
+    if (this._cityCovers && this._cityCovers[norm]) {
+      return this._cityCovers[norm];
+    }
     try {
       const custom = JSON.parse(localStorage.getItem('oyp_city_covers') || '{}');
       if (custom[norm]) return custom[norm];
@@ -103,17 +107,62 @@ window.TravelWishlistAPI = {
     return "";
   },
 
-  setCityCover(cityName, imageUrl) {
+  async setCityCover(cityName, imageUrl) {
     if (!cityName) return;
     const norm = cityName.toLowerCase().trim();
+    const cleanUrl = imageUrl ? imageUrl.trim() : "";
+    
+    // 1. Update local cache and localStorage
     try {
       const custom = JSON.parse(localStorage.getItem('oyp_city_covers') || '{}');
-      if (imageUrl) custom[norm] = imageUrl.trim();
+      if (cleanUrl) custom[norm] = cleanUrl;
       else delete custom[norm];
       localStorage.setItem('oyp_city_covers', JSON.stringify(custom));
+      this._cityCovers = custom;
     } catch (e) {
-      console.warn("Error setting city cover:", e);
+      console.warn("Error setting city cover locally:", e);
     }
+
+    // 2. Persist to Supabase travel_wishlist as city cover record
+    if (window.supabaseClient) {
+      try {
+        const { data: existing, error: searchErr } = await window.supabaseClient
+          .from('travel_wishlist')
+          .select('id, city, category')
+          .ilike('city', cityName.trim())
+          .eq('category', '__city_cover__');
+
+        if (!searchErr && existing && existing.length > 0) {
+          if (cleanUrl) {
+            await window.supabaseClient
+              .from('travel_wishlist')
+              .update({ image: cleanUrl })
+              .eq('id', existing[0].id);
+          } else {
+            await window.supabaseClient
+              .from('travel_wishlist')
+              .delete()
+              .eq('id', existing[0].id);
+          }
+        } else if (cleanUrl) {
+          await window.supabaseClient
+            .from('travel_wishlist')
+            .insert([{
+              city: cityName.trim(),
+              district: 'Genel',
+              place_name: '__city_cover__',
+              category: '__city_cover__',
+              image: cleanUrl,
+              is_visited: true,
+              created_at: new Date().toISOString()
+            }]);
+        }
+      } catch (sbErr) {
+        console.warn("Supabase setCityCover error:", sbErr);
+      }
+    }
+
+    return true;
   },
 
   getLocalItems() {
@@ -138,8 +187,8 @@ window.TravelWishlistAPI = {
     }
   },
 
-  async fetchItems() {
-    if (this._memoryCache) return this._memoryCache;
+  async fetchItems(forceRefresh = false) {
+    if (this._memoryCache && !forceRefresh) return this._memoryCache;
 
     if (window.supabaseClient) {
       try {
@@ -149,9 +198,22 @@ window.TravelWishlistAPI = {
           .order('created_at', { ascending: false });
 
         if (!error && data && data.length > 0) {
-          this._memoryCache = data;
-          this.saveLocalItems(data);
-          return data;
+          // Extract city covers if present
+          const customCovers = JSON.parse(localStorage.getItem('oyp_city_covers') || '{}');
+          const coverRecords = data.filter(i => i.category === '__city_cover__' || i.place_name === '__city_cover__');
+          coverRecords.forEach(c => {
+            if (c.city && c.image) {
+              customCovers[c.city.toLowerCase().trim()] = c.image.trim();
+            }
+          });
+          localStorage.setItem('oyp_city_covers', JSON.stringify(customCovers));
+          this._cityCovers = customCovers;
+
+          // Filter out cover records from regular places list
+          const regularPlaces = data.filter(i => i.category !== '__city_cover__' && i.place_name !== '__city_cover__');
+          this._memoryCache = regularPlaces;
+          this.saveLocalItems(regularPlaces);
+          return regularPlaces;
         }
       } catch (err) {
         console.warn('Supabase fetch travel_wishlist error, using local fallback:', err);
@@ -159,8 +221,9 @@ window.TravelWishlistAPI = {
     }
 
     const local = this.getLocalItems();
-    this._memoryCache = local;
-    return local;
+    const regularPlaces = local.filter(i => i.category !== '__city_cover__' && i.place_name !== '__city_cover__');
+    this._memoryCache = regularPlaces;
+    return regularPlaces;
   },
 
   async addItem(itemData) {

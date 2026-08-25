@@ -81,9 +81,10 @@
       .bk-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.15);color:white;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;transition:var(--transition);}
       .bk-close:hover{background:rgba(255,255,255,.15);}
       /* Star input */
-      .star-input-row{display:flex;gap:6px;}
-      .star-inp{font-size:26px;cursor:pointer;color:rgba(255,255,255,.22);transition:all .15s ease;line-height:1;user-select:none;}
-      .star-inp.sel,.star-inp.hov{color:#fbbf24;transform:scale(1.15);}
+      .star-input-row{display:flex;gap:8px;align-items:center;padding:6px 0;}
+      .star-inp{font-size:32px;cursor:pointer;color:rgba(255,255,255,.3);transition:all .18s ease;line-height:1;user-select:none;display:inline-block;}
+      [data-theme="light"] .star-inp, html[data-theme="light"] .star-inp, body.light-theme .star-inp{color:#cbd5e1;}
+      .star-inp.sel,.star-inp.hov{color:#f59e0b !important;transform:scale(1.18);text-shadow:0 0 12px rgba(245,158,11,.45);}
       /* Empty state */
       .books-empty{grid-column:1/-1;text-align:center;padding:80px 40px;}
       .books-empty-icon{font-size:64px;margin-bottom:16px;}
@@ -216,11 +217,11 @@
               <div class="books-stat-label">Toplam Kitap</div>
             </div>
           </div>
-          <div class="books-stat-card" data-filter="completed" role="button" tabindex="0" title="Tamamlanan Kitapları Filtrele">
+          <div class="books-stat-card" data-filter="completed" role="button" tabindex="0" title="Okuduklarımı Filtrele">
             <div class="books-stat-icon">✅</div>
             <div>
               <div class="books-stat-value" id="stat-completed">0</div>
-              <div class="books-stat-label">Tamamlandı</div>
+              <div class="books-stat-label">Okuduklarım</div>
             </div>
           </div>
           <div class="books-stat-card" data-filter="reading" role="button" tabindex="0" title="Okunmakta Olan Kitapları Filtrele">
@@ -302,7 +303,7 @@
             <div class="input-group">
               <label class="input-label">Durum</label>
               <select class="input-field" id="book-status">
-                <option value="completed">✅ Tamamlandı</option>
+                <option value="completed">✅ Okuduklarım</option>
                 <option value="reading">🔵 Okunuyor</option>
                 <option value="want_to_read">📌 Okunacak</option>
               </select>

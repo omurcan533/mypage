@@ -135,9 +135,10 @@
       .book-detail-notes-box{background:rgba(108,99,255,.06);border:1px solid rgba(108,99,255,.15);border-radius:var(--radius-md);padding:14px 16px;}
       .bk-close{position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.15);color:white;font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;transition:var(--transition);}
       .bk-close:hover{background:rgba(255,255,255,.15);}
-      .star-input-row{display:flex;gap:6px;}
-      .star-inp{font-size:26px;cursor:pointer;color:rgba(255,255,255,.22);transition:all .15s ease;line-height:1;user-select:none;}
-      .star-inp.sel,.star-inp.hov{color:#fbbf24;transform:scale(1.15);}
+      .star-input-row{display:flex;gap:8px;align-items:center;padding:6px 0;}
+      .star-inp{font-size:32px;cursor:pointer;color:rgba(255,255,255,.3);transition:all .18s ease;line-height:1;user-select:none;display:inline-block;}
+      [data-theme="light"] .star-inp, html[data-theme="light"] .star-inp, body.light-theme .star-inp{color:#cbd5e1;}
+      .star-inp.sel,.star-inp.hov{color:#f59e0b !important;transform:scale(1.18);text-shadow:0 0 12px rgba(245,158,11,.45);}
       .books-empty{grid-column:1/-1;text-align:center;padding:80px 40px;}
       .books-empty-icon{font-size:64px;margin-bottom:16px;}
       .books-empty-title{font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:8px;}
@@ -463,12 +464,15 @@
         background: rgba(255, 255, 255, 0.03);
         border: 1px solid var(--glass-border);
         border-radius: var(--radius-lg);
-        padding: 16px 20px;
-        font-size: 14px;
+        padding: 18px 22px;
+        font-size: 14.5px;
         color: var(--text-secondary);
-        line-height: 1.7;
+        line-height: 1.75;
         margin-bottom: 18px;
         white-space: pre-wrap;
+        min-height: 140px;
+        max-height: 400px;
+        overflow-y: auto;
       }
       .culture-notes-box strong {
         color: var(--text-primary);
@@ -566,16 +570,25 @@
       .culture-day-card-notes {
         font-size: 13.5px;
         color: var(--text-secondary);
-        line-height: 1.6;
+        line-height: 1.65;
         background: rgba(255, 255, 255, 0.025);
         border: 1px solid var(--glass-border);
         border-radius: var(--radius-md);
-        padding: 12px 14px;
+        padding: 14px 16px;
         flex: 1;
-        display: -webkit-box;
-        -webkit-line-clamp: 4;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
+        min-height: 160px;
+        max-height: 280px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(108, 99, 255, 0.3) transparent;
+        white-space: pre-line;
+      }
+      .culture-day-card-notes::-webkit-scrollbar {
+        width: 5px;
+      }
+      .culture-day-card-notes::-webkit-scrollbar-thumb {
+        background: rgba(108, 99, 255, 0.3);
+        border-radius: 4px;
       }
       .culture-day-card-footer {
         display: flex;
@@ -1512,11 +1525,11 @@
                 <div class="books-stat-label">Toplam Kitap</div>
               </div>
             </div>
-            <div class="books-stat-card" data-filter="completed" role="button" tabindex="0" title="Tamamlanan Kitapları Filtrele">
+            <div class="books-stat-card" data-filter="completed" role="button" tabindex="0" title="Okuduklarımı Filtrele">
               <div class="books-stat-icon">✅</div>
               <div>
                 <div class="books-stat-value" id="stat-completed">0</div>
-                <div class="books-stat-label">Tamamlandı</div>
+                <div class="books-stat-label">Okuduklarım</div>
               </div>
             </div>
             <div class="books-stat-card" data-filter="reading" role="button" tabindex="0" title="Okunmakta Olan Kitapları Filtrele">
@@ -1927,7 +1940,7 @@
             <div class="input-group">
               <label class="input-label">Durum *</label>
               <select class="input-field" id="book-status">
-                <option value="completed">✅ Tamamlandı</option>
+                <option value="completed">✅ Okuduklarım</option>
                 <option value="reading">🔵 Okunuyor</option>
                 <option value="want_to_read">📌 Okunacak</option>
               </select>
@@ -2019,7 +2032,7 @@
 
             <div class="input-group">
               <label class="input-label">✍️ Araştırma & Öğrenme Notlarım (Detaylı Özet) *</label>
-              <textarea class="input-field" id="culture-edit-notes" rows="6" placeholder="Bugün araştırdığın konudan öğrendiklerini kendi cümlelerinle özetle..." required style="resize: vertical;"></textarea>
+              <textarea class="input-field" id="culture-edit-notes" rows="8" placeholder="Bugün araştırdığın konudan öğrendiklerini kendi cümlelerinle özetle..." required style="resize: vertical; min-height: 160px;"></textarea>
             </div>
 
             <div class="input-group">

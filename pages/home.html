@@ -512,7 +512,7 @@
             <div class="stat-card animate-fade-up" style="animation-delay: 0.1s">
               <div class="stat-icon">📚</div>
               <div class="stat-value" id="stat-books">0</div>
-              <div class="stat-label">Okunan Kitap</div>
+              <div class="stat-label" data-i18n="home_stat_books">Toplam Kitap</div>
             </div>
             <div class="stat-card animate-fade-up" style="animation-delay: 0.2s">
               <div class="stat-icon">✅</div>
@@ -717,7 +717,7 @@
         const todayStats = await HabitStore.getTodayStats(todayKey);
         const streak = HabitStore.getOverallStreak();
 
-        // Calculate Books Read
+        // Calculate Total Books
         let booksTotal = 0;
         const bkEl = document.getElementById("stat-books");
         try {
@@ -733,8 +733,7 @@
               { id: "book-2", title: "Atomik Alışkanlıklar", status: "completed" }
             ];
           }
-          const completedBooks = books.filter(b => b.status === "completed" || b.status === "read");
-          booksTotal = completedBooks.length > 0 ? completedBooks.length : books.length;
+          booksTotal = books.length;
           if (bkEl) bkEl.textContent = booksTotal;
 
           // 2. Fetch directly from Supabase for real-time accuracy
@@ -745,9 +744,7 @@
               .then(({ data, error }) => {
                 if (!error && data && data.length > 0) {
                   localStorage.setItem('oyp_books', JSON.stringify(data));
-                  const completed = data.filter(b => b.status === "completed" || b.status === "read");
-                  const updatedTotal = completed.length > 0 ? completed.length : data.length;
-                  if (bkEl) bkEl.textContent = updatedTotal;
+                  if (bkEl) bkEl.textContent = data.length;
                 }
               })
               .catch(err => console.warn('Supabase books fetch warning:', err));
