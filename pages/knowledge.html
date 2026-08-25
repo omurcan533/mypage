@@ -152,6 +152,854 @@
       .g4{background:linear-gradient(135deg,#1a0533,#7c3aed);}
       .g5{background:linear-gradient(135deg,#0f2027,#2c5364);}
 
+      /* ===== CULTURE & GENEL KÜLTÜR ACADEMY STYLES ===== */
+      .culture-hero-card {
+        background: linear-gradient(135deg, rgba(108, 99, 255, 0.12), rgba(14, 165, 233, 0.08));
+        border: 1px solid rgba(108, 99, 255, 0.25);
+        border-radius: var(--radius-xl);
+        padding: 28px 32px;
+        margin-bottom: 24px;
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+      }
+      .culture-hero-card::after {
+        content: "";
+        position: absolute;
+        top: -60px;
+        right: -60px;
+        width: 220px;
+        height: 220px;
+        background: radial-gradient(circle, rgba(108,99,255,0.2) 0%, transparent 70%);
+        pointer-events: none;
+      }
+      .culture-hero-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+      .culture-hero-title {
+        font-size: 26px;
+        font-weight: 800;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .culture-hero-sub {
+        font-size: 14px;
+        color: var(--text-secondary);
+        margin-top: 6px;
+        max-width: 680px;
+        line-height: 1.6;
+      }
+
+      /* 12-Week Interactive Timeline Bar */
+      .culture-timeline-wrap {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 16px 20px;
+        margin-bottom: 24px;
+        backdrop-filter: blur(12px);
+      }
+      .culture-timeline-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+      }
+      .culture-phase-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 14px;
+        border-radius: var(--radius-pill);
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: rgba(108, 99, 255, 0.15);
+        color: var(--accent-light);
+        border: 1px solid rgba(108, 99, 255, 0.3);
+      }
+      .culture-weeks-scroll {
+        display: flex;
+        gap: 10px;
+        overflow-x: auto;
+        padding: 6px 2px 10px 2px;
+        scrollbar-width: thin;
+      }
+      .culture-week-chip {
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 10px 18px;
+        border-radius: var(--radius-lg);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        min-width: 90px;
+        font-family: inherit;
+        user-select: none;
+      }
+      .culture-week-chip:hover {
+        border-color: var(--accent);
+        color: var(--text-primary);
+        background: rgba(108, 99, 255, 0.08);
+        transform: translateY(-2px);
+      }
+      .culture-week-chip.active {
+        background: var(--accent);
+        color: #ffffff !important;
+        border-color: var(--accent);
+        box-shadow: 0 4px 18px var(--accent-glow);
+      }
+      .culture-week-chip.active .culture-week-sub {
+        color: rgba(255, 255, 255, 0.85);
+      }
+      .culture-week-chip.completed {
+        border-color: rgba(16, 185, 129, 0.4);
+      }
+      .culture-week-chip.completed::after {
+        content: "✓";
+        position: absolute;
+        top: 4px;
+        right: 6px;
+        font-size: 10px;
+        color: #34d399;
+        font-weight: bold;
+      }
+      .culture-week-num {
+        font-size: 13px;
+        font-weight: 800;
+      }
+      .culture-week-sub {
+        font-size: 10px;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+
+      /* View Mode Switcher Nav Bar */
+      .culture-nav-bar {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        background: var(--bg-card);
+        padding: 6px;
+        border-radius: var(--radius-pill);
+        border: 1px solid var(--glass-border);
+        margin-bottom: 24px;
+      }
+      .culture-nav-btn {
+        padding: 8px 18px;
+        border-radius: var(--radius-pill);
+        font-size: 13px;
+        font-weight: 700;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-family: inherit;
+      }
+      .culture-nav-btn:hover {
+        color: var(--text-primary);
+        background: rgba(255, 255, 255, 0.05);
+      }
+      .culture-nav-btn.active {
+        background: var(--accent);
+        color: #ffffff;
+        box-shadow: 0 4px 14px var(--accent-glow);
+      }
+
+      /* Collapsible Today Spotlight Box */
+      .culture-spotlight-accordion {
+        background: var(--bg-card);
+        border: 1px solid rgba(108, 99, 255, 0.3);
+        border-radius: var(--radius-xl);
+        margin-bottom: 24px;
+        position: relative;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        transition: var(--transition);
+      }
+      .culture-spotlight-summary {
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        cursor: pointer;
+        user-select: none;
+        background: linear-gradient(90deg, rgba(108, 99, 255, 0.08), transparent);
+        transition: var(--transition);
+      }
+      .culture-spotlight-summary:hover {
+        background: rgba(108, 99, 255, 0.14);
+      }
+      .culture-spotlight-summary-left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .culture-spotlight-body {
+        padding: 20px 24px;
+        border-top: 1px solid var(--glass-border);
+        animation: fadeIn 0.3s ease;
+      }
+      .culture-spotlight-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: var(--radius-pill);
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(245, 158, 11, 0.2));
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.4);
+      }
+      [data-theme="light"] .culture-spotlight-badge {
+        background: #fee2e2;
+        color: #dc2626;
+        border-color: #fca5a5;
+      }
+      .culture-spotlight-title {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.3;
+        margin-bottom: 8px;
+      }
+      .culture-spotlight-cat {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--accent-light);
+        margin-bottom: 14px;
+      }
+      .culture-guide-box {
+        background: rgba(108, 99, 255, 0.05);
+        border: 1px solid rgba(108, 99, 255, 0.15);
+        border-radius: var(--radius-lg);
+        padding: 16px 20px;
+        margin-bottom: 18px;
+      }
+      .culture-guide-title {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent-light);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .culture-guide-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .culture-guide-item {
+        font-size: 13.5px;
+        color: var(--text-primary);
+        line-height: 1.5;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+      }
+      .culture-guide-bullet {
+        color: var(--accent);
+        font-weight: bold;
+        flex-shrink: 0;
+      }
+      .culture-takeaways-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+      .culture-takeaway-chip {
+        padding: 5px 12px;
+        border-radius: var(--radius-pill);
+        font-size: 12px;
+        font-weight: 600;
+        background: rgba(16, 185, 129, 0.1);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.25);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      [data-theme="light"] .culture-takeaway-chip {
+        background: rgba(16, 185, 129, 0.15);
+        color: #059669;
+        border-color: #10b981;
+      }
+      .culture-notes-box {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-lg);
+        padding: 16px 20px;
+        font-size: 14px;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        margin-bottom: 18px;
+        white-space: pre-wrap;
+      }
+      .culture-notes-box strong {
+        color: var(--text-primary);
+      }
+      .culture-complete-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 18px;
+        border-radius: var(--radius-pill);
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition);
+        border: 1px solid var(--glass-border);
+        background: var(--bg-card);
+        color: var(--text-secondary);
+      }
+      .culture-complete-btn:hover {
+        border-color: #10b981;
+        color: #34d399;
+      }
+      .culture-complete-btn.completed {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: #10b981;
+        color: #34d399;
+      }
+      [data-theme="light"] .culture-complete-btn.completed {
+        background: #d1fae5;
+        color: #047857;
+      }
+
+      /* Weekly 5-Day Calendar Grid */
+      .culture-week-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 22px;
+        margin-bottom: 40px;
+      }
+      .culture-day-card {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        backdrop-filter: blur(10px);
+      }
+      .culture-day-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(108, 99, 255, 0.4);
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3), 0 0 20px rgba(108, 99, 255, 0.15);
+      }
+      .culture-day-card.today-highlight {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px var(--accent), 0 10px 30px rgba(108, 99, 255, 0.2);
+        background: linear-gradient(180deg, rgba(108, 99, 255, 0.07), var(--bg-card));
+      }
+      .culture-day-card-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .culture-day-pill {
+        font-size: 11px;
+        font-weight: 800;
+        padding: 4px 12px;
+        border-radius: var(--radius-pill);
+        background: rgba(108, 99, 255, 0.12);
+        color: var(--accent-light);
+        border: 1px solid rgba(108, 99, 255, 0.25);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .culture-difficulty-badge {
+        font-size: 11px;
+        font-weight: 700;
+        color: #fbbf24;
+      }
+      .culture-day-card-title {
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.35;
+      }
+      .culture-day-card-cat {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent-light);
+      }
+      .culture-day-card-notes {
+        font-size: 13.5px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        background: rgba(255, 255, 255, 0.025);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 12px 14px;
+        flex: 1;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .culture-day-card-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding-top: 12px;
+        border-top: 1px solid var(--glass-border);
+        font-size: 12px;
+      }
+
+      /* 12-Week Roadmap Matrix Overview Styles */
+      .culture-roadmap-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+      .culture-roadmap-card {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        transition: var(--transition);
+        cursor: pointer;
+        position: relative;
+        backdrop-filter: blur(10px);
+      }
+      .culture-roadmap-card:hover {
+        transform: translateY(-4px);
+        border-color: var(--accent);
+        box-shadow: 0 12px 30px rgba(108, 99, 255, 0.15);
+      }
+      .culture-roadmap-card.active {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 1px var(--accent), 0 8px 24px var(--accent-glow);
+        background: linear-gradient(135deg, rgba(108, 99, 255, 0.08), var(--bg-card));
+      }
+      .culture-roadmap-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .culture-roadmap-week-title {
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--text-primary);
+      }
+      .culture-roadmap-prog-bar {
+        width: 100%;
+        height: 6px;
+        border-radius: var(--radius-pill);
+        background: rgba(255, 255, 255, 0.08);
+        overflow: hidden;
+        margin-top: 6px;
+      }
+      .culture-roadmap-prog-fill {
+        height: 100%;
+        border-radius: var(--radius-pill);
+        background: linear-gradient(90deg, var(--accent), #10b981);
+        transition: width 0.4s ease;
+      }
+      .culture-roadmap-topics-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 12px;
+      }
+      .culture-roadmap-topic-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-secondary);
+      }
+      .culture-roadmap-topic-row.done {
+        color: #34d399;
+      }
+
+      /* Flashcards Grid */
+      .culture-flashcards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+      .culture-flashcard {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 200px;
+        height: auto;
+        transition: var(--transition);
+        cursor: pointer;
+        position: relative;
+        backdrop-filter: blur(10px);
+      }
+      .culture-flashcard:hover {
+        transform: translateY(-4px);
+        border-color: var(--accent);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+      }
+      .culture-flashcard-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      .culture-flashcard-front {
+        font-size: 16px;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.4;
+      }
+      .culture-flashcard-back {
+        font-size: 13.5px;
+        color: var(--text-primary);
+        background: rgba(108, 99, 255, 0.08);
+        border: 1px dashed rgba(108, 99, 255, 0.35);
+        border-radius: var(--radius-md);
+        padding: 14px;
+        margin-top: 14px;
+        line-height: 1.65;
+        white-space: pre-wrap;
+        max-height: 320px;
+        overflow-y: auto;
+        display: none;
+      }
+      .culture-flashcard.revealed .culture-flashcard-back {
+        display: block;
+        animation: fadeIn 0.25s ease;
+      }
+      .culture-flashcard.revealed .culture-flashcard-hint {
+        display: none;
+      }
+      .culture-flashcard-hint {
+        font-size: 12px;
+        color: var(--text-muted);
+        text-align: center;
+        margin-top: 14px;
+      }
+
+      /* ===== VOCABULARY (KELİME DAĞARCIĞI) SECTION STYLES ===== */
+      .culture-vocab-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 14px;
+        margin-bottom: 24px;
+      }
+      .culture-vocab-stat-card {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 16px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        backdrop-filter: blur(12px);
+        transition: var(--transition);
+      }
+      .culture-vocab-stat-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+      }
+      .culture-vocab-stat-icon {
+        font-size: 26px;
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .culture-vocab-search-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 24px;
+      }
+      .culture-vocab-filter-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .culture-vocab-filter-btn {
+        padding: 6px 14px;
+        border-radius: var(--radius-pill);
+        font-size: 12px;
+        font-weight: 700;
+        border: 1px solid var(--glass-border);
+        background: var(--bg-card);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: var(--transition);
+        font-family: inherit;
+      }
+      .culture-vocab-filter-btn:hover {
+        border-color: var(--accent);
+        color: var(--text-primary);
+      }
+      .culture-vocab-filter-btn.active {
+        background: var(--accent);
+        color: #ffffff;
+        border-color: var(--accent);
+        box-shadow: 0 4px 14px var(--accent-glow);
+      }
+      .culture-vocab-filter-btn.filter-memorized.active {
+        background: #10b981;
+        border-color: #10b981;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+        color: #ffffff;
+      }
+      .culture-vocab-filter-btn.filter-to-research.active {
+        background: #f59e0b;
+        border-color: #f59e0b;
+        box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+        color: #ffffff;
+      }
+      .culture-vocab-filter-btn.filter-researched.active {
+        background: #3b82f6;
+        border-color: #3b82f6;
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+        color: #ffffff;
+      }
+      .culture-vocab-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+      }
+      .culture-vocab-card {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 14px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        backdrop-filter: blur(12px);
+      }
+      .culture-vocab-card.is-memorized {
+        border-color: rgba(16, 185, 129, 0.4);
+        background: linear-gradient(180deg, rgba(16, 185, 129, 0.04) 0%, var(--bg-card) 100%);
+      }
+      .culture-vocab-card.is-to-research {
+        border-color: rgba(245, 158, 11, 0.4);
+        background: linear-gradient(180deg, rgba(245, 158, 11, 0.04) 0%, var(--bg-card) 100%);
+      }
+      .culture-vocab-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(108, 99, 255, 0.45);
+        box-shadow: 0 14px 32px rgba(0, 0, 0, 0.25);
+      }
+      .culture-vocab-card.is-memorized:hover {
+        border-color: #10b981;
+        box-shadow: 0 14px 32px rgba(16, 185, 129, 0.2);
+      }
+      .culture-vocab-card.is-to-research:hover {
+        border-color: #f59e0b;
+        box-shadow: 0 14px 32px rgba(245, 158, 11, 0.2);
+      }
+      .culture-vocab-research-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: var(--radius-pill);
+        background: rgba(245, 158, 11, 0.14);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        white-space: nowrap;
+      }
+      .culture-vocab-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+      }
+      .culture-vocab-word {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--text-primary);
+        line-height: 1.2;
+      }
+      .culture-vocab-origin {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--accent-light);
+        margin-top: 4px;
+      }
+      .culture-vocab-cat-badge {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: var(--radius-pill);
+        background: rgba(108, 99, 255, 0.12);
+        color: var(--accent-light);
+        border: 1px solid rgba(108, 99, 255, 0.25);
+        white-space: nowrap;
+      }
+      .culture-vocab-meaning {
+        font-size: 13.5px;
+        color: var(--text-secondary);
+        line-height: 1.6;
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-md);
+        padding: 12px 14px;
+        flex: 1;
+      }
+      .culture-vocab-example {
+        font-size: 12px;
+        font-style: italic;
+        color: var(--text-muted);
+        line-height: 1.5;
+        border-left: 2px solid var(--accent);
+        padding-left: 10px;
+        margin-top: 2px;
+      }
+      .culture-vocab-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 10px;
+        border-top: 1px solid var(--glass-border);
+      }
+      .vocab-memorize-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: var(--radius-pill);
+        font-size: 11.5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition);
+        border: 1px solid var(--glass-border);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--text-secondary);
+        font-family: inherit;
+      }
+      .vocab-memorize-toggle:hover {
+        border-color: #10b981;
+        color: #10b981;
+      }
+      .vocab-memorize-toggle.active {
+        background: rgba(16, 185, 129, 0.15);
+        border-color: #10b981;
+        color: #34d399;
+      }
+
+      /* ===== QUIZ MODAL STYLES ===== */
+      .quiz-option-btn {
+        width: 100%;
+        text-align: left;
+        padding: 14px 18px;
+        border-radius: var(--radius-lg);
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--glass-border);
+        color: var(--text-primary);
+        font-size: 14px;
+        line-height: 1.45;
+        font-family: inherit;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .quiz-option-btn:hover:not(:disabled) {
+        background: rgba(108, 99, 255, 0.12);
+        border-color: var(--accent);
+        transform: translateX(4px);
+      }
+      .quiz-option-btn.correct {
+        background: rgba(16, 185, 129, 0.2) !important;
+        border-color: #10b981 !important;
+        color: #34d399 !important;
+        font-weight: 700;
+      }
+      .quiz-option-btn.wrong {
+        background: rgba(239, 68, 68, 0.2) !important;
+        border-color: #ef4444 !important;
+        color: #f87171 !important;
+      }
+      .quiz-option-btn:disabled {
+        cursor: default;
+        opacity: 0.85;
+      }
+      .quiz-opt-letter {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.06);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--text-muted);
+        flex-shrink: 0;
+      }
+      .quiz-option-btn.correct .quiz-opt-letter {
+        background: #10b981;
+        color: #ffffff;
+      }
+      .quiz-option-btn.wrong .quiz-opt-letter {
+        background: #ef4444;
+        color: #ffffff;
+      }
+
       /* ===== TRIVIA (GENEL KÜLTÜR) SECTION STYLES ===== */
       .trivia-stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:24px;}
       .trivia-stat-card{background:var(--bg-card);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:16px 20px;display:flex;align-items:center;gap:14px;transition:var(--transition);}
@@ -767,67 +1615,273 @@
         </div>
 
         <!-- ========================================================= -->
-        <!-- TAB 3: 💡 GENEL KÜLTÜR (CURATED TRIVIA IMPLEMENTATION) -->
+        <!-- TAB 3: 💡 GENEL KÜLTÜR AKADEMİSİ & HAFTALIK ÖĞRENME -->
         <!-- ========================================================= -->
         <div id="panel-trivia" class="knowledge-tab-panel">
-          <div class="books-hero">
-            <div>
-              <h1>💡 Genel Kültür & İlginç Bilgiler</h1>
-              <p>Bilim, tarih, psikoloji, teknoloji ve evrene dair ufkumuzu açan notlar</p>
+          <!-- Hero Header -->
+          <div class="culture-hero-card">
+            <div class="culture-hero-header">
+              <div>
+                <h1 class="culture-hero-title">💡 Genel Kültür Öğrenme Akademisi</h1>
+                <p class="culture-hero-sub">
+                  Hafta içinin her gününe özel derinlemesine konu başlıkları, rehber araştırma soruları ve adım adım kişisel bilgi arşivi
+                </p>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <button type="button" class="btn btn-primary" id="open-today-culture-btn" onclick="scrollToCultureToday()">
+                  🎯 Bugünün Konusuna Git
+                </button>
+              </div>
             </div>
-            <div style="display:flex; align-items:center; gap:12px;">
-              <button class="btn btn-primary" id="add-trivia-btn" onclick="openAddTriviaModal()" style="display:none;">+ Yeni Bilgi Ekle</button>
+
+            <!-- Stats Bar -->
+            <div class="trivia-stats-grid" style="margin-bottom: 0;">
+              <div class="trivia-stat-card">
+                <div class="trivia-stat-icon">📅</div>
+                <div>
+                  <div class="trivia-stat-val" id="culture-stat-completed">0/60</div>
+                  <div class="trivia-stat-lbl">Genel Tamamlanma</div>
+                </div>
+              </div>
+              <div class="trivia-stat-card">
+                <div class="trivia-stat-icon" style="color: #38bdf8; background: rgba(56, 189, 248, 0.12);">🎯</div>
+                <div>
+                  <div class="trivia-stat-val" id="culture-stat-today-name" style="font-size:18px;">-</div>
+                  <div class="trivia-stat-lbl">Bugünün Odak Konusu</div>
+                </div>
+              </div>
+              <div class="trivia-stat-card">
+                <div class="trivia-stat-icon" style="color: #a855f7; background: rgba(168, 85, 247, 0.12);">🧠</div>
+                <div>
+                  <div class="trivia-stat-val" id="culture-stat-takeaways">0</div>
+                  <div class="trivia-stat-lbl">Kayıtlı Hap Bilgi</div>
+                </div>
+              </div>
+              <div class="trivia-stat-card">
+                <div class="trivia-stat-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.12);">⚡</div>
+                <div>
+                  <div class="trivia-stat-val" id="culture-stat-rate">0%</div>
+                  <div class="trivia-stat-lbl">Öğrenme Oranı</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="trivia-stats-grid">
-            <div class="trivia-stat-card">
-              <div class="trivia-stat-icon">💡</div>
+          <!-- 12-Week Interactive Timeline Bar Container -->
+          <div id="culture-timeline-container">
+            <!-- Rendered dynamically via JS -->
+          </div>
+
+          <!-- Navigation Subtabs (Müfredat / Yol Haritası / Kelime Dağarcığı / Hızlı Tekrar / Trivia) -->
+          <div class="culture-nav-bar" id="culture-subtabs">
+            <button type="button" class="culture-nav-btn active" data-view="weekly" onclick="switchCultureView('weekly')">
+              🗓️ Haftalık Takvim & Notlar
+            </button>
+            <button type="button" class="culture-nav-btn" data-view="roadmap" onclick="switchCultureView('roadmap')">
+              🗺️ 12 Haftalık Yol Haritası
+            </button>
+            <button type="button" class="culture-nav-btn" data-view="vocab" onclick="switchCultureView('vocab')">
+              📖 Kelime & Kavram Dağarcığı
+            </button>
+            <button type="button" class="culture-nav-btn" data-view="flashcards" onclick="switchCultureView('flashcards')">
+              ⚡ Hızlı Tekrar (Flashcards)
+            </button>
+            <button type="button" class="culture-nav-btn" data-view="trivia" onclick="switchCultureView('trivia')">
+              ✨ İlginç Bilgiler & Keşifler
+            </button>
+          </div>
+
+          <!-- VIEW 1: WEEKLY CURRICULUM & TODAY SPOTLIGHT -->
+          <div id="culture-view-weekly">
+            <!-- Today's Spotlight Box -->
+            <div id="culture-today-spotlight-container">
+              <!-- Rendered via JS -->
+            </div>
+
+            <!-- Weekly 5 Days Grid Header -->
+            <div class="books-hero" style="margin-top: 20px; margin-bottom: 20px;">
               <div>
-                <div class="trivia-stat-val" id="trivia-stat-total">0</div>
-                <div class="trivia-stat-lbl">Toplam Not</div>
+                <h2 style="font-size: 20px; font-weight: 800; color: var(--text-primary);" id="culture-week-title">
+                  📚 <span id="culture-week-title-text">1. Hafta Öğrenme Takvimi</span>
+                </h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;" id="culture-week-desc">
+                  Pazartesi'den Cuma'ya günlere özel hazırlanan konu başlıkları, sorular ve notlarınız
+                </p>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="prevCultureWeek()">← Önceki Hafta</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="nextCultureWeek()">Sonraki Hafta →</button>
               </div>
             </div>
-            <div class="trivia-stat-card">
-              <div class="trivia-stat-icon" style="color: #38bdf8; background: rgba(56, 189, 248, 0.12);">🔬</div>
-              <div>
-                <div class="trivia-stat-val" id="trivia-stat-science">0</div>
-                <div class="trivia-stat-lbl">Bilim & Doğa</div>
-              </div>
-            </div>
-            <div class="trivia-stat-card">
-              <div class="trivia-stat-icon" style="color: #a855f7; background: rgba(168, 85, 247, 0.12);">🏛️</div>
-              <div>
-                <div class="trivia-stat-val" id="trivia-stat-history">0</div>
-                <div class="trivia-stat-lbl">Tarih & Kültür</div>
-              </div>
-            </div>
-            <div class="trivia-stat-card">
-              <div class="trivia-stat-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.12);">💻</div>
-              <div>
-                <div class="trivia-stat-val" id="trivia-stat-tech">0</div>
-                <div class="trivia-stat-lbl">Teknoloji & Zeka</div>
-              </div>
+
+            <!-- 5 Days Grid -->
+            <div class="culture-week-grid" id="culture-week-grid">
+              <!-- Rendered via JS -->
             </div>
           </div>
 
-          <div class="books-controls-row">
-            <div class="en-filter-pills-row" id="trivia-category-filters">
-              <button type="button" class="en-filter-pill active" data-cat="all" onclick="filterTriviaCategory('all')">✨ Tümü</button>
-              <button type="button" class="en-filter-pill" data-cat="science" onclick="filterTriviaCategory('science')">🔬 Bilim & Uzay</button>
-              <button type="button" class="en-filter-pill" data-cat="history" onclick="filterTriviaCategory('history')">🏛️ Tarih & Medeniyet</button>
-              <button type="button" class="en-filter-pill" data-cat="psychology" onclick="filterTriviaCategory('psychology')">🧠 Psikoloji & Zihin</button>
-              <button type="button" class="en-filter-pill" data-cat="world" onclick="filterTriviaCategory('world')">🌍 Doğa & Dünya</button>
-              <button type="button" class="en-filter-pill" data-cat="tech" onclick="filterTriviaCategory('tech')">💻 Teknoloji</button>
+          <!-- VIEW 2: 12-WEEK ROADMAP MATRIX OVERVIEW -->
+          <div id="culture-view-roadmap" style="display: none;">
+            <div class="books-hero" style="margin-bottom: 20px;">
+              <div>
+                <h2 style="font-size: 20px; font-weight: 800; color: var(--text-primary);">
+                  🗺️ 12 Haftalık Kapsamlı Müfredat Matrisi
+                </h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                  3 aşamalı gelişim piramidinde 12 haftanın 60 konusunu tek bakışta görün ve istediğiniz haftaya anında geçin
+                </p>
+              </div>
             </div>
-            <div class="books-search-wrap" style="max-width: 320px;">
-              <span class="books-search-icon">🔍</span>
-              <input type="text" class="books-search-input" id="trivia-search-input" placeholder="Bilgi ara..." oninput="handleTriviaSearch(this.value)" />
+            <div class="culture-roadmap-grid" id="culture-roadmap-grid">
+              <!-- Rendered via JS -->
             </div>
           </div>
 
-          <div class="trivia-grid" id="trivia-grid">
-            <!-- JS Rendered Trivia Cards -->
+          <!-- VIEW: VOCABULARY & CONCEPTS (LUGAT) -->
+          <div id="culture-view-vocab" style="display: none;">
+            <!-- Vocab Header -->
+            <div class="books-hero" style="margin-bottom: 20px;">
+              <div>
+                <h2 style="font-size: 20px; font-weight: 800; color: var(--text-primary);">
+                  📖 Kelime & Kavram Dağarcığı (Lugat)
+                </h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                  Öğrendiğiniz yeni sözcükler, etimolojik kökenler, edebi terimler, ezber takibi ve kendini sınama testleri
+                </p>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <button type="button" class="btn" id="start-vocab-quiz-btn" onclick="openCultureQuizModal()" style="background: linear-gradient(135deg, #6c63ff 0%, #ec4899 100%); color: #ffffff; border: none; font-weight: 700; box-shadow: 0 4px 16px rgba(108, 99, 255, 0.35); display:inline-flex; align-items:center; gap:8px;">
+                  <span>🎯</span> <span>Kendini Quiz Yap</span>
+                </button>
+                <button class="btn btn-primary" id="add-vocab-btn" onclick="openCultureVocabModal()" style="display:none;">＋ Yeni Kelime Ekle</button>
+              </div>
+            </div>
+
+            <!-- Vocab Stats Grid -->
+            <div class="culture-vocab-stats-grid" id="culture-vocab-stats-bar">
+              <div class="culture-vocab-stat-card">
+                <div class="culture-vocab-stat-icon" style="background: rgba(108, 99, 255, 0.12); color: var(--accent-light);">📚</div>
+                <div>
+                  <div class="trivia-stat-val" id="vocab-stat-total">0</div>
+                  <div class="trivia-stat-lbl">Toplam Kelime</div>
+                </div>
+              </div>
+              <div class="culture-vocab-stat-card">
+                <div class="culture-vocab-stat-icon" style="background: rgba(59, 130, 246, 0.12); color: #60a5fa;">✅</div>
+                <div>
+                  <div class="trivia-stat-val" id="vocab-stat-researched" style="color: #60a5fa;">0</div>
+                  <div class="trivia-stat-lbl">Araştırılanlar</div>
+                </div>
+              </div>
+              <div class="culture-vocab-stat-card">
+                <div class="culture-vocab-stat-icon" style="background: rgba(245, 158, 11, 0.12); color: #fbbf24;">🔍</div>
+                <div>
+                  <div class="trivia-stat-val" id="vocab-stat-to-research" style="color: #fbbf24;">0</div>
+                  <div class="trivia-stat-lbl">Araştırılacaklar</div>
+                </div>
+              </div>
+              <div class="culture-vocab-stat-card">
+                <div class="culture-vocab-stat-icon" style="background: rgba(16, 185, 129, 0.12); color: #34d399;">🧠</div>
+                <div>
+                  <div class="trivia-stat-val" id="vocab-stat-memorized" style="color: #34d399;">0</div>
+                  <div class="trivia-stat-lbl">Ezberlenenler</div>
+                </div>
+              </div>
+              <div class="culture-vocab-stat-card">
+                <div class="culture-vocab-stat-icon" style="background: rgba(236, 72, 153, 0.12); color: #f472b6;">🎯</div>
+                <div style="flex:1;">
+                  <div style="display:flex; align-items:baseline; justify-content:space-between;">
+                    <div class="trivia-stat-val" id="vocab-stat-rate" style="font-size:20px;">%0</div>
+                    <span style="font-size:11px; color:var(--text-muted); font-weight:600;">Hafıza Başarısı</span>
+                  </div>
+                  <div style="height:5px; background:rgba(255,255,255,0.06); border-radius:100px; margin-top:6px; overflow:hidden;">
+                    <div id="vocab-stat-progress" style="height:100%; width:0%; background:linear-gradient(90deg, #10b981, #38bdf8); border-radius:100px; transition:width 0.4s ease;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Filters and Search Row -->
+            <div class="culture-vocab-search-row">
+              <div class="culture-vocab-filter-group" id="culture-vocab-category-filters">
+                <!-- All Filter (Resets everything) -->
+                <button type="button" class="culture-vocab-filter-btn active" id="vocab-filter-all-btn" onclick="resetAllCultureVocabFilters()">✨ Tümü</button>
+                <!-- Research Status filter pills -->
+                <button type="button" class="culture-vocab-filter-btn filter-researched" data-research="researched" onclick="filterCultureVocabResearch('researched')">✅ Araştırılanlar</button>
+                <button type="button" class="culture-vocab-filter-btn filter-to-research" data-research="to_research" onclick="filterCultureVocabResearch('to_research')">🔍 Araştırılacaklar</button>
+                <!-- Memory Status filter pill -->
+                <button type="button" class="culture-vocab-filter-btn filter-memorized" data-status="memorized" onclick="filterCultureVocabStatus('memorized')">🧠 Ezberlediklerim</button>
+                <span style="color:var(--glass-border); margin:0 4px;">|</span>
+                <!-- Category filter pills -->
+                <button type="button" class="culture-vocab-filter-btn" data-cat="edebiyat" onclick="filterCultureVocab('edebiyat')">📜 Edebiyat</button>
+                <button type="button" class="culture-vocab-filter-btn" data-cat="doga" onclick="filterCultureVocab('doga')">🌿 Doğa</button>
+                <button type="button" class="culture-vocab-filter-btn" data-cat="mimari" onclick="filterCultureVocab('mimari')">🏛️ Mimari</button>
+                <button type="button" class="culture-vocab-filter-btn" data-cat="felsefe" onclick="filterCultureVocab('felsefe')">✨ Felsefe</button>
+                <button type="button" class="culture-vocab-filter-btn" data-cat="hukuk" onclick="filterCultureVocab('hukuk')">⚖️ Hukuk</button>
+              </div>
+              <div class="books-search-wrap" style="max-width: 320px;">
+                <span class="books-search-icon">🔍</span>
+                <input type="text" class="books-search-input" id="culture-vocab-search-input" placeholder="Kelime veya anlam ara..." oninput="handleCultureVocabSearch(this.value)" />
+              </div>
+            </div>
+
+            <!-- Grid of Vocabulary Cards -->
+            <div class="culture-vocab-grid" id="culture-vocab-grid">
+              <!-- JS Rendered Vocabulary Cards -->
+            </div>
+          </div>
+
+          <!-- VIEW: FLASHCARDS / FAST SPACED REPETITION -->
+          <div id="culture-view-flashcards" style="display: none;">
+            <div class="books-hero" style="margin-bottom: 20px;">
+              <div>
+                <h2 style="font-size: 20px; font-weight: 800; color: var(--text-primary);">
+                  ⚡ Hızlı Tekrar & Hafıza Kartları
+                </h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                  Öğrendiğiniz kritik bilgileri, kan gruplarını, ekonomik mekanizmaları ve kavramları pekiştirmek için kartlara tıklayın.
+                </p>
+              </div>
+            </div>
+            <div class="culture-flashcards-grid" id="culture-flashcards-grid">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- VIEW 3: TRIVIA / CURATED FACTS -->
+          <div id="culture-view-trivia" style="display: none;">
+            <div class="books-hero">
+              <div>
+                <h2 style="font-size: 20px; font-weight: 800; color: var(--text-primary);">
+                  ✨ İlginç Bilgiler & Keşifler
+                </h2>
+                <p style="font-size: 13px; color: var(--text-muted); margin-top: 4px;">
+                  Bilim, tarih, psikoloji, teknoloji ve evrene dair ufkumuzu açan notlar
+                </p>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <button class="btn btn-primary" id="add-trivia-btn" onclick="openAddTriviaModal()" style="display:none;">+ Yeni Bilgi Ekle</button>
+              </div>
+            </div>
+
+            <div class="books-controls-row">
+              <div class="en-filter-pills-row" id="trivia-category-filters">
+                <button type="button" class="en-filter-pill active" data-cat="all" onclick="filterTriviaCategory('all')">✨ Tümü</button>
+                <button type="button" class="en-filter-pill" data-cat="science" onclick="filterTriviaCategory('science')">🔬 Bilim & Uzay</button>
+                <button type="button" class="en-filter-pill" data-cat="history" onclick="filterTriviaCategory('history')">🏛️ Tarih & Medeniyet</button>
+                <button type="button" class="en-filter-pill" data-cat="psychology" onclick="filterTriviaCategory('psychology')">🧠 Psikoloji & Zihin</button>
+                <button type="button" class="en-filter-pill" data-cat="world" onclick="filterTriviaCategory('world')">🌍 Doğa & Dünya</button>
+                <button type="button" class="en-filter-pill" data-cat="tech" onclick="filterTriviaCategory('tech')">💻 Teknoloji</button>
+              </div>
+              <div class="books-search-wrap" style="max-width: 320px;">
+                <span class="books-search-icon">🔍</span>
+                <input type="text" class="books-search-input" id="trivia-search-input" placeholder="Bilgi ara..." oninput="handleTriviaSearch(this.value)" />
+              </div>
+            </div>
+
+            <div class="trivia-grid" id="trivia-grid">
+              <!-- JS Rendered Trivia Cards -->
+            </div>
           </div>
         </div>
       </main>
@@ -929,6 +1983,67 @@
     </div>
 
     <!-- ========================================================= -->
+    <!-- CULTURE STUDY NOTE MODAL -->
+    <!-- ========================================================= -->
+    <div class="modal-overlay" id="culture-note-modal">
+      <div class="modal" style="max-width: 620px;">
+        <div class="modal-header">
+          <div class="modal-title" id="culture-modal-title">📝 Genel Kültür Notu Düzenle</div>
+          <button class="modal-close" type="button" onclick="Modal.close('culture-note-modal')">✕</button>
+        </div>
+        <form id="culture-note-form">
+          <input type="hidden" id="culture-edit-id" />
+          <input type="hidden" id="culture-edit-day-key" />
+
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="input-group">
+                <label class="input-label">Gün & Kategori</label>
+                <input type="text" class="input-field" id="culture-edit-category" readonly style="opacity: 0.85; background: var(--bg-card);" />
+              </div>
+              <div class="input-group">
+                <label class="input-label">Hafta No</label>
+                <input type="number" class="input-field" id="culture-edit-week" value="1" min="1" max="52" />
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Konu Başlığı *</label>
+              <input type="text" class="input-field" id="culture-edit-topic" placeholder="Örn: Kan Grupları, DNA & Gen Aktarımı" required />
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">📌 Önemli Hap Bilgiler / Takeaways (Virgülle veya alt alta)</label>
+              <textarea class="input-field" id="culture-edit-takeaways" rows="2" placeholder="Örn: 0 Grubu Genel Verici, AB Grubu Genel Alıcı, Rh faktörü antijen varlığıdır..." style="resize: vertical;"></textarea>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">✍️ Araştırma & Öğrenme Notlarım (Detaylı Özet) *</label>
+              <textarea class="input-field" id="culture-edit-notes" rows="6" placeholder="Bugün araştırdığın konudan öğrendiklerini kendi cümlelerinle özetle..." required style="resize: vertical;"></textarea>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">🔗 İlgili Kaynaklar / Kitap / Makale</label>
+              <input type="text" class="input-field" id="culture-edit-resources" placeholder="Örn: TÜBİTAK Bilim Serisi, Khan Academy Biyoloji..." />
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 10px; padding: 6px 0;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 700; color: var(--text-primary);">
+                <input type="checkbox" id="culture-edit-completed" style="width: 18px; height: 18px; accent-color: #10b981;" />
+                ✅ Bu konuyu bugün araştırdım ve öğrendim (Tamamlandı)
+              </label>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="btn btn-ghost modal-close modal-close-btn" onclick="Modal.close('culture-note-modal')">İptal</button>
+            <button type="submit" class="btn btn-primary" id="culture-save-btn">💾 Supabase'e Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
     <!-- TRIVIA MODALS -->
     <!-- ========================================================= -->
     <div class="modal-overlay" id="trivia-modal">
@@ -967,6 +2082,89 @@
       </div>
     </div>
 
+    <!-- ========================================================= -->
+    <!-- CULTURE VOCABULARY MODAL -->
+    <!-- ========================================================= -->
+    <div class="modal-overlay" id="culture-vocab-modal">
+      <div class="modal" style="max-width: 560px;">
+        <div class="modal-header">
+          <div class="modal-title" id="culture-vocab-modal-title">📖 Yeni Kelime / Kavram Ekle</div>
+          <button class="modal-close" type="button" onclick="Modal.close('culture-vocab-modal')">✕</button>
+        </div>
+        <form id="culture-vocab-form">
+          <input type="hidden" id="culture-vocab-id" />
+          <div style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 18px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="input-group">
+                <label class="input-label">Kelime / Terim *</label>
+                <input type="text" class="input-field" id="vocab-word-input" placeholder="Örn: Tecit, Müsvedde..." required />
+              </div>
+              <div class="input-group">
+                <label class="input-label">Köken / Etimoloji</label>
+                <input type="text" class="input-field" id="vocab-origin-input" placeholder="Örn: Arapça, Farsça, Botanik..." />
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="input-group">
+                <label class="input-label">Kategori *</label>
+                <select class="input-field" id="vocab-category-input">
+                  <option value="📜 Edebiyat & Osmanlıca">📜 Edebiyat & Osmanlıca</option>
+                  <option value="✍️ Edebiyat & Yazı Sanatı">✍️ Edebiyat & Yazı Sanatı</option>
+                  <option value="🌿 Doğa & Botanik">🌿 Doğa & Botanik</option>
+                  <option value="🏛️ Mimari & Tarih">🏛️ Mimari & Tarih</option>
+                  <option value="✨ Estetik & Felsefe">✨ Estetik & Felsefe</option>
+                  <option value="🏛️ Diplomasi & Hukuk">🏛️ Diplomasi & Hukuk</option>
+                  <option value="🧠 Psikoloji & Zihin">🧠 Psikoloji & Zihin</option>
+                  <option value="💡 Genel Kültür">💡 Genel Kültür</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Araştırma Durumu *</label>
+                <select class="input-field" id="vocab-research-status-input">
+                  <option value="researched">✅ Araştırıldı (Hazır)</option>
+                  <option value="to_research">🔍 Araştırılacak (Taslak)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Anlamı & Açıklaması *</label>
+              <textarea class="input-field" id="vocab-meaning-input" rows="3" placeholder="Kelimenin anlamı, derinliği ve açıklaması..." required style="resize: vertical;"></textarea>
+            </div>
+
+            <div class="input-group">
+              <label class="input-label">Örnek Cümle / Bağlam</label>
+              <textarea class="input-field" id="vocab-example-input" rows="2" placeholder="Örnek bir cümle veya kullanım bağlamı..." style="resize: vertical;"></textarea>
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" class="btn btn-ghost" onclick="Modal.close('culture-vocab-modal')">İptal</button>
+            <button type="submit" class="btn btn-primary" id="vocab-save-btn">✓ Kelimeyi Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- CULTURE VOCABULARY QUIZ MODAL (KENDİNİ SINA) -->
+    <!-- ========================================================= -->
+    <div class="modal-overlay" id="culture-quiz-modal">
+      <div class="modal" style="max-width: 600px; padding: 24px;">
+        <div class="modal-header" style="margin-bottom: 16px; border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;">
+          <div class="modal-title" id="quiz-modal-title" style="display:flex; align-items:center; gap:8px;">
+            <span>🎯</span> <span>Kelime & Kavram Quizi</span>
+          </div>
+          <button class="modal-close" type="button" onclick="closeCultureQuizModal()">✕</button>
+        </div>
+
+        <!-- Dynamic Quiz Body -->
+        <div id="culture-quiz-body">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </div>
+
     <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../js/supabase.js"></script>
@@ -974,6 +2172,7 @@
     <script src="../js/i18n.js"></script>
     <script src="../js/nav.js"></script>
     <script src="../js/english.js"></script>
+    <script src="../js/culture_api.js"></script>
 
     <!-- KNOWLEDGE & BOOKS & TRIVIA ORCHESTRATOR SCRIPT -->
     <script>
@@ -1445,7 +2644,8 @@
         }
       }
 
-      // ===== 3. TRIVIA (GENEL KÜLTÜR) LOGIC =====
+      // ===== 3. CULTURE ACADEMY (GENEL KÜLTÜR) LOGIC =====
+      let currentCultureView = 'weekly';
       const TRIVIA_KEY = 'oyp_trivia_notes_v2';
       const DEFAULT_TRIVIA = [
         {
@@ -1495,6 +2695,1195 @@
       let activeTriviaCategory = 'all';
       let triviaSearchQuery = '';
 
+      let isCultureAdmin = false;
+      let isCultureSpotlightOpen = false;
+
+      async function syncCultureAdminAccess() {
+        if (window.Auth && typeof window.Auth.canManageContent === 'function') {
+          isCultureAdmin = await window.Auth.canManageContent();
+        } else {
+          isCultureAdmin = localStorage.getItem('site-admin-access') === '1';
+        }
+        return isCultureAdmin;
+      }
+
+      function toggleCultureSpotlightCollapse(forceOpen = null) {
+        if (forceOpen !== null) {
+          isCultureSpotlightOpen = forceOpen;
+        } else {
+          isCultureSpotlightOpen = !isCultureSpotlightOpen;
+        }
+        const body = document.getElementById('culture-spotlight-body');
+        const icon = document.getElementById('spotlight-collapse-icon');
+        if (body) body.style.display = isCultureSpotlightOpen ? 'block' : 'none';
+        if (icon) icon.textContent = isCultureSpotlightOpen ? 'Daralt ▲' : 'Genişlet ▼';
+      }
+
+      function switchCultureView(view) {
+        currentCultureView = view;
+        document.querySelectorAll('#culture-subtabs .culture-nav-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.view === view);
+        });
+
+        const vWeekly = document.getElementById('culture-view-weekly');
+        const vRoadmap = document.getElementById('culture-view-roadmap');
+        const vVocab = document.getElementById('culture-view-vocab');
+        const vFlash = document.getElementById('culture-view-flashcards');
+        const vTrivia = document.getElementById('culture-view-trivia');
+
+        if (vWeekly) vWeekly.style.display = view === 'weekly' ? 'block' : 'none';
+        if (vRoadmap) vRoadmap.style.display = view === 'roadmap' ? 'block' : 'none';
+        if (vVocab) vVocab.style.display = view === 'vocab' ? 'block' : 'none';
+        if (vFlash) vFlash.style.display = view === 'flashcards' ? 'block' : 'none';
+        if (vTrivia) vTrivia.style.display = view === 'trivia' ? 'block' : 'none';
+
+        if (view === 'weekly') renderWeeklyCurriculum();
+        else if (view === 'roadmap') renderCultureRoadmap();
+        else if (view === 'vocab') renderCultureVocabulary();
+        else if (view === 'flashcards') renderCultureFlashcards();
+        else if (view === 'trivia') renderTriviaCards();
+      }
+
+      let activeVocabCategory = 'all';
+      let activeVocabStatus = 'all'; // 'all' | 'memorized' | 'learning'
+      let activeVocabResearch = 'all'; // 'all' | 'researched' | 'to_research'
+      let vocabSearchQuery = '';
+
+      async function renderCultureVocabulary() {
+        const grid = document.getElementById('culture-vocab-grid');
+        const addBtn = document.getElementById('add-vocab-btn');
+        if (addBtn) addBtn.style.display = isCultureAdmin ? 'inline-flex' : 'none';
+        if (!grid || !window.CultureAPI) return;
+
+        const words = await CultureAPI.fetchVocabulary();
+
+        // 1. Calculate & Update Vocab Stats Bar
+        const totalCount = words.length;
+        const researchedCount = words.filter(w => w.research_status !== 'to_research').length;
+        const toResearchCount = words.filter(w => w.research_status === 'to_research').length;
+        const memorizedCount = words.filter(w => !!w.is_memorized).length;
+        const rate = totalCount > 0 ? Math.round((memorizedCount / totalCount) * 100) : 0;
+
+        const totalEl = document.getElementById('vocab-stat-total');
+        const resEl = document.getElementById('vocab-stat-researched');
+        const toResEl = document.getElementById('vocab-stat-to-research');
+        const memEl = document.getElementById('vocab-stat-memorized');
+        const rateEl = document.getElementById('vocab-stat-rate');
+        const progEl = document.getElementById('vocab-stat-progress');
+
+        if (totalEl) totalEl.textContent = totalCount;
+        if (resEl) resEl.textContent = researchedCount;
+        if (toResEl) toResEl.textContent = toResearchCount;
+        if (memEl) memEl.textContent = memorizedCount;
+        if (rateEl) rateEl.textContent = `%${rate}`;
+        if (progEl) progEl.style.width = `${rate}%`;
+
+        // 2. Filter words
+        const filtered = words.filter(w => {
+          const isToResearch = w.research_status === 'to_research';
+
+          // Research filter
+          if (activeVocabResearch === 'researched' && isToResearch) return false;
+          if (activeVocabResearch === 'to_research' && !isToResearch) return false;
+
+          // Memory Status filter
+          if (activeVocabStatus === 'memorized' && !w.is_memorized) return false;
+          if (activeVocabStatus === 'learning' && !!w.is_memorized) return false;
+
+          // Category filter
+          let matchesCat = true;
+          if (activeVocabCategory !== 'all') {
+            const cLower = (w.category || '').toLowerCase();
+            if (activeVocabCategory === 'edebiyat') matchesCat = cLower.includes('edebiyat') || cLower.includes('osmanlıca') || cLower.includes('yazı');
+            else if (activeVocabCategory === 'doga') matchesCat = cLower.includes('doğa') || cLower.includes('botanik');
+            else if (activeVocabCategory === 'mimari') matchesCat = cLower.includes('mimari') || cLower.includes('tarih');
+            else if (activeVocabCategory === 'felsefe') matchesCat = cLower.includes('felsefe') || cLower.includes('estetik');
+            else if (activeVocabCategory === 'hukuk') matchesCat = cLower.includes('hukuk') || cLower.includes('diplomasi');
+          }
+
+          // Search query
+          let matchesSearch = true;
+          if (vocabSearchQuery.trim()) {
+            const q = vocabSearchQuery.toLowerCase();
+            matchesSearch = (w.word || '').toLowerCase().includes(q) ||
+                            (w.meaning || '').toLowerCase().includes(q) ||
+                            (w.origin || '').toLowerCase().includes(q) ||
+                            (w.example || '').toLowerCase().includes(q);
+          }
+
+          return matchesCat && matchesSearch;
+        });
+
+        if (filtered.length === 0) {
+          let emptyTitle = 'Kelime Bulunamadı';
+          let emptySub = isCultureAdmin ? 'Yukarıdaki butondan yeni bir kelime ekleyebilirsiniz.' : 'Arama kriterlerinizi değiştirebilirsiniz.';
+          let emptyIcon = '📖';
+
+          if (activeVocabResearch === 'to_research') {
+            emptyTitle = 'Araştırılacak Kelime Yok';
+            emptySub = 'Tüm kelimelerinizin anlam ve detayları araştırılmış durumda! 👏';
+            emptyIcon = '🔍';
+          } else if (activeVocabResearch === 'researched') {
+            emptyTitle = 'Araştırılmış Kelime Yok';
+            emptyIcon = '✅';
+          } else if (activeVocabStatus === 'memorized') {
+            emptyTitle = 'Henüz Ezberlenen Kelime Yok';
+            emptySub = 'Öğrendiğiniz kelimelerin üzerindeki "🧠 Ezberle" butonuna tıklayarak buraya kaydedebilirsiniz.';
+            emptyIcon = '🧠';
+          }
+
+          grid.innerHTML = `
+            <div class="books-empty" style="grid-column:1/-1;">
+              <div class="books-empty-icon">${emptyIcon}</div>
+              <div class="books-empty-title">${emptyTitle}</div>
+              <div class="books-empty-sub">${emptySub}</div>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = filtered.map(w => {
+          const isMem = !!w.is_memorized;
+          const isToResearch = w.research_status === 'to_research';
+
+          const researchStatusBadge = isToResearch ? `
+            <span class="culture-vocab-research-badge" title="Bu kelime daha sonra araştırılmak üzere kaydedilmiştir">🔍 Araştırılacak</span>
+          ` : `
+            <span style="font-size:11px; font-weight:700; padding:3px 8px; border-radius:var(--radius-pill); background:rgba(59,130,246,0.12); color:#60a5fa; border:1px solid rgba(59,130,246,0.25);">✅ Araştırıldı</span>
+          `;
+
+          const memorizeBtn = isToResearch ? `
+            <button type="button" class="btn btn-ghost btn-sm" onclick="toggleCultureVocabResearchStatus('${w.id}')" style="font-size:11.5px; font-weight:700; color:#fbbf24; border-color:rgba(245,158,11,0.35); padding:4px 10px;" title="Araştırıldı olarak işaretle">
+              ✓ Araştırıldı Yap
+            </button>
+          ` : (isCultureAdmin ? `
+            <button type="button" class="vocab-memorize-toggle ${isMem ? 'active' : ''}" onclick="toggleCultureVocabMemorize('${w.id}')" title="${isMem ? 'Ezberden çıkar' : 'Ezberlendi olarak işaretle'}">
+              <span>🧠</span> <span>${isMem ? 'Ezberlendi ✓' : 'Ezberle'}</span>
+            </button>
+          ` : `
+            <span class="vocab-memorize-toggle ${isMem ? 'active' : ''}" style="cursor:default;" title="Kelime durumu">
+              <span>🧠</span> <span>${isMem ? 'Ezberlendi' : 'Öğreniliyor'}</span>
+            </span>
+          `);
+
+          const adminActions = isCultureAdmin ? `
+            <div style="display:flex; align-items:center; gap:6px;">
+              <button type="button" class="btn btn-ghost btn-sm" style="padding:4px 8px; font-size:12px;" onclick="openCultureVocabModal('${w.id}')" title="Düzenle">✏️</button>
+              <button type="button" class="btn btn-ghost btn-sm" style="padding:4px 8px; font-size:12px; color:var(--rose);" onclick="deleteCultureVocab('${w.id}')" title="Sil">🗑️</button>
+            </div>
+          ` : '';
+
+          return `
+            <div class="culture-vocab-card ${isToResearch ? 'is-to-research' : (isMem ? 'is-memorized' : '')}" id="vocab-card-${w.id}">
+              <div>
+                <div class="culture-vocab-top">
+                  <div>
+                    <div class="culture-vocab-word">${escapeHtml(w.word || '')}</div>
+                    ${w.origin ? `<div class="culture-vocab-origin">📍 ${escapeHtml(w.origin)}</div>` : ''}
+                  </div>
+                  <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                    ${researchStatusBadge}
+                    <span class="culture-vocab-cat-badge">${escapeHtml(w.category || '💡 Kelime')}</span>
+                  </div>
+                </div>
+
+                <div class="culture-vocab-meaning" style="margin-top:12px;">
+                  ${w.meaning ? escapeHtml(w.meaning) : '<span style="color:var(--text-muted); font-style:italic;">Bu kelimenin anlamı ve etimolojisi henüz araştırılmadı. Detay eklemek için düzenleyebilirsiniz.</span>'}
+                </div>
+
+                ${w.example ? `
+                  <div class="culture-vocab-example">
+                    "${escapeHtml(w.example)}"
+                  </div>
+                ` : ''}
+              </div>
+
+              <div class="culture-vocab-footer">
+                ${memorizeBtn}
+                ${adminActions}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function resetAllCultureVocabFilters() {
+        activeVocabCategory = 'all';
+        activeVocabStatus = 'all';
+        activeVocabResearch = 'all';
+        updateVocabFilterButtonsUI();
+        renderCultureVocabulary();
+      }
+
+      function filterCultureVocabResearch(status) {
+        if (activeVocabResearch === status) {
+          activeVocabResearch = 'all'; // toggle off
+        } else {
+          activeVocabResearch = status;
+        }
+        updateVocabFilterButtonsUI();
+        renderCultureVocabulary();
+      }
+
+      function filterCultureVocab(cat) {
+        if (activeVocabCategory === cat) {
+          activeVocabCategory = 'all'; // toggle off
+        } else {
+          activeVocabCategory = cat;
+        }
+        updateVocabFilterButtonsUI();
+        renderCultureVocabulary();
+      }
+
+      function filterCultureVocabStatus(status) {
+        if (activeVocabStatus === status) {
+          activeVocabStatus = 'all'; // toggle off
+        } else {
+          activeVocabStatus = status;
+        }
+        updateVocabFilterButtonsUI();
+        renderCultureVocabulary();
+      }
+
+      function updateVocabFilterButtonsUI() {
+        const isAll = (activeVocabCategory === 'all' && activeVocabStatus === 'all' && activeVocabResearch === 'all');
+        const allBtn = document.getElementById('vocab-filter-all-btn');
+        if (allBtn) allBtn.classList.toggle('active', isAll);
+
+        document.querySelectorAll('#culture-vocab-category-filters .culture-vocab-filter-btn[data-research]').forEach(b => {
+          b.classList.toggle('active', b.dataset.research === activeVocabResearch && activeVocabResearch !== 'all');
+        });
+
+        document.querySelectorAll('#culture-vocab-category-filters .culture-vocab-filter-btn[data-status]').forEach(b => {
+          b.classList.toggle('active', b.dataset.status === activeVocabStatus && activeVocabStatus !== 'all');
+        });
+
+        document.querySelectorAll('#culture-vocab-category-filters .culture-vocab-filter-btn[data-cat]').forEach(b => {
+          b.classList.toggle('active', b.dataset.cat === activeVocabCategory && activeVocabCategory !== 'all');
+        });
+      }
+
+      async function toggleCultureVocabResearchStatus(wordId) {
+        if (!isCultureAdmin) {
+          Toast.info('Araştırma durumunu güncellemek için yönetici girişi yapmalısınız.');
+          return;
+        }
+        if (!window.CultureAPI) return;
+        const updated = await CultureAPI.toggleWordResearchStatus(wordId);
+        if (updated) {
+          if (updated.research_status === 'researched') {
+            Toast.success(`"${updated.word}" araştırılmış kelimeler arasına eklendi! ✅`);
+          } else {
+            Toast.info(`"${updated.word}" araştırılacaklar listesine alındı 🔍`);
+          }
+          await renderCultureVocabulary();
+        }
+      }
+
+      function handleCultureVocabSearch(q) {
+        vocabSearchQuery = q;
+        renderCultureVocabulary();
+      }
+
+      async function toggleCultureVocabMemorize(wordId) {
+        if (!isCultureAdmin) {
+          Toast.info('Ezberleme durumunu kaydetmek için yönetici girişi yapmalısınız.');
+          return;
+        }
+        if (!window.CultureAPI) return;
+        const updated = await CultureAPI.toggleWordMemorized(wordId);
+        if (updated) {
+          if (updated.is_memorized) {
+            Toast.success(`"${updated.word}" ezberledikleriniz arasına eklendi! 🧠`);
+          } else {
+            Toast.info(`"${updated.word}" öğrenilecekler listesine alındı 🔄`);
+          }
+          await renderCultureVocabulary();
+        }
+      }
+
+      // ==========================================
+      // INTERACTIVE VOCABULARY SELF-QUIZ ENGINE
+      // ==========================================
+      let cultureQuizState = {
+        active: false,
+        mode: 'mc', // 'mc' (multiple choice) or 'flashcard'
+        scope: 'all', // 'all' or 'unmemorized'
+        questions: [],
+        currentIdx: 0,
+        score: 0,
+        answered: false
+      };
+
+      function openCultureQuizModal() {
+        const body = document.getElementById('culture-quiz-body');
+        if (!body) return;
+
+        body.innerHTML = `
+          <div style="text-align:center; padding: 10px 0 16px 0;">
+            <div style="font-size: 42px; margin-bottom: 8px;">🎯</div>
+            <h3 style="font-size: 20px; font-weight: 800; color: var(--text-primary);">Kelime Bilgini Sına</h3>
+            <p style="font-size: 13.5px; color: var(--text-secondary); max-width: 420px; margin: 4px auto 20px auto; line-height: 1.5;">
+              Dağarcığınızdaki kelimeleri pratik yaparak kalıcı hafızanıza aktarın ve başarı yüzdenizi artırın.
+            </p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 22px; text-align: left;">
+              <div class="input-group">
+                <label class="input-label" style="font-weight:700;">🎮 Quiz Modu</label>
+                <select class="input-field" id="quiz-mode-select" style="font-weight:600;">
+                  <option value="mc">📝 Çoktan Seçmeli Test (4 Şık)</option>
+                  <option value="flashcard">⚡ Hafıza Kartı (Hatırla & Sına)</option>
+                </select>
+              </div>
+
+              <div class="input-group">
+                <label class="input-label" style="font-weight:700;">🎯 Kapsam</label>
+                <select class="input-field" id="quiz-scope-select" style="font-weight:600;">
+                  <option value="all">📚 Tüm Kelimelerden</option>
+                  <option value="unmemorized">🔄 Henüz Ezberlenmemişlerden</option>
+                  <option value="memorized">🧠 Ezberlenenleri Tekrar Et</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 12px; justify-content: center;">
+              <button type="button" class="btn btn-ghost" onclick="closeCultureQuizModal()">Vazgeç</button>
+              <button type="button" class="btn btn-primary" onclick="launchCultureQuizFromSetup()" style="padding: 10px 28px; font-weight: 800;">
+                🚀 Quizi Başlat
+              </button>
+            </div>
+          </div>
+        `;
+
+        Modal.open('culture-quiz-modal');
+      }
+
+      function closeCultureQuizModal() {
+        cultureQuizState.active = false;
+        Modal.close('culture-quiz-modal');
+      }
+
+      async function launchCultureQuizFromSetup() {
+        const mode = document.getElementById('quiz-mode-select')?.value || 'mc';
+        const scope = document.getElementById('quiz-scope-select')?.value || 'all';
+        await startCultureQuiz(mode, scope);
+      }
+
+      async function startCultureQuiz(mode = 'mc', scope = 'all') {
+        if (!window.CultureAPI) return;
+        const allWords = await CultureAPI.fetchVocabulary();
+        let pool = [...allWords];
+
+        if (scope === 'unmemorized') {
+          pool = allWords.filter(w => !w.is_memorized);
+          if (pool.length < 2) {
+            Toast.info('Ezberlenmemiş yeterli kelime bulunamadı, tüm kelimeler dahil ediliyor.');
+            pool = [...allWords];
+          }
+        } else if (scope === 'memorized') {
+          pool = allWords.filter(w => !!w.is_memorized);
+          if (pool.length < 2) {
+            Toast.info('Ezberlenmiş kelime bulunamadı, tüm kelimeler dahil ediliyor.');
+            pool = [...allWords];
+          }
+        }
+
+        // Shuffle pool
+        pool.sort(() => Math.random() - 0.5);
+        const questionWords = pool.slice(0, Math.min(pool.length, 10));
+
+        if (questionWords.length === 0) {
+          Toast.warn('Quiz için kelime bulunamadı.');
+          return;
+        }
+
+        // Generate Multiple Choice Questions with 4 Options
+        const questions = questionWords.map(targetWord => {
+          const distractors = allWords
+            .filter(w => w.id !== targetWord.id)
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3);
+
+          const options = [
+            { text: targetWord.meaning, isCorrect: true, word: targetWord },
+            ...distractors.map(d => ({ text: d.meaning, isCorrect: false, word: d }))
+          ].sort(() => Math.random() - 0.5);
+
+          return {
+            target: targetWord,
+            options
+          };
+        });
+
+        cultureQuizState = {
+          active: true,
+          mode,
+          scope,
+          questions,
+          currentIdx: 0,
+          score: 0,
+          answered: false
+        };
+
+        renderCurrentQuizQuestion();
+      }
+
+      function renderCurrentQuizQuestion() {
+        const body = document.getElementById('culture-quiz-body');
+        if (!body) return;
+
+        const q = cultureQuizState.questions[cultureQuizState.currentIdx];
+        const total = cultureQuizState.questions.length;
+        const currentNum = cultureQuizState.currentIdx + 1;
+        const progressPct = ((currentNum - 1) / total) * 100;
+
+        if (cultureQuizState.mode === 'mc') {
+          // Multiple Choice Mode
+          body.innerHTML = `
+            <div>
+              <!-- Quiz Progress Header -->
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent-light);">
+                  Soru ${currentNum} / ${total}
+                </span>
+                <span style="font-size:12px; font-weight:700; color:var(--text-muted);">
+                  🎯 Skor: <strong style="color:var(--text-primary);">${cultureQuizState.score}</strong>
+                </span>
+              </div>
+
+              <div style="height:6px; background:rgba(255,255,255,0.06); border-radius:100px; margin-bottom:20px; overflow:hidden;">
+                <div style="height:100%; width:${progressPct}%; background:linear-gradient(90deg, #6c63ff, #ec4899); border-radius:100px; transition:width 0.3s ease;"></div>
+              </div>
+
+              <!-- Question Card -->
+              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:var(--radius-xl); padding:20px; margin-bottom:20px; text-align:center;">
+                <span style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:var(--radius-pill); background:rgba(108,99,255,0.12); color:var(--accent-light);">
+                  ${escapeHtml(q.target.category || 'Kelime')}
+                </span>
+                <div style="font-size:26px; font-weight:800; color:var(--text-primary); margin-top:8px; line-height:1.2;">
+                  ${escapeHtml(q.target.word)}
+                </div>
+                ${q.target.origin ? `<div style="font-size:12.5px; font-weight:600; color:var(--accent-light); margin-top:4px;">📍 Köken: ${escapeHtml(q.target.origin)}</div>` : ''}
+                <div style="font-size:13px; color:var(--text-secondary); margin-top:10px; font-weight:600;">
+                  Bu kelimenin / kavramın doğru anlamı aşağıdakilerden hangisidir?
+                </div>
+              </div>
+
+              <!-- 4 Options -->
+              <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:18px;" id="quiz-options-container">
+                ${q.options.map((opt, idx) => {
+                  const letter = String.fromCharCode(65 + idx);
+                  return `
+                    <button type="button" class="quiz-option-btn" onclick="handleQuizOptionSelect(${idx})" id="quiz-opt-${idx}">
+                      <div class="quiz-opt-letter">${letter}</div>
+                      <div style="flex:1;">${escapeHtml(opt.text)}</div>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+
+              <!-- Feedback & Next Action Box -->
+              <div id="quiz-feedback-box" style="display:none; margin-top:14px; padding:14px 18px; border-radius:var(--radius-lg); background:rgba(255,255,255,0.03); border:1px solid var(--glass-border);">
+                <!-- Filled on answer -->
+              </div>
+            </div>
+          `;
+        } else {
+          // Flashcard Self-Quiz Mode
+          body.innerHTML = `
+            <div>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                <span style="font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent-light);">
+                  Kart ${currentNum} / ${total}
+                </span>
+                <span style="font-size:12px; font-weight:700; color:var(--text-muted);">
+                  🧠 Ezberlenen: <strong style="color:#34d399;">${cultureQuizState.score}</strong>
+                </span>
+              </div>
+
+              <div style="height:6px; background:rgba(255,255,255,0.06); border-radius:100px; margin-bottom:20px; overflow:hidden;">
+                <div style="height:100%; width:${progressPct}%; background:linear-gradient(90deg, #10b981, #38bdf8); border-radius:100px; transition:width 0.3s ease;"></div>
+              </div>
+
+              <div style="background:var(--bg-card); border:1px solid var(--glass-border); border-radius:var(--radius-xl); padding:32px 24px; min-height:220px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; margin-bottom:20px; position:relative;">
+                <span style="position:absolute; top:16px; left:16px; font-size:11px; font-weight:700; padding:3px 10px; border-radius:var(--radius-pill); background:rgba(108,99,255,0.12); color:var(--accent-light);">
+                  ${escapeHtml(q.target.category || 'Kelime')}
+                </span>
+
+                <div style="font-size:32px; font-weight:800; color:var(--text-primary); line-height:1.2;">
+                  ${escapeHtml(q.target.word)}
+                </div>
+                ${q.target.origin ? `<div style="font-size:13.5px; font-weight:600; color:var(--accent-light); margin-top:6px;">📍 ${escapeHtml(q.target.origin)}</div>` : ''}
+
+                <div id="quiz-flash-reveal" style="display:none; margin-top:20px; padding-top:16px; border-top:1px solid var(--glass-border); width:100%;">
+                  <div style="font-size:15px; color:var(--text-primary); line-height:1.6; font-weight:600;">
+                    ${escapeHtml(q.target.meaning)}
+                  </div>
+                  ${q.target.example ? `
+                    <div style="font-size:12.5px; font-style:italic; color:var(--text-muted); margin-top:10px;">
+                      "${escapeHtml(q.target.example)}"
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+
+              <div id="quiz-flash-initial-actions" style="text-align:center;">
+                <button type="button" class="btn btn-primary" onclick="revealFlashcardQuizAnswer()" style="padding:10px 28px; font-weight:800;">
+                  👁️ Anlamı Göster
+                </button>
+              </div>
+
+              <div id="quiz-flash-graded-actions" style="display:none; justify-content:center; gap:14px;">
+                <button type="button" class="btn btn-ghost" onclick="handleFlashcardGraded(false)" style="padding:10px 20px; color:#f87171; border-color:rgba(239,68,68,0.3);">
+                  🔄 Hatırlayamadım
+                </button>
+                <button type="button" class="btn" onclick="handleFlashcardGraded(true)" style="padding:10px 24px; background:#10b981; color:white; font-weight:800; border:none; box-shadow:0 4px 14px rgba(16,185,129,0.35);">
+                  🧠 Bildim (Ezberle)
+                </button>
+              </div>
+            </div>
+          `;
+        }
+      }
+
+      function handleQuizOptionSelect(selectedIdx) {
+        if (cultureQuizState.answered) return;
+        cultureQuizState.answered = true;
+
+        const q = cultureQuizState.questions[cultureQuizState.currentIdx];
+        const selectedOpt = q.options[selectedIdx];
+        const isCorrect = selectedOpt.isCorrect;
+
+        // Mark buttons
+        q.options.forEach((opt, idx) => {
+          const btn = document.getElementById(`quiz-opt-${idx}`);
+          if (btn) {
+            btn.disabled = true;
+            if (opt.isCorrect) btn.classList.add('correct');
+            else if (idx === selectedIdx) btn.classList.add('wrong');
+          }
+        });
+
+        if (isCorrect) {
+          cultureQuizState.score++;
+        }
+
+        const isLast = cultureQuizState.currentIdx === cultureQuizState.questions.length - 1;
+        const feedbackBox = document.getElementById('quiz-feedback-box');
+        if (feedbackBox) {
+          feedbackBox.style.display = 'block';
+          feedbackBox.style.borderColor = isCorrect ? '#10b981' : '#ef4444';
+          feedbackBox.style.background = isCorrect ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)';
+
+          feedbackBox.innerHTML = `
+            <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px;">
+              <div>
+                <div style="font-weight:800; font-size:14px; color:${isCorrect ? '#34d399' : '#f87171'};">
+                  ${isCorrect ? '✅ Harika! Doğru Cevap.' : '❌ Yanlış Cevap.'}
+                </div>
+                <div style="font-size:12.5px; color:var(--text-secondary); margin-top:4px; line-height:1.5;">
+                  <strong>Doğru Anlam:</strong> ${escapeHtml(q.target.meaning)}
+                </div>
+                ${q.target.example ? `<div style="font-size:11.5px; font-style:italic; color:var(--text-muted); margin-top:4px;">"${escapeHtml(q.target.example)}"</div>` : ''}
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" onclick="advanceCultureQuiz()" style="white-space:nowrap; padding:8px 18px; font-weight:800; border-radius:100px;">
+                ${isLast ? 'Sonuçları Gör 🏁' : 'Sonraki Soru →'}
+              </button>
+            </div>
+          `;
+        }
+      }
+
+      function revealFlashcardQuizAnswer() {
+        const rev = document.getElementById('quiz-flash-reveal');
+        const initActs = document.getElementById('quiz-flash-initial-actions');
+        const gradedActs = document.getElementById('quiz-flash-graded-actions');
+        if (rev) rev.style.display = 'block';
+        if (initActs) initActs.style.display = 'none';
+        if (gradedActs) gradedActs.style.display = 'flex';
+      }
+
+      async function handleFlashcardGraded(known) {
+        const q = cultureQuizState.questions[cultureQuizState.currentIdx];
+        if (known) {
+          cultureQuizState.score++;
+          // If known and user is admin, auto-mark word as memorized in background!
+          if (isCultureAdmin && !q.target.is_memorized) {
+            CultureAPI.toggleWordMemorized(q.target.id);
+          }
+        }
+        advanceCultureQuiz();
+      }
+
+      function advanceCultureQuiz() {
+        cultureQuizState.currentIdx++;
+        cultureQuizState.answered = false;
+
+        if (cultureQuizState.currentIdx < cultureQuizState.questions.length) {
+          renderCurrentQuizQuestion();
+        } else {
+          renderQuizResults();
+        }
+      }
+
+      async function renderQuizResults() {
+        const body = document.getElementById('culture-quiz-body');
+        if (!body) return;
+
+        const total = cultureQuizState.questions.length;
+        const score = cultureQuizState.score;
+        const pct = Math.round((score / total) * 100);
+
+        let badgeTitle = '🌱 Öğrenme Yolunda';
+        let badgeColor = 'var(--accent-light)';
+        let badgeEmoji = '🌟';
+
+        if (pct === 100) {
+          badgeTitle = '🏆 Lugat & Edebiyat Üstadı!';
+          badgeColor = '#fbbf24';
+          badgeEmoji = '👑';
+        } else if (pct >= 70) {
+          badgeTitle = '✨ Kelime Kaşifi & Harika Hafıza';
+          badgeColor = '#34d399';
+          badgeEmoji = '🧠';
+        }
+
+        body.innerHTML = `
+          <div style="text-align:center; padding:16px 12px;">
+            <div style="font-size:52px; margin-bottom:8px;">${badgeEmoji}</div>
+            <h3 style="font-size:22px; font-weight:800; color:var(--text-primary);">Quiz Tamamlandı!</h3>
+            
+            <div style="display:inline-block; font-size:12px; font-weight:800; padding:4px 14px; border-radius:100px; background:rgba(255,255,255,0.06); color:${badgeColor}; margin-top:6px; border:1px solid var(--glass-border);">
+              ${badgeTitle}
+            </div>
+
+            <!-- Score Cards -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; max-width:360px; margin:24px auto;">
+              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:16px;">
+                <div style="font-size:26px; font-weight:800; color:var(--text-primary);">${score} / ${total}</div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-top:2px;">Doğru Cevap</div>
+              </div>
+              <div style="background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:16px;">
+                <div style="font-size:26px; font-weight:800; color:${pct >= 70 ? '#34d399' : 'var(--accent-light)'};">%${pct}</div>
+                <div style="font-size:11px; color:var(--text-muted); text-transform:uppercase; margin-top:2px;">Başarı Oranı</div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:10px;">
+              <button type="button" class="btn btn-ghost" onclick="startCultureQuiz(cultureQuizState.mode, 'all')">
+                🔄 Tüm Kelimelerle Tekrarla
+              </button>
+              <button type="button" class="btn btn-primary" onclick="startCultureQuiz(cultureQuizState.mode, 'unmemorized')" style="font-weight:700;">
+                🎯 Eksiklerden Quiz Yap
+              </button>
+              <button type="button" class="btn btn-secondary" onclick="closeCultureQuizModal()">
+                ✓ Bitir & Dağarcığa Dön
+              </button>
+            </div>
+          </div>
+        `;
+
+        // Refresh vocabulary page so memorized counters are updated
+        await renderCultureVocabulary();
+      }
+
+      async function openCultureVocabModal(wordId = null) {
+        if (!isCultureAdmin) {
+          Toast.info('Kelime ekleme ve düzenleme yetkisi yalnızca yöneticiye aittir.');
+          return;
+        }
+
+        const idInp = document.getElementById('culture-vocab-id');
+        const wordInp = document.getElementById('vocab-word-input');
+        const originInp = document.getElementById('vocab-origin-input');
+        const catInp = document.getElementById('vocab-category-input');
+        const statusInp = document.getElementById('vocab-research-status-input');
+        const meanInp = document.getElementById('vocab-meaning-input');
+        const exInp = document.getElementById('vocab-example-input');
+        const titleEl = document.getElementById('culture-vocab-modal-title');
+
+        if (wordId) {
+          const words = await CultureAPI.fetchVocabulary();
+          const target = words.find(w => w.id === wordId);
+          if (target) {
+            idInp.value = target.id;
+            wordInp.value = target.word || '';
+            originInp.value = target.origin || '';
+            catInp.value = target.category || '📜 Edebiyat & Osmanlıca';
+            if (statusInp) statusInp.value = target.research_status || 'researched';
+            meanInp.value = target.meaning || '';
+            exInp.value = target.example || '';
+            titleEl.textContent = '✏️ Kelimeyi Düzenle';
+          }
+        } else {
+          idInp.value = '';
+          wordInp.value = '';
+          originInp.value = '';
+          catInp.value = '📜 Edebiyat & Osmanlıca';
+          if (statusInp) statusInp.value = 'researched';
+          meanInp.value = '';
+          exInp.value = '';
+          titleEl.textContent = '📖 Yeni Kelime / Kavram Ekle';
+        }
+
+        Modal.open('culture-vocab-modal');
+      }
+
+      async function deleteCultureVocab(wordId) {
+        if (!isCultureAdmin) {
+          Toast.info('Silme yetkisi yalnızca yöneticiye aittir.');
+          return;
+        }
+        if (!confirm('Bu kelimeyi dağarcıktan silmek istediğinize emin misiniz?')) return;
+        await CultureAPI.deleteWord(wordId);
+        Toast.success('Kelime silindi.');
+        renderCultureVocabulary();
+      }
+
+      async function renderCultureAcademy() {
+        if (!window.CultureAPI) return;
+        await syncCultureAdminAccess();
+
+        const addVocabBtn = document.getElementById('add-vocab-btn');
+        if (addVocabBtn) addVocabBtn.style.display = isCultureAdmin ? 'inline-flex' : 'none';
+
+        const allNotes = await CultureAPI.fetchNotes();
+        const summaries = await CultureAPI.getAllWeeksSummary();
+        const focus = await CultureAPI.getTodayFocus();
+        const activeWeek = CultureAPI.getActiveWeek();
+
+        // Update Overall Stats (All 12 Weeks / 60 Topics)
+        const completedCount = allNotes.filter(n => n.is_completed).length;
+        const compEl = document.getElementById('culture-stat-completed');
+        if (compEl) compEl.textContent = `${completedCount}/${allNotes.length}`;
+
+        const todayNameEl = document.getElementById('culture-stat-today-name');
+        if (todayNameEl && focus.item) {
+          todayNameEl.textContent = `${focus.item.day_name} • ${focus.item.category_title ? focus.item.category_title.split(' ')[0] : '💡'}`;
+        }
+
+        let totalTakeaways = 0;
+        allNotes.forEach(n => {
+          if (Array.isArray(n.key_takeaways)) totalTakeaways += n.key_takeaways.length;
+        });
+        const takEl = document.getElementById('culture-stat-takeaways');
+        if (takEl) takEl.textContent = totalTakeaways;
+
+        const rateEl = document.getElementById('culture-stat-rate');
+        if (rateEl) {
+          const pct = Math.round((completedCount / (allNotes.length || 60)) * 100);
+          rateEl.textContent = pct + '%';
+        }
+
+        renderCultureTimeline(activeWeek, summaries);
+        renderTodaySpotlight(focus);
+        renderWeeklyCurriculum();
+        renderCultureRoadmap(summaries);
+        renderCultureVocabulary();
+        renderCultureFlashcards(allNotes);
+        renderTriviaCards();
+      }
+
+      function renderCultureTimeline(activeWeek, summaries) {
+        const container = document.getElementById('culture-timeline-container');
+        if (!container || !summaries) return;
+
+        const currentSummary = summaries.find(s => s.week === activeWeek) || summaries[0];
+        const phaseNames = {
+          1: "🥉 Faz 1: Temel Taşlar (Hafta 1-4)",
+          2: "🥉 Faz 1: Temel Taşlar (Hafta 1-4)",
+          3: "🥉 Faz 1: Temel Taşlar (Hafta 1-4)",
+          4: "🥉 Faz 1: Temel Taşlar (Hafta 1-4)",
+          5: "🥈 Faz 2: Sistemler & Krizler (Hafta 5-8)",
+          6: "🥈 Faz 2: Sistemler & Krizler (Hafta 5-8)",
+          7: "🥈 Faz 2: Sistemler & Krizler (Hafta 5-8)",
+          8: "🥈 Faz 2: Sistemler & Krizler (Hafta 5-8)",
+          9: "🥇 Faz 3: İleri Düzey Analiz (Hafta 9-12)",
+          10: "🥇 Faz 3: İleri Düzey Analiz (Hafta 9-12)",
+          11: "🥇 Faz 3: İleri Düzey Analiz (Hafta 9-12)",
+          12: "🥇 Faz 3: İleri Düzey Analiz (Hafta 9-12)"
+        };
+
+        const phaseTag = phaseNames[activeWeek] || "Genel Kültür Müfredatı";
+
+        const chipsHtml = summaries.map(s => {
+          const isActive = s.week === activeWeek;
+          const isDone = s.completed === s.total;
+          return `
+            <div class="culture-week-chip ${isActive ? 'active' : ''} ${isDone ? 'completed' : ''}" onclick="selectCultureWeek(${s.week})">
+              <span class="culture-week-num">Hafta ${s.week}</span>
+              <span class="culture-week-sub">${s.completed}/${s.total} (%${s.percent})</span>
+            </div>
+          `;
+        }).join('');
+
+        container.innerHTML = `
+          <div class="culture-timeline-wrap">
+            <div class="culture-timeline-header">
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span class="culture-phase-tag">${phaseTag}</span>
+                <span style="font-size:13px; font-weight:700; color:var(--text-primary);">
+                  Seçili Hafta: <strong>Hafta ${activeWeek}</strong> (${currentSummary.completed}/5 Tamamlandı • %${currentSummary.percent})
+                </span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" class="btn btn-ghost btn-sm" onclick="prevCultureWeek()">← Önceki</button>
+                <button type="button" class="btn btn-primary btn-sm" onclick="selectCultureWeek(1)">1. Hafta</button>
+                <button type="button" class="btn btn-ghost btn-sm" onclick="nextCultureWeek()">Sonraki →</button>
+              </div>
+            </div>
+            <div class="culture-weeks-scroll" id="culture-weeks-scroll">
+              ${chipsHtml}
+            </div>
+          </div>
+        `;
+      }
+
+      async function selectCultureWeek(weekNum) {
+        if (!window.CultureAPI) return;
+        const w = CultureAPI.setActiveWeek(weekNum);
+        const summaries = await CultureAPI.getAllWeeksSummary();
+        renderCultureTimeline(w, summaries);
+        renderWeeklyCurriculum();
+        renderCultureRoadmap(summaries);
+
+        // Update Title
+        const titleEl = document.getElementById('culture-week-title-text');
+        if (titleEl) titleEl.textContent = `${w}. Hafta Öğrenme Takvimi`;
+      }
+
+      function prevCultureWeek() {
+        const cur = CultureAPI.getActiveWeek();
+        if (cur > 1) selectCultureWeek(cur - 1);
+      }
+
+      function nextCultureWeek() {
+        const cur = CultureAPI.getActiveWeek();
+        if (cur < 12) selectCultureWeek(cur + 1);
+      }
+
+      function renderTodaySpotlight(focus) {
+        const container = document.getElementById('culture-today-spotlight-container');
+        if (!container || !focus || !focus.item) return;
+
+        const item = focus.item;
+        const todayInfo = focus.todayInfo;
+
+        const questionsHtml = (item.guide_questions || []).map(q => `
+          <li class="culture-guide-item">
+            <span class="culture-guide-bullet">❓</span>
+            <span>${escapeHtml(q)}</span>
+          </li>
+        `).join('');
+
+        const takeawaysHtml = (item.key_takeaways || []).map(t => `
+          <span class="culture-takeaway-chip">✨ ${escapeHtml(t)}</span>
+        `).join('');
+
+        const isWeekendNote = todayInfo.isWeekend ? `<div style="font-size:12px; color:var(--accent-light); margin-bottom:8px;">💡 Hafta sonu: Hafta boyunca öğrendiklerinizi pekiştirme ve tekrar zamanı!</div>` : '';
+
+        const actionButtonsHtml = isCultureAdmin ? `
+          <button type="button" class="culture-complete-btn ${item.is_completed ? 'completed' : ''}" onclick="event.stopPropagation(); toggleCultureComplete('${item.id || item.day_key}', ${item.study_week || 1})">
+            ${item.is_completed ? '✅ Tamamlandı' : '⭕ Tamamla'}
+          </button>
+          <button type="button" class="btn btn-primary" style="padding:7px 16px; font-size:12px;" onclick="event.stopPropagation(); openCultureNoteModal('${item.id || item.day_key}', ${item.study_week || 1})">
+            ✏️ Notu Düzenle
+          </button>
+        ` : `
+          <span class="culture-complete-btn ${item.is_completed ? 'completed' : ''}" style="cursor:default;" onclick="event.stopPropagation();">
+            ${item.is_completed ? '✅ Tamamlandı' : '⭕ Bekliyor'}
+          </span>
+          <button type="button" class="btn btn-ghost" style="padding:7px 14px; font-size:12px;" onclick="event.stopPropagation(); openCultureNoteModal('${item.id || item.day_key}', ${item.study_week || 1})">
+            📖 Detayları Oku
+          </button>
+        `;
+
+        container.innerHTML = `
+          <div class="culture-spotlight-accordion">
+            <div class="culture-spotlight-summary" onclick="toggleCultureSpotlightCollapse()">
+              <div class="culture-spotlight-summary-left">
+                <span class="culture-spotlight-badge">
+                  🔥 ${todayInfo.isWeekend ? 'HAFTA SONU TEKRARI' : 'BUGÜNÜN ODAĞI'} (${item.day_name})
+                </span>
+                <span style="font-size:14px; font-weight:700; color:var(--text-primary);">
+                  ${escapeHtml(item.category_title || '')}: <strong>${escapeHtml(item.topic_title || '')}</strong>
+                </span>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <span id="spotlight-collapse-icon" style="font-size:12px; color:var(--accent-light); font-weight:700;">
+                  ${isCultureSpotlightOpen ? 'Daralt ▲' : 'Genişlet ▼'}
+                </span>
+              </div>
+            </div>
+
+            <div class="culture-spotlight-body" id="culture-spotlight-body" style="display: ${isCultureSpotlightOpen ? 'block' : 'none'};">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap;">
+                <div>
+                  <div class="culture-spotlight-cat">${escapeHtml(item.category_title || '')}</div>
+                  <div class="culture-spotlight-title">${escapeHtml(item.topic_title || '')}</div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  ${actionButtonsHtml}
+                </div>
+              </div>
+
+              ${isWeekendNote}
+
+              ${questionsHtml ? `
+                <div class="culture-guide-box">
+                  <div class="culture-guide-title">🔍 Bugün Neleri Araştırmalısın? (Rehber Sorular)</div>
+                  <ul class="culture-guide-list">${questionsHtml}</ul>
+                </div>
+              ` : ''}
+
+              ${takeawaysHtml ? `
+                <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">📌 Önemli Hap Bilgiler</div>
+                <div class="culture-takeaways-row">${takeawaysHtml}</div>
+              ` : ''}
+
+              <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px;">✍️ Öğrendiklerim & Notlarım</div>
+              <div class="culture-notes-box">${escapeHtml(item.notes_content || 'Henüz bu konu için detaylı not eklenmedi.')}</div>
+
+              ${item.resources ? `
+                <div style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; gap:6px;">
+                  <span>📚 <strong>Önerilen Kaynaklar:</strong></span>
+                  <span>${escapeHtml(item.resources)}</span>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      async function renderWeeklyCurriculum() {
+        const grid = document.getElementById('culture-week-grid');
+        if (!grid || !window.CultureAPI) return;
+
+        const activeWeek = CultureAPI.getActiveWeek();
+        const weekNotes = await CultureAPI.getWeekNotes(activeWeek);
+        const tInfo = CultureAPI.getTodayStudyDay();
+
+        const diffStars = (diff) => {
+          if (diff === 3) return "⭐⭐⭐ İleri";
+          if (diff === 2) return "⭐⭐ Orta";
+          return "⭐ Temel";
+        };
+
+        grid.innerHTML = weekNotes.map(item => {
+          const isToday = item.day_key === tInfo.key;
+          const takeaways = (item.key_takeaways || []).slice(0, 3).map(t => `
+            <span class="culture-takeaway-chip" style="font-size:11px; padding:3px 8px;">✨ ${escapeHtml(t)}</span>
+          `).join('');
+
+          const actionsHtml = isCultureAdmin ? `
+            <button type="button" class="culture-complete-btn ${item.is_completed ? 'completed' : ''}" style="padding:4px 10px; font-size:11px;" onclick="toggleCultureComplete('${item.id || item.day_key}', ${item.study_week || activeWeek})" title="Tamamlanma Durumunu Değiştir">
+              ${item.is_completed ? '✅ Tamamlandı' : '⭕ Bekliyor'}
+            </button>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="openCultureNoteModal('${item.id || item.day_key}', ${item.study_week || activeWeek})">
+              ✏️ Notu Düzenle
+            </button>
+          ` : `
+            <span class="culture-complete-btn ${item.is_completed ? 'completed' : ''}" style="padding:4px 10px; font-size:11px; cursor:default;" onclick="toggleCultureComplete('${item.id || item.day_key}', ${item.study_week || activeWeek})">
+              ${item.is_completed ? '✅ Tamamlandı' : '⭕ Bekliyor'}
+            </span>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="openCultureNoteModal('${item.id || item.day_key}', ${item.study_week || activeWeek})">
+              📖 Detayları Oku
+            </button>
+          `;
+
+          return `
+            <div class="culture-day-card ${isToday ? 'today-highlight' : ''}" id="culture-card-${item.id || item.day_key}">
+              <div class="culture-day-card-top">
+                <span class="culture-day-pill">${item.day_name} ${isToday ? '• BUGÜN' : ''}</span>
+                <span class="culture-difficulty-badge">${diffStars(item.difficulty || 1)}</span>
+              </div>
+
+              <div>
+                <div class="culture-day-card-cat">${escapeHtml(item.category_title || '')}</div>
+                <div class="culture-day-card-title">${escapeHtml(item.topic_title || '')}</div>
+              </div>
+
+              ${takeaways ? `<div class="culture-takeaways-row" style="margin-bottom:6px;">${takeaways}</div>` : ''}
+
+              <div class="culture-day-card-notes">
+                ${escapeHtml(item.notes_content || 'Henüz not yazılmadı...')}
+              </div>
+
+              <div class="culture-day-card-footer">
+                ${actionsHtml}
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      async function renderCultureRoadmap(summariesData = null) {
+        const grid = document.getElementById('culture-roadmap-grid');
+        if (!grid || !window.CultureAPI) return;
+
+        const summaries = summariesData || (await CultureAPI.getAllWeeksSummary());
+        const activeWeek = CultureAPI.getActiveWeek();
+
+        grid.innerHTML = summaries.map(s => {
+          const isActive = s.week === activeWeek;
+          const rows = (s.items || []).map(it => `
+            <div class="culture-roadmap-topic-row ${it.is_completed ? 'done' : ''}">
+              <span>${it.is_completed ? '✅' : '⭕'}</span>
+              <span style="font-weight:600;">${it.day_name.slice(0, 3)}:</span>
+              <span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(it.topic_title || '')}</span>
+            </div>
+          `).join('');
+
+          return `
+            <div class="culture-roadmap-card ${isActive ? 'active' : ''}" onclick="selectCultureWeek(${s.week}); switchCultureView('weekly');">
+              <div class="culture-roadmap-top">
+                <span class="culture-day-pill" style="font-size:10px;">${s.phase}</span>
+                <span style="font-size:12px; font-weight:700; color:${s.completed === 5 ? '#34d399' : 'var(--text-muted)'};">
+                  ${s.completed}/${s.total} (%${s.percent})
+                </span>
+              </div>
+              <div>
+                <div class="culture-roadmap-week-title">📅 ${s.week}. Hafta</div>
+                <div class="culture-roadmap-prog-bar">
+                  <div class="culture-roadmap-prog-fill" style="width: ${s.percent}%;"></div>
+                </div>
+              </div>
+              <div class="culture-roadmap-topics-list">
+                ${rows}
+              </div>
+              <div style="font-size:11px; color:var(--accent-light); font-weight:700; text-align:right; margin-top:4px;">
+                Haftalık Takvimi Aç →
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      async function renderCultureFlashcards(notesData = null) {
+        const grid = document.getElementById('culture-flashcards-grid');
+        if (!grid || !window.CultureAPI) return;
+
+        const notes = notesData || (await CultureAPI.fetchNotes());
+        const cards = [];
+
+        notes.forEach(item => {
+          if (Array.isArray(item.key_takeaways)) {
+            item.key_takeaways.forEach((tk, idx) => {
+              const parts = tk.split('=');
+              const front = parts[0] ? parts[0].trim() : `${item.day_name} (Hafta ${item.study_week}) Kavram #${idx+1}`;
+              const back = parts[1] ? parts[1].trim() : tk;
+              cards.push({
+                week: item.study_week || 1,
+                day_name: item.day_name,
+                cat: item.category_title,
+                front,
+                back
+              });
+            });
+          }
+          if (Array.isArray(item.guide_questions)) {
+            item.guide_questions.forEach((q) => {
+              cards.push({
+                week: item.study_week || 1,
+                day_name: item.day_name,
+                cat: item.category_title,
+                front: q,
+                back: item.notes_content ? item.notes_content : 'Detaylı notlarınızı inceleyin.'
+              });
+            });
+          }
+        });
+
+        if (cards.length === 0) {
+          grid.innerHTML = `<div class="books-empty" style="grid-column:1/-1;"><div class="books-empty-icon">⚡</div><div class="books-empty-title">Henüz kart bulunamadı</div></div>`;
+          return;
+        }
+
+        grid.innerHTML = cards.map((c) => `
+          <div class="culture-flashcard" onclick="this.classList.toggle('revealed')">
+            <div>
+              <div class="culture-flashcard-header">
+                <span class="culture-day-pill" style="font-size:10px;">Hafta ${c.week} • ${c.day_name}</span>
+                <span style="font-size:11px; color:var(--text-muted); font-weight:600;">${escapeHtml(c.cat || '')}</span>
+              </div>
+              <div class="culture-flashcard-front">${escapeHtml(c.front)}</div>
+              <div class="culture-flashcard-back" onclick="event.stopPropagation()">💡 ${escapeHtml(c.back)}</div>
+            </div>
+            <div class="culture-flashcard-hint">Cevabı ve detayları görmek için tıkla 👆</div>
+          </div>
+        `).join('');
+      }
+
+      async function openCultureNoteModal(itemIdOrDayKey, weekNum = 1) {
+        const notes = await CultureAPI.fetchNotes();
+        let item = notes.find(n => n.id === itemIdOrDayKey);
+        if (!item) {
+          item = notes.find(n => n.day_key === itemIdOrDayKey && (n.study_week || 1) === weekNum);
+        }
+        if (!item) return;
+
+        document.getElementById('culture-edit-id').value = item.id || `w${item.study_week || 1}_${item.day_key}`;
+        document.getElementById('culture-edit-day-key').value = item.day_key;
+        document.getElementById('culture-edit-category').value = `${item.day_name} • ${item.category_title || ''}`;
+        document.getElementById('culture-edit-week').value = item.study_week || weekNum || 1;
+        document.getElementById('culture-edit-topic').value = item.topic_title || '';
+        document.getElementById('culture-edit-takeaways').value = Array.isArray(item.key_takeaways) ? item.key_takeaways.join('\n') : '';
+        document.getElementById('culture-edit-notes').value = item.notes_content || '';
+        document.getElementById('culture-edit-resources').value = item.resources || '';
+        document.getElementById('culture-edit-completed').checked = !!item.is_completed;
+
+        // Set form fields based on admin permissions
+        const topicInp = document.getElementById('culture-edit-topic');
+        const takInp = document.getElementById('culture-edit-takeaways');
+        const notesInp = document.getElementById('culture-edit-notes');
+        const resInp = document.getElementById('culture-edit-resources');
+        const compInp = document.getElementById('culture-edit-completed');
+        const weekInp = document.getElementById('culture-edit-week');
+        const saveBtn = document.getElementById('culture-save-btn');
+
+        if (isCultureAdmin) {
+          document.getElementById('culture-modal-title').textContent = `📝 Hafta ${item.study_week || 1} • ${item.day_name} — Genel Kültür Notu`;
+          if (topicInp) topicInp.readOnly = false;
+          if (takInp) takInp.readOnly = false;
+          if (notesInp) notesInp.readOnly = false;
+          if (resInp) resInp.readOnly = false;
+          if (compInp) compInp.disabled = false;
+          if (weekInp) weekInp.readOnly = false;
+          if (saveBtn) saveBtn.style.display = 'inline-flex';
+        } else {
+          document.getElementById('culture-modal-title').textContent = `📖 Hafta ${item.study_week || 1} • ${item.day_name} — Genel Kültür Detayı`;
+          if (topicInp) topicInp.readOnly = true;
+          if (takInp) takInp.readOnly = true;
+          if (notesInp) notesInp.readOnly = true;
+          if (resInp) resInp.readOnly = true;
+          if (compInp) compInp.disabled = true;
+          if (weekInp) weekInp.readOnly = true;
+          if (saveBtn) saveBtn.style.display = 'none';
+        }
+
+        Modal.open('culture-note-modal');
+      }
+
+      async function toggleCultureComplete(itemIdOrDayKey, weekNum = null) {
+        if (!isCultureAdmin) {
+          Toast.info('Tamamlama işaretleme yetkisi yalnızca yöneticiye aittir.');
+          return;
+        }
+        if (!window.CultureAPI) return;
+        await CultureAPI.toggleComplete(itemIdOrDayKey, weekNum);
+        Toast.success('Tamamlanma durumu güncellendi!');
+        renderCultureAcademy();
+      }
+
+      function scrollToCultureToday() {
+        switchCultureView('weekly');
+        toggleCultureSpotlightCollapse(true);
+        const spotlight = document.getElementById('culture-today-spotlight-container');
+        if (spotlight) {
+          spotlight.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+
       function getLocalTrivia() {
         try {
           const t = JSON.parse(localStorage.getItem(TRIVIA_KEY));
@@ -1506,13 +3895,6 @@
 
       function saveLocalTrivia(list) {
         localStorage.setItem(TRIVIA_KEY, JSON.stringify(list));
-      }
-
-      function updateTriviaStats(list) {
-        document.getElementById('trivia-stat-total').textContent = list.length;
-        document.getElementById('trivia-stat-science').textContent = list.filter(x => x.category === 'science').length;
-        document.getElementById('trivia-stat-history').textContent = list.filter(x => x.category === 'history').length;
-        document.getElementById('trivia-stat-tech').textContent = list.filter(x => x.category === 'tech').length;
       }
 
       function filterTriviaCategory(cat) {
@@ -1549,7 +3931,6 @@
         if (!grid) return;
 
         let list = getLocalTrivia();
-        updateTriviaStats(list);
 
         if (activeTriviaCategory !== 'all') {
           list = list.filter(t => t.category === activeTriviaCategory);
@@ -1610,14 +3991,16 @@
       });
 
       // ===== EVENT LISTENERS & INITIALIZATION =====
-        document.addEventListener('DOMContentLoaded', async () => {
-          Modal.setup('book-detail-modal');
-          Modal.setup('book-form-modal');
-          Modal.setup('trivia-modal');
-          // Ensure close button works reliably
-          const bookDetailCloseBtn = document.getElementById('book-detail-close');
-          if (bookDetailCloseBtn) bookDetailCloseBtn.addEventListener('click', () => Modal.close('book-detail-modal'));
+      document.addEventListener('DOMContentLoaded', async () => {
+        Modal.setup('book-detail-modal');
+        Modal.setup('book-form-modal');
+        Modal.setup('culture-note-modal');
+        Modal.setup('trivia-modal');
+        Modal.setup('culture-vocab-modal');
+        Modal.setup('culture-quiz-modal');
 
+        const bookDetailCloseBtn = document.getElementById('book-detail-close');
+        if (bookDetailCloseBtn) bookDetailCloseBtn.addEventListener('click', () => Modal.close('book-detail-modal'));
 
         if (window.Nav) Nav.init();
 
@@ -1630,8 +4013,19 @@
           EnglishApp.init();
         }
 
-        // 3. Init Trivia
-        renderTriviaCards();
+        // 3. Init Culture & Trivia
+        await renderCultureAcademy();
+
+        // Check URL Query Param for tab activation (?tab=culture / ?tab=trivia / ?tab=english / ?tab=books)
+        const urlParams = new URLSearchParams(window.location.search);
+        const reqTab = urlParams.get('tab') || window.location.hash.replace('#', '');
+        if (reqTab === 'culture' || reqTab === 'trivia') {
+          switchKnowledgeTab('trivia');
+        } else if (reqTab === 'english') {
+          switchKnowledgeTab('english');
+        } else if (reqTab === 'books') {
+          switchKnowledgeTab('books');
+        }
 
         // View Mode Toggle for Books
         const viewToggle = document.getElementById('book-view-toggle');
@@ -1746,6 +4140,48 @@
           });
         }
 
+        // Culture Study Note Form Submit
+        const cultForm = document.getElementById('culture-note-form');
+        if (cultForm) {
+          cultForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            const id = document.getElementById('culture-edit-id').value;
+            const day_key = document.getElementById('culture-edit-day-key').value;
+            const topic_title = document.getElementById('culture-edit-topic').value.trim();
+            const study_week = parseInt(document.getElementById('culture-edit-week').value, 10) || 1;
+            const rawTakeaways = document.getElementById('culture-edit-takeaways').value.trim();
+            const notes_content = document.getElementById('culture-edit-notes').value.trim();
+            const resources = document.getElementById('culture-edit-resources').value.trim();
+            const is_completed = document.getElementById('culture-edit-completed').checked;
+
+            const key_takeaways = rawTakeaways
+              ? rawTakeaways.split(/[\n,]+/).map(s => s.trim()).filter(Boolean)
+              : [];
+
+            const saveBtn = document.getElementById('culture-save-btn');
+            if (saveBtn) setButtonLoading(saveBtn, true, 'Kaydediliyor...');
+
+            try {
+              await CultureAPI.saveNote({
+                id,
+                day_key,
+                topic_title,
+                study_week,
+                key_takeaways,
+                notes_content,
+                resources,
+                is_completed
+              });
+
+              Toast.success('Genel kültür notu başarıyla kaydedildi!');
+              Modal.close('culture-note-modal');
+              await renderCultureAcademy();
+            } finally {
+              if (saveBtn) setButtonLoading(saveBtn, false);
+            }
+          });
+        }
+
         // Trivia Form Submit
         const tForm = document.getElementById('trivia-form');
         if (tForm) {
@@ -1779,12 +4215,59 @@
             renderTriviaCards();
           });
         }
+
+        // Culture Vocabulary Form Submit
+        const vocabForm = document.getElementById('culture-vocab-form');
+        if (vocabForm) {
+          vocabForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            if (!isCultureAdmin) {
+              Toast.info('Kelime ekleme yetkisi yalnızca yöneticiye aittir.');
+              return;
+            }
+            const id = document.getElementById('culture-vocab-id').value;
+            const word = document.getElementById('vocab-word-input').value.trim();
+            const origin = document.getElementById('vocab-origin-input').value.trim();
+            const category = document.getElementById('vocab-category-input').value;
+            const research_status = document.getElementById('vocab-research-status-input')?.value || 'researched';
+            const meaning = document.getElementById('vocab-meaning-input').value.trim();
+            const example = document.getElementById('vocab-example-input').value.trim();
+
+            const saveBtn = document.getElementById('vocab-save-btn');
+            if (saveBtn) setButtonLoading(saveBtn, true, 'Kaydediliyor...');
+
+            try {
+              await CultureAPI.saveWord({
+                id: id || undefined,
+                word,
+                origin,
+                category,
+                research_status,
+                meaning,
+                example
+              });
+              Toast.success('Kelime başarıyla kaydedildi!');
+              Modal.close('culture-vocab-modal');
+              await renderCultureVocabulary();
+            } finally {
+              if (saveBtn) setButtonLoading(saveBtn, false);
+            }
+          });
+        }
       });
 
       window.addEventListener('auth:changed', async () => {
         await syncBookAccess();
         await loadBooks();
-        renderTriviaCards();
+        await renderCultureAcademy();
+      });
+
+      window.addEventListener('culture:changed', async () => {
+        await renderCultureAcademy();
+      });
+
+      window.addEventListener('culture:vocab_changed', async () => {
+        await renderCultureVocabulary();
       });
     </script>
   </body>

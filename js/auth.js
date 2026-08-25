@@ -95,6 +95,8 @@ const Auth = {
     // 1. Yerel yetki bayraklarını temizle
     localStorage.removeItem(AUTH_SESSION_FLAG);
     localStorage.removeItem(AUTH_ADMIN_FLAG);
+    localStorage.removeItem("site-admin-access");
+    localStorage.removeItem("site-habits-access");
 
     // 2. Supabase token'larını localStorage ve sessionStorage'dan tamamen temizle
     try {
@@ -114,7 +116,7 @@ const Auth = {
       if (window.supabaseClient && window.supabaseClient.auth) {
         await Promise.race([
           window.supabaseClient.auth.signOut({ scope: "local" }),
-          new Promise((resolve) => setTimeout(resolve, 300))
+          new Promise((resolve) => setTimeout(resolve, 400))
         ]);
       }
     } catch (err) {

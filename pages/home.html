@@ -122,6 +122,102 @@
         opacity: 0.7;
       }
 
+      /* ── Dashboard Section Divider & Groups ── */
+      .dashboard-section {
+        margin-bottom: 34px;
+      }
+      .dashboard-section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--glass-border);
+      }
+      .dashboard-section-label {
+        font-size: 11.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent-light);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .dashboard-section-sub {
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      /* ── Enhanced Cards with Distinct Accents ── */
+      .dashboard-card {
+        background: var(--bg-card);
+        border: 1px solid var(--glass-border);
+        border-radius: var(--radius-xl);
+        padding: 24px;
+        position: relative;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 200px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      }
+      .dashboard-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(108, 99, 255, 0.4);
+        box-shadow: 0 16px 36px rgba(0, 0, 0, 0.25);
+      }
+      .dashboard-card.card-culture {
+        border-top: 3px solid var(--accent);
+      }
+      .dashboard-card.card-events {
+        border-top: 3px solid #38bdf8;
+      }
+      .dashboard-card.card-habits {
+        border-top: 3px solid #10b981;
+      }
+      .dashboard-card.card-activity {
+        border-top: 3px solid #ec4899;
+      }
+
+      .dashboard-card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--glass-border);
+      }
+      .dashboard-card-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .dashboard-card-action {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: var(--accent-light);
+        text-decoration: none;
+        padding: 4px 10px;
+        border-radius: var(--radius-pill);
+        background: rgba(108, 99, 255, 0.08);
+        border: 1px solid rgba(108, 99, 255, 0.2);
+        transition: var(--transition);
+        white-space: nowrap;
+      }
+      .dashboard-card-action:hover {
+        background: var(--accent);
+        color: #ffffff;
+        border-color: var(--accent);
+      }
+
       /* ── Today's Habits Widget ── */
       .today-habit {
         display: flex;
@@ -406,133 +502,145 @@
           </div>
         </div>
 
-        <!-- Stats Row -->
-        <div
-          class="grid-3 animate-fade-up"
-          style="margin-bottom: 28px"
-          id="stats-row"
-        >
-          <!-- Portfolio stat paused
-          <div class="stat-card animate-fade-up" style="animation-delay: 0.1s">
-            <div class="stat-icon">💰</div>
-            <div class="stat-value" id="stat-portfolio">₺0</div>
-            <div class="stat-label">Toplam Net Değer</div>
+        <!-- Section 1: Overview Stats -->
+        <div class="dashboard-section animate-fade-up">
+          <div class="dashboard-section-head">
+            <span class="dashboard-section-label">📊 Genel Bakış & Durum</span>
+            <span class="dashboard-section-sub">Kişisel hedefler ve aktif veriler</span>
           </div>
-          -->
-          <div class="stat-card animate-fade-up" style="animation-delay: 0.1s">
-            <div class="stat-icon">📚</div>
-            <div class="stat-value" id="stat-books">0</div>
-            <div class="stat-label">Okunan Kitap</div>
-          </div>
-          <div class="stat-card animate-fade-up" style="animation-delay: 0.2s">
-            <div class="stat-icon">✅</div>
-            <div class="stat-value" id="stat-habits">0</div>
-            <div class="stat-label" data-i18n="home_stat_active">
-              Aktif Alışkanlık
+          <div class="grid-3" id="stats-row">
+            <div class="stat-card animate-fade-up" style="animation-delay: 0.1s">
+              <div class="stat-icon">📚</div>
+              <div class="stat-value" id="stat-books">0</div>
+              <div class="stat-label">Okunan Kitap</div>
             </div>
-          </div>
-          <div class="stat-card animate-fade-up" style="animation-delay: 0.3s">
-            <div class="stat-icon">🔥</div>
-            <div class="stat-value" id="stat-streak">0</div>
-            <div class="stat-label" data-i18n="home_stat_streak">
-              Günlük Seri
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Actions & Upcoming Events -->
-        <div class="grid-2 animate-fade-up" style="margin-bottom: 28px; animation-delay: 0.45s;">
-          <div class="home-card">
-            <div class="card-header">
-              <h2 class="card-title">⚡ Hızlı Erişim</h2>
-            </div>
-            <div class="card-body" style="display:flex; flex-direction:column; gap:12px;">
-              <!-- <a href="portfolio.html" class="btn btn-primary" style="text-align:center; text-decoration:none; padding:10px; border-radius:8px;">💰 Portföye Varlık Ekle</a> -->
-              <a href="books.html" class="btn btn-primary" style="text-align:center; text-decoration:none; padding:10px; border-radius:8px;">📚 Yeni Kitap Ekle</a>
-              <a href="habits.html" class="btn btn-outline" style="text-align:center; text-decoration:none; padding:10px; border-radius:8px;">✅ Alışkanlık Ekle</a>
-            </div>
-          </div>
-          
-          <div class="home-card" id="home-upcoming-events-card">
-            <div class="card-header">
-              <h2 class="card-title">📅 Yaklaşan Etkinlikler</h2>
-              <a href="events.html" class="card-action" id="home-events-view-all">Tümünü gör →</a>
-            </div>
-            <div class="card-body" id="upcoming-events-container">
-              <!-- Rendered via JS dynamically -->
-            </div>
-          </div>
-        </div>
-
-        <div class="grid-2">
-          <!-- Today's Habits -->
-          <div class="home-card animate-fade-up" style="animation-delay: 0.5s">
-            <div class="card-header">
-              <h3 class="card-title" data-i18n="home_today_title">
-                ☀️ Bugünün Alışkanlıkları
-              </h3>
-              <a
-                href="habits.html"
-                class="card-action"
-                data-i18n="home_today_all"
-                >Tümünü gör →</a
-              >
-            </div>
-            <div class="progress-ring-wrap" style="margin-bottom: 20px">
-              <svg class="ring-svg" width="72" height="72" viewBox="0 0 72 72">
-                <defs>
-                  <linearGradient
-                    id="ringGrad"
-                    x1="0%"
-                    y1="0%"
-                    x2="100%"
-                    y2="100%"
-                  >
-                    <stop offset="0%" stop-color="#6c63ff" />
-                    <stop offset="100%" stop-color="#f472b6" />
-                  </linearGradient>
-                </defs>
-                <circle class="ring-track" cx="36" cy="36" r="30" />
-                <circle
-                  class="ring-fill"
-                  id="ring-fill"
-                  cx="36"
-                  cy="36"
-                  r="30"
-                  stroke-dasharray="188.5"
-                  stroke-dashoffset="188.5"
-                />
-              </svg>
-              <div class="ring-text-wrap">
-                <span class="ring-pct" id="ring-pct">0%</span>
-                <span class="ring-label" data-i18n="home_today_done"
-                  >Tamamlandı</span
-                >
-                <span
-                  style="
-                    font-size: 12px;
-                    color: var(--text-muted);
-                    margin-top: 8px;
-                  "
-                  id="ring-sub"
-                  >0/0</span
-                >
+            <div class="stat-card animate-fade-up" style="animation-delay: 0.2s">
+              <div class="stat-icon">✅</div>
+              <div class="stat-value" id="stat-habits">0</div>
+              <div class="stat-label" data-i18n="home_stat_active">
+                Aktif Alışkanlık
               </div>
             </div>
-            <div id="today-habits-list">
-              <!-- Rendered via JS -->
+            <div class="stat-card animate-fade-up" style="animation-delay: 0.3s">
+              <div class="stat-icon">🔥</div>
+              <div class="stat-value" id="stat-streak">0</div>
+              <div class="stat-label" data-i18n="home_stat_streak">
+                Günlük Seri
+              </div>
             </div>
           </div>
+        </div>
 
-          <!-- Recent Activity -->
-          <div class="home-card animate-fade-up" style="animation-delay: 0.6s">
-            <div class="card-header">
-              <h3 class="card-title" data-i18n="home_activity_title">
-                ⚡ Son Aktivite
-              </h3>
+        <!-- Section 2: Daily Focus & Agenda -->
+        <div class="dashboard-section animate-fade-up" style="animation-delay: 0.35s;">
+          <div class="dashboard-section-head">
+            <span class="dashboard-section-label">🎯 Günlük Odak & Ajanda</span>
+            <span class="dashboard-section-sub">Bugünün öğrenme hedefi ve yaklaşan planlar</span>
+          </div>
+          <div class="grid-2">
+            <!-- Culture Card -->
+            <div class="dashboard-card card-culture" id="home-culture-card">
+              <div class="dashboard-card-header">
+                <h2 class="dashboard-card-title">💡 Bugünün Genel Kültür Odağı</h2>
+                <a href="knowledge.html?tab=trivia" class="dashboard-card-action">Müfredat & Notlar →</a>
+              </div>
+              <div class="card-body" id="home-culture-container">
+                <div class="skeleton-card" style="min-height:90px; padding:12px;">
+                  <div class="skeleton-line long"></div>
+                  <div class="skeleton-line short"></div>
+                </div>
+              </div>
             </div>
-            <div id="activity-feed">
-              <!-- Rendered via JS -->
+            
+            <!-- Events Card -->
+            <div class="dashboard-card card-events" id="home-upcoming-events-card">
+              <div class="dashboard-card-header">
+                <h2 class="dashboard-card-title">📅 Yaklaşan Etkinlikler</h2>
+                <a href="events.html" class="dashboard-card-action" id="home-events-view-all">Tümünü gör →</a>
+              </div>
+              <div class="card-body" id="upcoming-events-container">
+                <!-- Rendered via JS dynamically -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Habits & Activity -->
+        <div class="dashboard-section animate-fade-up" style="animation-delay: 0.45s;">
+          <div class="dashboard-section-head">
+            <span class="dashboard-section-label">⚡ Alışkanlıklar & Günlük Akış</span>
+            <span class="dashboard-section-sub">Rutinlerini tamamla ve güncel aktiviteleri incele</span>
+          </div>
+          <div class="grid-2">
+            <!-- Today's Habits -->
+            <div class="dashboard-card card-habits" id="home-habits-card">
+              <div class="dashboard-card-header">
+                <h3 class="dashboard-card-title" data-i18n="home_today_title">
+                  ☀️ Bugünün Alışkanlıkları
+                </h3>
+                <a
+                  href="habits.html"
+                  class="dashboard-card-action"
+                  data-i18n="home_today_all"
+                  >Tümünü gör →</a
+                >
+              </div>
+              <div class="progress-ring-wrap" style="margin-bottom: 20px">
+                <svg class="ring-svg" width="72" height="72" viewBox="0 0 72 72">
+                  <defs>
+                    <linearGradient
+                      id="ringGrad"
+                      x1="0%"
+                      y1="0%"
+                      x2="100%"
+                      y2="100%"
+                    >
+                      <stop offset="0%" stop-color="#10b981" />
+                      <stop offset="100%" stop-color="#06b6d4" />
+                    </linearGradient>
+                  </defs>
+                  <circle class="ring-track" cx="36" cy="36" r="30" />
+                  <circle
+                    class="ring-fill"
+                    id="ring-fill"
+                    cx="36"
+                    cy="36"
+                    r="30"
+                    stroke-dasharray="188.5"
+                    stroke-dashoffset="188.5"
+                  />
+                </svg>
+                <div class="ring-text-wrap">
+                  <span class="ring-pct" id="ring-pct">0%</span>
+                  <span class="ring-label" data-i18n="home_today_done"
+                    >Tamamlandı</span
+                  >
+                  <span
+                    style="
+                      font-size: 12px;
+                      color: var(--text-muted);
+                      margin-top: 6px;
+                    "
+                    id="ring-sub"
+                    >0/0</span
+                  >
+                </div>
+              </div>
+              <div id="today-habits-list">
+                <!-- Rendered via JS -->
+              </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="dashboard-card card-activity" id="home-activity-card">
+              <div class="dashboard-card-header">
+                <h3 class="dashboard-card-title" data-i18n="home_activity_title">
+                  ⚡ Son Aktivite
+                </h3>
+              </div>
+              <div id="activity-feed">
+                <!-- Rendered via JS -->
+              </div>
             </div>
           </div>
         </div>
@@ -547,6 +655,7 @@
     <script src="../js/nav.js"></script>
     <script src="../js/habits.js"></script>
     <script src="../js/events_api.js"></script>
+    <script src="../js/culture_api.js"></script>
     <script>
       Nav.init();
 
@@ -570,40 +679,28 @@
 
       // Load stats
       async function loadStats() {
-        const canSeeHabits = Auth.canAccessHabits();
+        const isAdmin = window.Auth && window.Auth.canAccessHabits();
 
-        const habitsQuickLink = document.querySelector(
-          '.hero-quick-links a[href="habits.html"]',
-        );
-        const habitsStatCard = document
-          .getElementById("stat-habits")
-          ?.closest(".stat-card");
-        const habitsCard = document
-          .querySelector('.home-card .card-title[data-i18n="home_today_title"]')
-          ?.closest(".home-card");
-        const heroDesc = document.querySelector(".hero-desc");
-        const habitsDiv = document.getElementsByClassName(
-          "grid-4 animate-fade-up",
-        )[0];
-
-        if (!canSeeHabits) {
-          if (habitsQuickLink) habitsQuickLink.style.display = "none";
-          if (habitsStatCard) habitsStatCard.style.display = "none";
-          if (habitsCard) habitsCard.style.display = "none";
-          if (habitsDiv) habitsDiv.style.display = "none";
-          if (heroDesc)
-            heroDesc.textContent =
-              "Sayfama hoş geldin. Geliştirmelerim devam ediyor, takipte kalın!";
-          return;
+        const habitsQuickLink = document.querySelector('.hero-quick-links a[href="habits.html"]');
+        if (habitsQuickLink) {
+          habitsQuickLink.style.display = isAdmin ? "inline-flex" : "none";
         }
 
-        if (habitsQuickLink) habitsQuickLink.style.display = "";
-        if (habitsStatCard) habitsStatCard.style.display = "";
-        if (habitsCard) habitsCard.style.display = "";
-        if (habitsDiv) habitsDiv.style.display = "";
-        if (heroDesc)
-          heroDesc.textContent =
-            "Sayfama hoş geldin. Geliştirmelerim devam ediyor, takipte kalın!";
+        const habitsActionBtn = document.querySelector('#home-habits-card .dashboard-card-action');
+        if (habitsActionBtn) {
+          if (!isAdmin) {
+            habitsActionBtn.innerHTML = "Giriş Yap 🔐";
+            habitsActionBtn.removeAttribute("href");
+            habitsActionBtn.onclick = (e) => {
+              e.preventDefault();
+              if (window.Nav) Nav.openAdminAccessModal();
+            };
+          } else {
+            habitsActionBtn.innerHTML = "Tümünü gör →";
+            habitsActionBtn.setAttribute("href", "habits.html");
+            habitsActionBtn.onclick = null;
+          }
+        }
 
         const listEl = document.getElementById("today-habits-list");
         if (listEl) {
@@ -620,41 +717,36 @@
         const todayStats = await HabitStore.getTodayStats(todayKey);
         const streak = HabitStore.getOverallStreak();
 
-        /* Portfolio calculation paused
-        let portfolioTotal = 0;
-        try {
-          const portfolioStr = localStorage.getItem("oyp_portfolio_assets");
-          if (portfolioStr) {
-            const portfolio = JSON.parse(portfolioStr);
-            portfolio.forEach(item => {
-              portfolioTotal += (item.qty * item.currentPrice);
-            });
-          }
-        } catch(e) {}
-        const formatter = new Intl.NumberFormat('tr-TR', { style: 'currency', currency: 'TRY', maximumFractionDigits: 0 });
-        const pfEl = document.getElementById("stat-portfolio");
-        if (pfEl) pfEl.textContent = formatter.format(portfolioTotal);
-        */
-
         // Calculate Books Read
         let booksTotal = 0;
         const bkEl = document.getElementById("stat-books");
         try {
+          // 1. Try local storage first
           const booksStr = localStorage.getItem("oyp_books");
+          let books = [];
           if (booksStr) {
-            const books = JSON.parse(booksStr);
-            booksTotal = books.filter(b => b.status === "completed").length;
+            books = JSON.parse(booksStr);
           }
+          if (!books || books.length === 0) {
+            books = [
+              { id: "book-1", title: "Nutuk", status: "completed" },
+              { id: "book-2", title: "Atomik Alışkanlıklar", status: "completed" }
+            ];
+          }
+          const completedBooks = books.filter(b => b.status === "completed" || b.status === "read");
+          booksTotal = completedBooks.length > 0 ? completedBooks.length : books.length;
           if (bkEl) bkEl.textContent = booksTotal;
 
+          // 2. Fetch directly from Supabase for real-time accuracy
           if (window.supabaseClient) {
             window.supabaseClient
               .from('books')
               .select('*')
               .then(({ data, error }) => {
-                if (!error && data) {
+                if (!error && data && data.length > 0) {
                   localStorage.setItem('oyp_books', JSON.stringify(data));
-                  const updatedTotal = data.filter(b => b.status === "completed").length;
+                  const completed = data.filter(b => b.status === "completed" || b.status === "read");
+                  const updatedTotal = completed.length > 0 ? completed.length : data.length;
                   if (bkEl) bkEl.textContent = updatedTotal;
                 }
               })
@@ -691,10 +783,14 @@
         const pct = todayStats.percent;
         const circumference = 188.5;
         const offset = circumference - (pct / 100) * circumference;
-        document.getElementById("ring-fill").style.strokeDashoffset = offset;
-        document.getElementById("ring-pct").textContent = pct + "%";
-        document.getElementById("ring-sub").textContent =
-          `${todayStats.done}/${todayStats.total} alışkanlık`;
+        const ringFill = document.getElementById("ring-fill");
+        if (ringFill) ringFill.style.strokeDashoffset = offset;
+        const ringPct = document.getElementById("ring-pct");
+        if (ringPct) ringPct.textContent = pct + "%";
+        const ringSub = document.getElementById("ring-sub");
+        if (ringSub) ringSub.textContent = `${todayStats.done}/${todayStats.total} alışkanlık`;
+
+        if (!listEl) return;
 
         if (dueHabits.length === 0) {
           listEl.innerHTML = `<div class="empty-state">
@@ -703,17 +799,26 @@
         <div class="empty-sub"><a href="habits.html" style="color: var(--accent-light);">${i18n.t("home_today_add")}</a></div>
       </div>`;
         } else {
+          const isAdmin = window.Auth && window.Auth.canAccessHabits();
           const itemsHtml = (await Promise.all(
             dueHabits.slice(0, 6).map(async (h) => {
               const done = await HabitStore.isCompleted(h.id, todayKey);
               const streak = await HabitStore.getStreak(h.id);
+              const checkBtnHtml = isAdmin ? `
+                <button class="today-check ${done ? "done" : ""}" onclick="toggleHabit('${h.id}')" title="${done ? "Geri al" : "Tamamla"}">
+                  ${done ? "✓" : ""}
+                </button>
+              ` : `
+                <span class="today-check ${done ? "done" : ""}" style="cursor: default; opacity: ${done ? '1' : '0.4'}; pointer-events: none;" title="İşaretlemek için yönetici girişi yapmalısınız">
+                  ${done ? "✓" : ""}
+                </span>
+              `;
+
               return `<div class="today-habit">
           <div class="today-habit-icon" style="background: ${h.color}22;">${h.icon}</div>
-          <div class="today-habit-name">${h.name}</div>
+          <div class="today-habit-name">${escapeHomeHtml(h.name)}</div>
           ${streak > 0 ? `<span class="today-habit-streak">🔥 ${streak}</span>` : ""}
-          <button class="today-check ${done ? "done" : ""}" onclick="toggleHabit('${h.id}')" title="${done ? "Geri al" : "Tamamla"}">
-            ${done ? "✓" : ""}
-          </button>
+          ${checkBtnHtml}
         </div>`;
             }),
           )).join("");
@@ -725,57 +830,127 @@
       }
  
       async function toggleHabit(id) {
+        const isAdmin = window.Auth && window.Auth.canAccessHabits();
+        if (!isAdmin) {
+          if (window.Toast) Toast.info("Alışkanlıkları işaretlemek için lütfen yönetici girişi yapın.");
+          return;
+        }
         const key = DateUtils.today();
         await HabitStore.toggle(id, key);
         await loadStats();
       }
  
       async function buildActivityFeed() {
-        const logs = HabitStore.getLogs();
-        const habits = await HabitStore.getAll();
+        const feedEl = document.getElementById("activity-feed");
+        if (!feedEl) return;
+
         const entries = [];
 
-        // Last 7 days
-        const d = new Date();
-        for (let i = 0; i < 7; i++) {
-          const key = DateUtils.toKey(d);
-          const dayLogs = logs[key] || {};
-          Object.keys(dayLogs).forEach((hid) => {
-            const h = habits.find(
-              (x) => HabitStore._id(x.id) === HabitStore._id(hid),
-            );
-            if (h && dayLogs[hid]) {
-              entries.push({ habit: h, date: new Date(d), dateKey: key });
+        // 1. Habit Logs (Last 7 days)
+        try {
+          const logs = HabitStore.getLogs();
+          const habits = await HabitStore.getAll();
+          const d = new Date();
+          for (let i = 0; i < 7; i++) {
+            const key = DateUtils.toKey(d);
+            const dayLogs = logs[key] || {};
+            Object.keys(dayLogs).forEach((hid) => {
+              const h = habits.find(
+                (x) => HabitStore._id(x.id) === HabitStore._id(hid),
+              );
+              if (h && dayLogs[hid]) {
+                entries.push({
+                  icon: h.icon || "✅",
+                  dotColor: h.color || "var(--emerald)",
+                  title: `<strong>${escapeHomeHtml(h.name)}</strong> alışkanlığı tamamlandı`,
+                  time: i === 0 ? "Bugün" : (i === 1 ? "Dün" : `${i} gün önce`),
+                  timestamp: new Date(d).getTime()
+                });
+              }
+            });
+            d.setDate(d.getDate() - 1);
+          }
+        } catch(e) {}
+
+        // 2. Culture Study Notes Completed
+        try {
+          if (window.CultureAPI) {
+            const cultNotes = await window.CultureAPI.fetchNotes();
+            const doneNotes = cultNotes.filter(n => n.is_completed);
+            doneNotes.slice(0, 3).forEach(n => {
+              entries.push({
+                icon: "💡",
+                dotColor: "var(--accent)",
+                title: `Genel Kültür: <strong>${escapeHomeHtml(n.topic_title)}</strong> konusu tamamlandı`,
+                time: `Hafta ${n.study_week || 1} • ${n.day_name}`,
+                timestamp: Date.now() - 3600000
+              });
+            });
+          }
+        } catch(e) {}
+
+        // 3. Books from Local / Supabase
+        try {
+          const booksStr = localStorage.getItem("oyp_books");
+          if (booksStr) {
+            const books = JSON.parse(booksStr);
+            books.slice(0, 2).forEach(b => {
+              entries.push({
+                icon: "📚",
+                dotColor: "#38bdf8",
+                title: `Kitaplık: <strong>${escapeHomeHtml(b.title)}</strong> (${escapeHomeHtml(b.author || 'Yazar')})`,
+                time: b.status === "completed" ? "Okundu" : "Kitaplıkta",
+                timestamp: Date.now() - 7200000
+              });
+            });
+          }
+        } catch(e) {}
+
+        // Fallback default helpful activity items if brand new
+        if (entries.length === 0) {
+          entries.push(
+            {
+              icon: "💡",
+              dotColor: "var(--accent)",
+              title: "Genel Kültür Akademisi: <strong>12 Haftalık Müfredat</strong> aktif",
+              time: "Bugün",
+              timestamp: Date.now()
+            },
+            {
+              icon: "✅",
+              dotColor: "var(--emerald)",
+              title: "Alışkanlık Takip Sistemi: <strong>Rutinleriniz</strong> hazır",
+              time: "Bugün",
+              timestamp: Date.now() - 1000
+            },
+            {
+              icon: "📚",
+              dotColor: "#38bdf8",
+              title: "Bilgi Merkezi: <strong>Kitaplık ve Lisan</strong> modülleri devrede",
+              time: "Bugün",
+              timestamp: Date.now() - 2000
             }
-          });
-          d.setDate(d.getDate() - 1);
+          );
         }
 
-        const feedEl = document.getElementById("activity-feed");
-        if (entries.length === 0) {
-          feedEl.innerHTML = `<div class="empty-state">
-        <div class="empty-icon">📋</div>
-        <div class="empty-title">${i18n.t("home_activity_empty")}</div>
-        <div class="empty-sub">${i18n.t("home_activity_sub")}</div>
-      </div>`;
-          return;
-        }
+        // Sort by timestamp descending
+        entries.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
 
         feedEl.innerHTML = entries
-          .slice(0, 8)
-          .map((e) => {
-            const isToday = e.dateKey === DateUtils.today();
-            const timeStr = isToday
-              ? i18n.t("today")
-              : DateUtils.format(e.date);
-            return `<div class="activity-item">
-        <div class="activity-dot" style="background: ${e.habit.color};"></div>
-        <div>
-          <div class="activity-text">${e.habit.icon} <strong>${e.habit.name}</strong> tamamlandı</div>
-          <div class="activity-time">${timeStr}</div>
-        </div>
-      </div>`;
-          })
+          .slice(0, 6)
+          .map((e) => `
+            <div class="activity-item" style="display:flex; align-items:flex-start; gap:12px; padding:10px 0; border-bottom:1px solid var(--glass-border);">
+              <div class="activity-dot" style="width:8px; height:8px; border-radius:50%; margin-top:6px; flex-shrink:0; background: ${e.dotColor || 'var(--accent)'};"></div>
+              <div style="flex:1;">
+                <div class="activity-text" style="font-size:13px; color:var(--text-secondary); line-height:1.4;">
+                  <span style="margin-right:4px;">${e.icon}</span> ${e.title}
+                </div>
+                <div class="activity-time" style="font-size:11px; color:var(--text-muted); margin-top:2px;">
+                  ${e.time}
+                </div>
+              </div>
+            </div>
+          `)
           .join("");
       }
 
@@ -822,15 +997,40 @@
 
       async function renderHomeUpcomingEvents() {
         const container = document.getElementById("upcoming-events-container");
-        const card = document.getElementById("home-upcoming-events-card");
+        const actionBtn = document.getElementById("home-events-view-all");
         if (!container) return;
 
-        const isAdmin = window.Auth && (await window.Auth.canManageContent());
+        const isAdmin = window.Auth && window.Auth.canAccessHabits();
+
         if (!isAdmin) {
-          if (card) card.style.display = "none";
+          if (actionBtn) {
+            actionBtn.innerHTML = "Giriş Yap 🔐";
+            actionBtn.removeAttribute("href");
+            actionBtn.onclick = (e) => {
+              e.preventDefault();
+              if (window.Nav) Nav.openAdminAccessModal();
+            };
+          }
+          container.innerHTML = `
+            <div style="text-align:center; padding: 26px 14px; color: var(--text-muted);">
+              <div style="font-size:30px; margin-bottom:8px;">🔒</div>
+              <div style="font-size:14px; font-weight:700; color:var(--text-primary);">Kişisel Etkinlik & Planlar</div>
+              <div style="font-size:12px; margin-top:4px; max-width:280px; margin-left:auto; margin-right:auto; line-height:1.5; color:var(--text-secondary);">
+                Yaklaşan etkinlik ve takvim planlarınızı görüntülemek için lütfen yönetici girişi yapın.
+              </div>
+              <button type="button" class="btn btn-primary btn-sm" onclick="Nav.openAdminAccessModal()" style="margin-top:14px; padding:6px 18px; font-size:12px; border-radius:100px;">
+                🔐 Giriş Yap
+              </button>
+            </div>
+          `;
           return;
         }
-        if (card) card.style.display = "";
+
+        if (actionBtn) {
+          actionBtn.innerHTML = "Tümünü gör →";
+          actionBtn.setAttribute("href", "events.html");
+          actionBtn.onclick = null;
+        }
 
         if (!window.EventsAPI) return;
         const upcoming = await window.EventsAPI.getUpcomingEvents(3);
@@ -874,13 +1074,84 @@
         container.innerHTML = html;
       }
 
+      function escapeHomeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      async function renderHomeCultureWidget() {
+        const container = document.getElementById("home-culture-container");
+        if (!container || !window.CultureAPI) return;
+
+        try {
+          const focus = await window.CultureAPI.getTodayFocus();
+          if (!focus || !focus.item) {
+            container.innerHTML = `<div style="color:var(--text-muted); font-size:13px; padding:12px;">Henüz konu yüklenemedi.</div>`;
+            return;
+          }
+
+          const item = focus.item;
+          const todayInfo = focus.todayInfo;
+          const takeaway = (item.key_takeaways && item.key_takeaways.length > 0)
+            ? item.key_takeaways[0]
+            : (item.guide_questions && item.guide_questions[0] ? item.guide_questions[0] : "");
+
+          const isCompleted = !!item.is_completed;
+
+          container.innerHTML = `
+            <div style="display:flex; flex-direction:column; gap:12px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+                <div style="font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent-light);">
+                  ${todayInfo.isWeekend ? '📅 Hafta Sonu Tekrarı' : `🎯 Hafta ${item.study_week || 1} • ${item.day_name}`}
+                </div>
+                <span style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:100px; ${isCompleted ? 'background:rgba(16,185,129,0.15); color:#34d399; border:1px solid #10b981;' : 'background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3);'}">
+                  ${isCompleted ? '✅ Tamamlandı' : '⭕ Bugünün Konusu'}
+                </span>
+              </div>
+
+              <div>
+                <div style="font-size:12px; font-weight:600; color:var(--text-muted);">${escapeHomeHtml(item.category_title || '')}</div>
+                <div style="font-size:15px; font-weight:800; color:var(--text-primary); margin-top:2px; line-height:1.35;">
+                  ${escapeHomeHtml(item.topic_title || '')}
+                </div>
+              </div>
+
+              ${takeaway ? `
+                <div style="font-size:12.5px; color:var(--text-secondary); line-height:1.5; background:rgba(255,255,255,0.03); border:1px solid var(--glass-border); border-radius:10px; padding:8px 12px;">
+                  ✨ <strong>Hap Bilgi:</strong> ${escapeHomeHtml(takeaway)}
+                </div>
+              ` : ''}
+
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:4px;">
+                <a href="knowledge.html?tab=trivia" class="btn btn-primary btn-sm" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:6px 14px; border-radius:100px;">
+                  <span>📖</span> <span>Öğren & Not Al</span>
+                </a>
+                <a href="knowledge.html?tab=trivia" style="font-size:12px; color:var(--text-muted); text-decoration:none;">
+                  5 Günlük Plan →
+                </a>
+              </div>
+            </div>
+          `;
+        } catch (e) {
+          console.warn("Home culture widget render error:", e);
+        }
+      }
+
       loadStats();
       renderHomeUpcomingEvents();
+      renderHomeCultureWidget();
       window.addEventListener("auth:changed", () => {
         loadStats();
         renderHomeUpcomingEvents();
+        renderHomeCultureWidget();
       });
       window.addEventListener("events:changed", renderHomeUpcomingEvents);
+      window.addEventListener("culture:changed", renderHomeCultureWidget);
     </script>
   </body>
 </html>

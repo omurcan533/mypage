@@ -21,11 +21,55 @@
     <link rel="sitemap" type="application/xml" title="Sitemap" href="../sitemap.xml" />
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/habits.css" />
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        var isAuthed = localStorage.getItem("site-admin-access") === "1";
+        var gate = document.getElementById("habits-lock-gate");
+        var app = document.getElementById("habits-app-layout");
+        if (isAuthed) {
+          if (gate) gate.style.display = "none";
+          if (app) app.style.display = "flex";
+        } else {
+          if (gate) gate.style.display = "flex";
+          if (app) app.style.display = "none";
+        }
+      });
+    </script>
   </head>
   <body>
     <div class="bg-orbs"></div>
 
-    <div class="app-layout" id="habits-app-layout">
+    <!-- Admin Gate (Kilitli Ekran - Sadece Admin Değilse Gösterilir) -->
+    <div id="habits-lock-gate" class="habits-gate" style="display: none;">
+      <div class="habits-gate-card">
+        <div class="habits-gate-badge">🔒 Admin Özel Alanı</div>
+        <h1 class="habits-gate-title">Alışkanlıklar & Rutinler</h1>
+        <p class="habits-gate-subtitle">
+          Kişisel alışkanlıklarınızı ve günlük takip sisteminizi yönetmek için lütfen admin girişi yapın.
+        </p>
+        <form class="habits-gate-form" id="habits-gate-login-form">
+          <div class="input-group">
+            <label class="input-label">Kullanıcı Adı</label>
+            <input type="text" id="habits-gate-email" class="input-field" placeholder="omur" required autocomplete="username" />
+          </div>
+          <div class="input-group">
+            <label class="input-label">Şifre</label>
+            <input type="password" id="habits-gate-password" class="input-field" placeholder="yılmaz" required autocomplete="current-password" />
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">
+            🔐 Admin Olarak Giriş Yap
+          </button>
+          <div id="habits-gate-error" class="habits-gate-error" style="color: var(--rose); font-size: 13px;"></div>
+        </form>
+        <div style="margin-top: 16px; text-align: center;">
+          <a href="home.html" style="color: var(--text-muted); font-size: 13px; text-decoration: none;">
+            ← Ana Sayfaya Geri Dön
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-layout" id="habits-app-layout" style="display: none;">
       <!-- Sidebar -->
       <aside class="sidebar" id="sidebar">
         <div class="sidebar-logo">
@@ -1523,6 +1567,28 @@
 
       init();
       window.addEventListener("languageChanged", refreshUI);
+
+      const gateForm = document.getElementById("habits-gate-login-form");
+      if (gateForm) {
+        gateForm.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const email = document.getElementById("habits-gate-email").value.trim();
+          const password = document.getElementById("habits-gate-password").value;
+          const errEl = document.getElementById("habits-gate-error");
+          if (errEl) errEl.textContent = "";
+
+          try {
+            const ok = await window.Auth.login(email, password);
+            if (ok) {
+              window.location.reload();
+            } else {
+              if (errEl) errEl.textContent = "Kullanıcı adı veya şifre hatalı.";
+            }
+          } catch(err) {
+            if (errEl) errEl.textContent = "Giriş yapılırken bir hata oluştu.";
+          }
+        });
+      }
     </script>
   </body>
 </html>
