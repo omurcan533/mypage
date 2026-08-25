@@ -1165,6 +1165,7 @@ html[data-theme="light"] .modal-close:hover {
 .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
 .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
 
 /* ===== DIVIDER ===== */
 .divider {
@@ -1371,7 +1372,7 @@ html[data-theme="light"] .modal-close:hover {
     padding: 7px 14px !important;
     font-size: 12px !important;
   }
-  .grid-3, .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-3, .grid-4, .grid-5 { grid-template-columns: repeat(2, 1fr); }
   .grid-2 { grid-template-columns: 1fr; }
 
   .modal-overlay {
@@ -1447,7 +1448,7 @@ html[data-theme="light"] .modal-close:hover {
   .hero-name {
     font-size: 21px !important;
   }
-  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .grid-2, .grid-3, .grid-4, .grid-5 { grid-template-columns: 1fr; }
   .mobile-header {
     padding: 0 12px;
   }

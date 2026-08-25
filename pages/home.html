@@ -508,24 +508,38 @@
             <span class="dashboard-section-label">📊 Genel Bakış & Durum</span>
             <span class="dashboard-section-sub">Kişisel hedefler ve aktif veriler</span>
           </div>
-          <div class="grid-3" id="stats-row">
+          <div class="grid-5" id="stats-row">
             <div class="stat-card animate-fade-up" style="animation-delay: 0.1s">
               <div class="stat-icon">📚</div>
               <div class="stat-value" id="stat-books">0</div>
               <div class="stat-label" data-i18n="home_stat_books">Toplam Kitap</div>
             </div>
-            <div class="stat-card animate-fade-up" style="animation-delay: 0.2s">
+            <div class="stat-card animate-fade-up" style="animation-delay: 0.15s">
               <div class="stat-icon">✅</div>
               <div class="stat-value" id="stat-habits">0</div>
               <div class="stat-label" data-i18n="home_stat_active">
                 Aktif Alışkanlık
               </div>
             </div>
-            <div class="stat-card animate-fade-up" style="animation-delay: 0.3s">
+            <div class="stat-card animate-fade-up" style="animation-delay: 0.2s">
               <div class="stat-icon">🔥</div>
               <div class="stat-value" id="stat-streak">0</div>
               <div class="stat-label" data-i18n="home_stat_streak">
                 Günlük Seri
+              </div>
+            </div>
+            <div class="stat-card animate-fade-up" style="animation-delay: 0.25s">
+              <div class="stat-icon">🌍</div>
+              <div class="stat-value" id="stat-countries">0</div>
+              <div class="stat-label" data-i18n="home_stat_countries">
+                Gezilen Ülke
+              </div>
+            </div>
+            <div class="stat-card animate-fade-up" style="animation-delay: 0.3s">
+              <div class="stat-icon">📍</div>
+              <div class="stat-value" id="stat-cities">0</div>
+              <div class="stat-label" data-i18n="home_stat_cities">
+                Gezilen Şehir
               </div>
             </div>
           </div>
@@ -758,6 +772,45 @@
 
         const streakEl = document.getElementById("stat-streak");
         if (streakEl) streakEl.textContent = streak;
+
+        // Calculate Total Countries and Total Cities Visited
+        const countriesEl = document.getElementById("stat-countries");
+        const citiesEl = document.getElementById("stat-cities");
+
+        function updateTravelStats(travels) {
+          if (!travels || !Array.isArray(travels)) return;
+          const countries = new Set(travels.map(t => t.country).filter(Boolean)).size;
+          const cities = new Set(travels.map(t => t.city).filter(Boolean)).size;
+          if (countriesEl) countriesEl.textContent = countries;
+          if (citiesEl) citiesEl.textContent = cities;
+        }
+
+        try {
+          // 1. Try local storage first for instant load
+          const travelsStr = localStorage.getItem("oyp_travels");
+          let localTravels = [];
+          if (travelsStr) {
+            localTravels = JSON.parse(travelsStr);
+          }
+          if (localTravels && localTravels.length > 0) {
+            updateTravelStats(localTravels);
+          }
+
+          // 2. Fetch directly from Supabase for real-time accuracy
+          if (window.supabaseClient) {
+            window.supabaseClient
+              .from('travels')
+              .select('country, city')
+              .then(({ data, error }) => {
+                if (!error && data && data.length > 0) {
+                  updateTravelStats(data);
+                }
+              })
+              .catch(err => console.warn('Supabase travels fetch warning:', err));
+          }
+        } catch(e) {
+          console.warn("Travels count error:", e);
+        }
 
         // Monthly rate
         const now = new Date();
