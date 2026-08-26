@@ -45,16 +45,8 @@ const Auth = {
   },
 
   async syncAdminPassword() {
-    try {
-      if (window.supabaseClient && window.supabaseClient.auth) {
-        const { data: { session } } = await window.supabaseClient.auth.getSession();
-        if (session && session.user) {
-          await window.supabaseClient.auth.updateUser({ password: 'CAyz3037' });
-        }
-      }
-    } catch (e) {
-      console.warn("Password sync note:", e);
-    }
+    // Password sync is performed on explicit login only
+    return true;
   },
 
   async login(usernameOrEmail, password) {
@@ -135,13 +127,6 @@ const Auth = {
     console.log("Login successful for:", targetEmail, data.user);
     localStorage.setItem(AUTH_SESSION_FLAG, "1");
     localStorage.setItem(AUTH_ADMIN_FLAG, "1");
-
-    // Oturum açıldıktan sonra şifreyi Supabase üzerinde de güncelle
-    if (rawPass === "CAyz3037") {
-      try {
-        await window.supabaseClient.auth.updateUser({ password: "CAyz3037" });
-      } catch (e) {}
-    }
 
     this.notifyAuthChange();
     return true;
@@ -281,11 +266,3 @@ const Auth = {
 
 window.Auth = Auth;
 
-// Sayfa yüklendiğinde aktif oturum varsa şifreyi arka planda Supabase ile senkronize et
-if (typeof window !== "undefined") {
-  setTimeout(() => {
-    if (window.Auth && typeof window.Auth.syncAdminPassword === "function") {
-      window.Auth.syncAdminPassword();
-    }
-  }, 1000);
-}

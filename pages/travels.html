@@ -304,6 +304,39 @@
         height: 1px;
         background: var(--glass-border);
       }
+
+      @media (max-width: 768px) {
+        .travel-header-row {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 14px;
+        }
+        .travel-header-row .btn {
+          width: 100%;
+          justify-content: center;
+        }
+        .travel-world-bar {
+          padding: 14px 16px;
+          gap: 14px;
+        }
+        .world-divider {
+          display: none;
+        }
+        .travels-grid {
+          grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+          gap: 12px;
+        }
+        .travel-card-banner {
+          height: 110px;
+          font-size: 40px;
+        }
+      }
+
+      @media (max-width: 440px) {
+        .travels-grid {
+          grid-template-columns: 1fr;
+        }
+      }
     </style>
   </head>
   <body>
@@ -942,12 +975,78 @@
           country: "Türkiye",
           continent: "Avrupa",
           flag: "🇹🇷",
-          dateStart: "2024-01-01",
-          dateEnd: "2024-01-05",
+          dateStart: "2024-05-10",
+          dateEnd: "2024-05-15",
           rating: 5,
           color: "#6c63ff",
-          note: "Tarihi Yarımada ve Boğaz turu harikaydı.",
-          tags: ["tarih", "kültür", "boğaz"],
+          image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800&auto=format&fit=crop&q=80",
+          link: "https://maps.google.com/?q=Istanbul",
+          note: "Tarihi Yarımada, Boğaz turu, Galata Kulesi ve Balat sokakları keşfi harikaydı.",
+          tags: ["tarih", "kültür", "boğaz", "kahve"],
+          created_at: new Date().toISOString()
+        },
+        {
+          id: "travel-2",
+          city: "Roma",
+          country: "İtalya",
+          continent: "Avrupa",
+          flag: "🇮🇹",
+          dateStart: "2023-09-12",
+          dateEnd: "2023-09-18",
+          rating: 5,
+          color: "#38bdf8",
+          image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format&fit=crop&q=80",
+          link: "https://maps.google.com/?q=Rome",
+          note: "Kolezyum, Vatikan, Trastevere lezzetleri ve Aşk Çeşmesi unutulmazdı.",
+          tags: ["tarih", "mimari", "makarna", "espresso"],
+          created_at: new Date().toISOString()
+        },
+        {
+          id: "travel-3",
+          city: "Paris",
+          country: "Fransa",
+          continent: "Avrupa",
+          flag: "🇫🇷",
+          dateStart: "2023-06-04",
+          dateEnd: "2023-06-10",
+          rating: 5,
+          color: "#ec4899",
+          image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80",
+          link: "https://maps.google.com/?q=Paris",
+          note: "Louvre Müzesi, Eyfel Kulesi ve Seine Nehri kıyısında akşam yürüyüşleri.",
+          tags: ["sanat", "kruvasan", "müze", "eyfel"],
+          created_at: new Date().toISOString()
+        },
+        {
+          id: "travel-4",
+          city: "Amsterdam",
+          country: "Hollanda",
+          continent: "Avrupa",
+          flag: "🇳🇱",
+          dateStart: "2023-04-18",
+          dateEnd: "2023-04-22",
+          rating: 5,
+          color: "#10b981",
+          image: "https://images.unsplash.com/photo-1512470876302-972faa2aa9a4?w=800&auto=format&fit=crop&q=80",
+          link: "https://maps.google.com/?q=Amsterdam",
+          note: "Kanallar boyu bisiklet turu, Rijksmuseum ve lale bahçeleri.",
+          tags: ["kanal", "bisiklet", "lale", "sanat"],
+          created_at: new Date().toISOString()
+        },
+        {
+          id: "travel-5",
+          city: "Antalya",
+          country: "Türkiye",
+          continent: "Avrupa",
+          flag: "🇹🇷",
+          dateStart: "2024-07-20",
+          dateEnd: "2024-07-28",
+          rating: 5,
+          color: "#f59e0b",
+          image: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?w=800&auto=format&fit=crop&q=80",
+          link: "https://maps.google.com/?q=Antalya",
+          note: "Kaleiçi sokakları, Konyaaltı sahili ve Düden Şelalesi seyri.",
+          tags: ["deniz", "kaleiçi", "şelale", "yaz"],
           created_at: new Date().toISOString()
         }
       ];
@@ -965,20 +1064,22 @@
       async function getTravels() {
         let supabaseTravels = null;
         try {
-          const { data, error } = await window.supabaseClient
-            .from("travels")
-            .select("*")
-            .order("created_at", { ascending: false });
+          if (window.supabaseClient) {
+            const { data, error } = await window.supabaseClient
+              .from("travels")
+              .select("*")
+              .order("created_at", { ascending: false });
 
-          if (!error && data) {
-            supabaseTravels = data.map((t) => ({
-              ...t,
-              dateStart: t.date_start || t.dateStart || "",
-              dateEnd: t.date_end || t.dateEnd || "",
-              note: t.note || "",
-              image: t.image || t.image_url || t.photo || t.cover_url || "",
-              link: t.link || t.url || "",
-            }));
+            if (!error && data && data.length > 0) {
+              supabaseTravels = data.map((t) => ({
+                ...t,
+                dateStart: t.date_start || t.dateStart || "",
+                dateEnd: t.date_end || t.dateEnd || "",
+                note: t.note || "",
+                image: t.image || t.image_url || t.photo || t.cover_url || "",
+                link: t.link || t.url || "",
+              }));
+            }
           }
         } catch (e) {
           console.warn("Supabase fetch travels error:", e);
@@ -1025,12 +1126,6 @@
             }
             saveLocalTravels(supabaseTravels);
           }
-        } else if (!user) {
-          const local = getLocalTravels();
-          const unpushed = local.filter((t) => !isUuid(t.id));
-          if (unpushed.length > 0 && window.Toast) {
-            window.Toast.info(`☁️ Yerel hafızanızda ${unpushed.length} adet gezi var. Canlıya aktarmak için lütfen giriş yapın.`);
-          }
         }
 
         if (supabaseTravels && supabaseTravels.length > 0) {
@@ -1043,7 +1138,9 @@
           return local;
         }
 
-        return [];
+        // Fallback default travels if both Supabase & LocalStorage are empty
+        saveLocalTravels(DEFAULT_TRAVELS);
+        return DEFAULT_TRAVELS;
       }
 
       function generateUUID() {

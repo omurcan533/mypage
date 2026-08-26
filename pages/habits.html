@@ -21,6 +21,42 @@
     <link rel="sitemap" type="application/xml" title="Sitemap" href="../sitemap.xml" />
     <link rel="stylesheet" href="../css/style.css" />
     <link rel="stylesheet" href="../css/habits.css" />
+    <style>
+      #calendar-area {
+        min-width: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      .calendar-container,
+      .weekly-grid {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+      @media (max-width: 768px) {
+        .calendar-weekdays,
+        .calendar-grid {
+          min-width: 680px !important;
+          width: 100% !important;
+        }
+        .weekly-header,
+        .weekly-body,
+        .weekly-habit-row,
+        .weekly-totals-row {
+          min-width: 720px !important;
+          width: 100% !important;
+        }
+        .cal-day {
+          min-height: 88px !important;
+          padding: 8px 6px !important;
+        }
+        .dot-label {
+          display: inline !important;
+          font-size: 9.5px !important;
+        }
+      }
+    </style>
     <script>
       document.addEventListener("DOMContentLoaded", function() {
         var isAuthed = localStorage.getItem("site-admin-access") === "1";

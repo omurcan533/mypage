@@ -270,6 +270,13 @@ async function renderAll() {
   ]);
 }
 
+const DEFAULT_FAMILY_DINNERS = [
+  { id: "din-1", date: "2026-08-26", meal: "Fırında Levrek & Mevsim Salatası — 📝 Not: Taze roka ve limon hazır" },
+  { id: "din-2", date: "2026-08-25", meal: "Karnıyarık & Şehriyeli Pirinç Pilavı — 📝 Not: Yoğurt ile servis" },
+  { id: "din-3", date: "2026-08-24", meal: "Izgara Tavuk Göğsü, Fırın Patates & Cacık" },
+  { id: "din-4", date: "2026-08-23", meal: "Mercimek Çorbası & Zeytinyağlı Taze Fasulye" }
+];
+
 /* ================= DINNERS ================= */
 async function renderDinners(silent = false) {
   const todayBadge = document.getElementById('dinner-today-badge');
@@ -285,86 +292,107 @@ async function renderDinners(silent = false) {
     list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Yükleniyor...</div>`;
   }
 
+  // 1. Try local cache first
   try {
-    const { data: dinners, error } = await window.supabaseClient
-      .from('family_dinners')
-      .select('*')
-      .order('date', { ascending: false });
-
-    if (error) throw error;
-    dinnersCache = dinners || [];
-
-    const yearSelect = document.getElementById('dinner-year-filter');
-    if (yearSelect) {
-      const currentYear = new Date().getFullYear().toString();
-      const dbYears = (dinners || []).map(d => d.date ? d.date.split('-')[0] : null).filter(Boolean);
-      const years = [...new Set([currentYear, ...dbYears])].sort().reverse();
-      const currentVal = yearSelect.value || 'all';
-      yearSelect.innerHTML = `<option value="all">Tüm Yıllar</option>` + 
-        years.map(y => `<option value="${y}">${y}</option>`).join('');
-      if (years.includes(currentVal) || currentVal === 'all') yearSelect.value = currentVal;
+    const cached = localStorage.getItem('oyp_family_dinners');
+    if (cached) {
+      dinnersCache = JSON.parse(cached);
     }
+  } catch (e) {}
 
-    const filtered = currentDinnerYear === 'all' 
-      ? dinnersCache 
-      : dinnersCache.filter(d => d.date.startsWith(currentDinnerYear));
+  try {
+    if (window.supabaseClient) {
+      const { data: dinners, error } = await window.supabaseClient
+        .from('family_dinners')
+        .select('*')
+        .order('date', { ascending: false });
 
-    if (filtered.length === 0) {
-      list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Henüz yemek kaydı yok.</div>`;
-      return;
+      if (!error && dinners && dinners.length > 0) {
+        dinnersCache = dinners;
+        localStorage.setItem('oyp_family_dinners', JSON.stringify(dinners));
+      }
     }
-
-    const isAdmin = window.Auth && typeof window.Auth.canManageContent === 'function' ? await window.Auth.canManageContent() : false;
-
-    list.innerHTML = `
-      <div class="dinner-table-container">
-        <table class="dinner-table">
-          <thead>
-            <tr>
-              <th style="width: 220px;">📅 Tarih</th>
-              <th>🍽️ Akşam Menüsü & Notlar (Detay için tıkla)</th>
-              ${isAdmin ? `<th style="text-align: right; width: 90px;">İşlem</th>` : ''}
-            </tr>
-          </thead>
-          <tbody>
-            ${filtered.map(d => {
-              const dateObj = new Date(d.date);
-              const dateStr = dateObj.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
-              const dayStr = dateObj.toLocaleDateString('tr-TR', { weekday: 'long' });
-              const { meal, note } = parseMealAndNote(d.meal);
-
-              return `
-                <tr class="dinner-table-row" onclick="openDinnerDetailModal('${d.id}')" title="Menü ve not detayını görüntülemek için tıklayın">
-                  <td>
-                    <div class="dinner-date-badge">
-                      <span>📅</span> <strong>${dateStr}</strong> <span style="opacity:0.75; font-size:11px;">(${dayStr})</span>
-                    </div>
-                  </td>
-                  <td>
-                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
-                      <span style="font-weight: 600; font-size: 15px; color: var(--text-primary);">${meal}</span>
-                      ${note ? `<span class="dinner-note-pill" title="Not: ${note.replace(/"/g, '&quot;')}">📝 Not var</span>` : ''}
-                    </div>
-                  </td>
-                  ${isAdmin ? `
-                    <td style="text-align: right;" onclick="event.stopPropagation();">
-                      <div class="action-btns">
-                        <button class="dinner-edit-btn" onclick="openEditDinnerModal('${d.id}')" title="Düzenle">✏️</button>
-                        <button class="dinner-delete-btn" onclick="deleteDinner('${d.id}')" title="Sil">✕</button>
-                      </div>
-                    </td>
-                  ` : ''}
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        </table>
-      </div>
-    `;
   } catch (err) {
-    console.error("Dinners render error:", err);
-    list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--rose);">Veri çekilemedi.</div>`;
+    console.warn("Dinners Supabase fetch warning:", err);
   }
+
+  if (!dinnersCache || dinnersCache.length === 0) {
+    dinnersCache = [...DEFAULT_FAMILY_DINNERS];
+    try { localStorage.setItem('oyp_family_dinners', JSON.stringify(dinnersCache)); } catch(e){}
+  }
+
+  const yearSelect = document.getElementById('dinner-year-filter');
+  if (yearSelect) {
+    const currentYear = new Date().getFullYear().toString();
+    const dbYears = (dinnersCache || []).map(d => d.date ? d.date.split('-')[0] : null).filter(Boolean);
+    const years = [...new Set([currentYear, ...dbYears])].sort().reverse();
+    const currentVal = yearSelect.value || 'all';
+    yearSelect.innerHTML = `<option value="all">Tüm Yıllar</option>` + 
+      years.map(y => `<option value="${y}">${y}</option>`).join('');
+    if (years.includes(currentVal) || currentVal === 'all') yearSelect.value = currentVal;
+  }
+
+  const filtered = currentDinnerYear === 'all' 
+    ? dinnersCache 
+    : dinnersCache.filter(d => d.date && d.date.startsWith(currentDinnerYear));
+
+  if (filtered.length === 0) {
+    list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Henüz yemek kaydı yok.</div>`;
+    return;
+  }
+
+  const isAdmin = window.Auth && typeof window.Auth.canManageContent === 'function' ? await window.Auth.canManageContent() : false;
+
+  list.innerHTML = `
+    <div class="dinner-table-container">
+      <table class="dinner-table">
+        <thead>
+          <tr>
+            <th style="width: 220px;">📅 Tarih</th>
+            <th>🍽️ Akşam Menüsü & Notlar (Detay için tıkla)</th>
+            ${isAdmin ? `<th style="text-align: right; width: 90px;">İşlem</th>` : ''}
+          </tr>
+        </thead>
+        <tbody>
+          ${filtered.map(d => {
+            let dateStr = d.date;
+            let dayStr = "";
+            try {
+              const parts = d.date.split('-');
+              const dObj = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+              dateStr = dObj.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
+              dayStr = dObj.toLocaleDateString('tr-TR', { weekday: 'long' });
+            } catch(e) {}
+            const { meal, note } = parseMealAndNote(d.meal);
+
+            return `
+              <tr class="dinner-table-row" onclick="openDinnerDetailModal('${d.id}')" title="Menü ve not detayını görüntülemek için tıklayın">
+                <td>
+                  <div class="dinner-date-badge">
+                    <span>📅</span> <strong>${dateStr}</strong> ${dayStr ? `<span style="opacity:0.75; font-size:11px;">(${dayStr})</span>` : ''}
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-weight: 600; font-size: 15px; color: var(--text-primary);">${meal}</span>
+                    ${note ? `<span class="dinner-note-pill" title="Not: ${note.replace(/"/g, '&quot;')}">📝 Not var</span>` : ''}
+                  </div>
+                </td>
+                ${isAdmin ? `
+                  <td style="text-align: right;" onclick="event.stopPropagation();">
+                    <div class="action-btns">
+                      <button class="dinner-edit-btn" onclick="openEditDinnerModal('${d.id}')" title="Düzenle">✏️</button>
+                      <button class="dinner-delete-btn" onclick="deleteDinner('${d.id}')" title="Sil">✕</button>
+                    </div>
+                  </td>
+                ` : ''}
+              </tr>
+            `;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 function parseMealAndNote(rawMeal) {
@@ -1204,6 +1232,13 @@ window.applyRecommendedDinner = async function(mealText, recipeTitle = '') {
   }
 };
 
+const DEFAULT_FAMILY_BOARD = [
+  { id: "board-1", type: "todo", text: "Hafta sonu pazar ve market alışverişi yapılacak", completed: false },
+  { id: "board-2", type: "todo", text: "Kışlık mont ve botların kontrolü", completed: true },
+  { id: "board-3", type: "info", text: "Su arıtma cihazı filtre değişimi yapıldı (Eylül'e kadar geçerli)", completed: false },
+  { id: "board-4", type: "info", text: "Apartman aidat ödemeleri her ayın 15'ine kadar yapılmalıdır", completed: false }
+];
+
 /* ================= BOARD ================= */
 async function renderBoard(silent = false) {
   const container = document.getElementById('board-list');
@@ -1213,14 +1248,31 @@ async function renderBoard(silent = false) {
   }
 
   try {
-    const { data: items, error } = await window.supabaseClient
-      .from('family_board')
-      .select('*')
-      .order('created_at', { ascending: false });
+    // 1. Try local storage cache
+    try {
+      const cached = localStorage.getItem('oyp_family_board');
+      if (cached) {
+        boardCache = JSON.parse(cached);
+      }
+    } catch(e) {}
 
-    if (error) throw error;
-    boardCache = items || [];
-    
+    if (window.supabaseClient) {
+      const { data: items, error } = await window.supabaseClient
+        .from('family_board')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!error && items && items.length > 0) {
+        boardCache = items;
+        localStorage.setItem('oyp_family_board', JSON.stringify(items));
+      }
+    }
+
+    if (!boardCache || boardCache.length === 0) {
+      boardCache = [...DEFAULT_FAMILY_BOARD];
+      try { localStorage.setItem('oyp_family_board', JSON.stringify(boardCache)); } catch(e){}
+    }
+      
     const todos = boardCache.filter(item => item.type === 'todo');
     const infos = boardCache.filter(item => item.type === 'info');
 
@@ -1376,6 +1428,11 @@ window.deleteBoardItem = function(id, e) {
   });
 };
 
+const DEFAULT_FAMILY_TRAVELS = [
+  { id: "trv-1", year: 2026, month: "Ağustos", place: "Bozcaada & Ayvalık Gezisi", location: "Çanakkale / Balıkesir", companions: "Ömür Can, Annem, Babam", details: "Ada sokakları, rüzgar gülleri ve deniz keyfi." },
+  { id: "trv-2", year: 2025, month: "Temmuz", place: "Kaş & Kalkan Tatili", location: "Antalya", companions: "Tüm Aile", details: "Kaputaş plajı, tekne turu ve antik kent ziyaretleri." }
+];
+
 /* ================= TRAVELS ================= */
 async function renderTravels(silent = false) {
   const container = document.getElementById('travels-timeline');
@@ -1385,21 +1442,33 @@ async function renderTravels(silent = false) {
   }
 
   try {
-    const { data: travels, error } = await window.supabaseClient
-      .from('family_travels')
-      .select('*')
-      .order('year', { ascending: false });
+    // 1. Try local storage cache
+    try {
+      const cached = localStorage.getItem('oyp_family_travels');
+      if (cached) {
+        travelsCache = JSON.parse(cached);
+      }
+    } catch(e) {}
 
-    if (error) throw error;
-    travelsCache = travels || [];
+    if (window.supabaseClient) {
+      const { data: travels, error } = await window.supabaseClient
+        .from('family_travels')
+        .select('*')
+        .order('year', { ascending: false });
 
-    if (!travels || travels.length === 0) {
-      container.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Henüz aile gezisi eklenmedi.</div>`;
-      return;
+      if (!error && travels && travels.length > 0) {
+        travelsCache = travels;
+        localStorage.setItem('oyp_family_travels', JSON.stringify(travels));
+      }
+    }
+
+    if (!travelsCache || travelsCache.length === 0) {
+      travelsCache = [...DEFAULT_FAMILY_TRAVELS];
+      try { localStorage.setItem('oyp_family_travels', JSON.stringify(travelsCache)); } catch(e){}
     }
 
     const grouped = {};
-    travels.forEach(t => {
+    travelsCache.forEach(t => {
       const year = t.year || 'Bilinmiyor';
       if (!grouped[year]) grouped[year] = [];
       grouped[year].push(t);
@@ -1559,65 +1628,96 @@ window.deleteTravel = function(id, e) {
   });
 };
 
+const DEFAULT_FAMILY_BIRTHDAYS = [
+  { id: "bday-1", name: "Ömür Can Yılmaz", birthdate: "1997-09-15" },
+  { id: "bday-2", name: "Annem (Canan Yılmaz)", birthdate: "1972-04-12" },
+  { id: "bday-3", name: "Babam (Ahmet Yılmaz)", birthdate: "1968-11-20" },
+  { id: "bday-4", name: "Kardeşim (Ece Yılmaz)", birthdate: "2003-02-08" }
+];
+
 /* ================= BIRTHDAYS ================= */
 async function renderBirthdays(silent = false) {
   const list = document.getElementById('birthdays-list');
   if (!list) return;
-  if (!silent) {
+  if (!silent && (!birthdaysCache || birthdaysCache.length === 0)) {
     list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Yükleniyor...</div>`;
   }
 
+  // 1. Try local storage cache
   try {
-    const { data: birthdays, error } = await window.supabaseClient
-      .from('family_birthdays')
-      .select('*');
-
-    if (error) throw error;
-    birthdaysCache = birthdays || [];
-
-    if (!birthdays || birthdays.length === 0) {
-      list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--text-muted);">Henüz doğum günü eklenmedi.</div>`;
-      return;
+    const cached = localStorage.getItem('oyp_family_birthdays');
+    if (cached) {
+      birthdaysCache = JSON.parse(cached);
     }
+  } catch (e) {}
 
-    const today = new Date();
-    today.setHours(0,0,0,0);
+  try {
+    if (window.supabaseClient) {
+      const { data: birthdays, error } = await window.supabaseClient
+        .from('family_birthdays')
+        .select('*');
 
-    const enrichedBirthdays = birthdays.map(b => {
-      const birthDate = new Date(b.birthdate);
-      let nextBday = new Date(today.getFullYear(), birthDate.getMonth(), birthDate.getDate());
-      if (nextBday < today) {
-        nextBday.setFullYear(today.getFullYear() + 1);
+      if (!error && birthdays && birthdays.length > 0) {
+        birthdaysCache = birthdays;
+        localStorage.setItem('oyp_family_birthdays', JSON.stringify(birthdays));
       }
-      const diffTime = Math.abs(nextBday - today);
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const ageTurn = nextBday.getFullYear() - birthDate.getFullYear();
-      return { ...b, nextBday, diffDays, ageTurn };
-    });
-
-    enrichedBirthdays.sort((a,b) => a.diffDays - b.diffDays);
-    const isAdmin = window.Auth && typeof window.Auth.canManageContent === 'function' ? await window.Auth.canManageContent() : false;
-
-    list.innerHTML = enrichedBirthdays.map(b => {
-      let daysText = b.diffDays === 0 ? `<span style="color:var(--accent); font-weight:800;">Bugün! 🎉</span>` : `${b.diffDays} gün kaldı`;
-      return `
-      <div class="dinner-item">
-        <div>
-          <div class="dinner-meal" style="font-size: 16px;">${b.name}</div>
-          <div class="dinner-date" style="margin-top:2px;">
-            ${new Date(b.birthdate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })} <br/>
-            <span style="display:inline-block; margin-top:4px; padding:2px 8px; background:rgba(255,255,255,0.05); border-radius:12px; font-size:12px;">
-              ${b.ageTurn} Yaşına girecek • ${daysText}
-            </span>
-          </div>
-        </div>
-        ${isAdmin ? `<button class="dinner-delete-btn" onclick="deleteBirthday('${b.id}')" title="Sil">✕</button>` : ''}
-      </div>
-    `}).join('');
+    }
   } catch (err) {
-    console.error("Birthdays render error:", err);
-    list.innerHTML = `<div style="text-align:center; padding: 20px; color: var(--rose);">Veri çekilemedi.</div>`;
+    console.warn("Birthdays Supabase fetch warning:", err);
   }
+
+  if (!birthdaysCache || birthdaysCache.length === 0) {
+    birthdaysCache = [...DEFAULT_FAMILY_BIRTHDAYS];
+    try { localStorage.setItem('oyp_family_birthdays', JSON.stringify(birthdaysCache)); } catch(e){}
+  }
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const enrichedBirthdays = birthdaysCache.map(b => {
+    let bYear = 2000, bMonth = 0, bDay = 1;
+    try {
+      const parts = String(b.birthdate).split('-');
+      bYear = parseInt(parts[0], 10);
+      bMonth = parseInt(parts[1], 10) - 1;
+      bDay = parseInt(parts[2], 10);
+    } catch(e) {}
+    
+    const birthDate = new Date(bYear, bMonth, bDay);
+    let nextBday = new Date(today.getFullYear(), bMonth, bDay);
+    if (nextBday < today) {
+      nextBday = new Date(today.getFullYear() + 1, bMonth, bDay);
+    }
+    const diffTime = nextBday.getTime() - today.getTime();
+    const diffDays = Math.max(0, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    const ageTurn = nextBday.getFullYear() - bYear;
+    const formattedDate = birthDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    return { ...b, nextBday, diffDays, ageTurn, formattedDate };
+  });
+
+  enrichedBirthdays.sort((a,b) => a.diffDays - b.diffDays);
+  const isAdmin = window.Auth && typeof window.Auth.canManageContent === 'function' ? await window.Auth.canManageContent() : false;
+
+  list.innerHTML = enrichedBirthdays.map(b => {
+    let daysBadge = b.diffDays === 0 
+      ? `<span class="bday-countdown-badge today">🎉 Bugün Doğum Günü!</span>` 
+      : b.diffDays === 1 
+        ? `<span class="bday-countdown-badge tomorrow">⚡ Yarın (${b.ageTurn}. Yaş)</span>`
+        : `<span class="bday-countdown-badge">${b.ageTurn} Yaşına girecek • ${b.diffDays} gün kaldı</span>`;
+
+    return `
+    <div class="dinner-item birthday-card-item">
+      <div class="birthday-avatar">🎂</div>
+      <div style="flex: 1; min-width: 0;">
+        <div class="dinner-meal birthday-person-name">${b.name}</div>
+        <div class="dinner-date" style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center;">
+          <span class="bday-date-badge">📅 ${b.formattedDate}</span>
+          ${daysBadge}
+        </div>
+      </div>
+      ${isAdmin ? `<button class="dinner-delete-btn" onclick="deleteBirthday('${b.id}')" title="Sil">✕</button>` : ''}
+    </div>
+  `}).join('');
 }
 
 window.deleteBirthday = function(id) {

@@ -119,6 +119,9 @@
         .book-detail-body{max-height:none !important;overflow:visible !important;padding:20px 18px 40px 18px !important;}
         .bk-close{position:fixed;top:20px;right:20px;z-index:20;}
       }
+      @media(max-width:400px){
+        .books-stats{grid-template-columns:1fr !important;}
+      }
     </style>
   </head>
   <body>
@@ -432,7 +435,7 @@
           title: "Nutuk",
           author: "Mustafa Kemal Atatürk",
           genre: "Tarih / Otobiyografi",
-          cover_url: "",
+          cover_url: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80",
           status: "completed",
           rating: 5,
           is_favorite: true,
@@ -446,7 +449,7 @@
           title: "Atomik Alışkanlıklar",
           author: "James Clear",
           genre: "Kişisel Gelişim",
-          cover_url: "",
+          cover_url: "https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=600&q=80",
           status: "completed",
           rating: 5,
           is_favorite: true,
@@ -460,14 +463,28 @@
           title: "Simyacı",
           author: "Paulo Coelho",
           genre: "Felsefi Roman",
-          cover_url: "",
-          status: "reading",
-          rating: 4,
-          is_favorite: false,
+          cover_url: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80",
+          status: "completed",
+          rating: 5,
+          is_favorite: true,
           started_at: "2024-03-01",
-          finished_at: "",
+          finished_at: "2024-03-10",
           review: "Kişisel menzillerini takip eden insanların evrenin işaretleriyle nasıl buluştuğunu anlatan masalsı bir yolculuk.",
           notes: "Bir şeyi gerçekten istersen, bütün evren onu gerçekleştirmen için iş birliği yapar."
+        },
+        {
+          id: "book-4",
+          title: "Sapiens: Hayvanlardan Tanrılara",
+          author: "Yuval Noah Harari",
+          genre: "Tarih / Antropoloji",
+          cover_url: "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?auto=format&fit=crop&w=600&q=80",
+          status: "reading",
+          rating: 5,
+          is_favorite: true,
+          started_at: "2024-04-01",
+          finished_at: "",
+          review: "İnsan türünün bilişsel devrimden günümüze uzanan evrimsel ve kültürel serüveni.",
+          notes: "Kurgusal gerçeklikler ve dedikodu teorisi insanların bir arada yaşamasını sağlayan temel güçtür."
         }
       ];
 
@@ -506,12 +523,14 @@
       async function fetchBooks() {
         let sbBooks = null;
         try {
-          const { data, error } = await window.supabaseClient
-            .from('books')
-            .select('*')
-            .order('created_at', { ascending: false });
-          if (!error && data) {
-            sbBooks = data;
+          if (window.supabaseClient) {
+            const { data, error } = await window.supabaseClient
+              .from('books')
+              .select('*')
+              .order('created_at', { ascending: false });
+            if (!error && data && data.length > 0) {
+              sbBooks = data;
+            }
           }
         } catch (err) {
           console.warn('Supabase fetch error:', err);
@@ -560,7 +579,9 @@
           return local;
         }
 
-        return [];
+        // Fallback to DEFAULT_BOOKS if both Supabase and LocalStorage are empty
+        saveLocalBooks(DEFAULT_BOOKS);
+        return DEFAULT_BOOKS;
       }
 
       function generateUUID() {

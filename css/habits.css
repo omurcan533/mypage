@@ -198,6 +198,15 @@
   grid-template-columns: 1fr 280px;
   gap: 20px;
   align-items: start;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
+
+#calendar-area {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* ── Monthly Calendar ── */
@@ -205,7 +214,10 @@
   background: var(--bg-card);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
-  overflow: hidden;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  width: 100%;
+  max-width: 100%;
 }
 
 .calendar-weekdays {
@@ -412,7 +424,10 @@
   background: var(--bg-card);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-xl);
-  overflow: hidden;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  width: 100%;
+  max-width: 100%;
 }
 
 .weekly-header {
@@ -946,13 +961,84 @@
 /* ── Responsive ── */
 @media (max-width: 1100px) {
   .habits-layout { grid-template-columns: 1fr; }
-  .habits-sidebar { display: grid; grid-template-columns: repeat(2, 1fr); }
+  .habits-sidebar { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
   .habits-stats { grid-template-columns: repeat(2, 1fr); }
 }
 
-@media (max-width: 700px) {
-  .habits-stats { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 768px) {
+  .habits-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .habit-stat-item { padding: 12px 14px; }
+  .habit-stat-val { font-size: 20px; }
   .habits-sidebar { grid-template-columns: 1fr; }
-  .weekly-grid { overflow-x: auto; }
-  .weekly-header, .weekly-habit-row { min-width: 600px; }
+
+  /* Monthly Calendar Horizontal Scroll on Mobile */
+  .calendar-container {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: var(--radius-lg);
+    display: block !important;
+  }
+  .calendar-weekdays,
+  .calendar-grid {
+    min-width: 680px !important;
+    width: 100% !important;
+  }
+  .cal-day {
+    min-height: 88px !important;
+    padding: 8px 6px !important;
+  }
+  .dot-label {
+    display: inline !important;
+    font-size: 9.5px !important;
+  }
+  .day-completion {
+    display: block !important;
+  }
+
+  /* Weekly Grid Horizontal Scroll on Mobile */
+  .weekly-grid {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: var(--radius-lg);
+    display: block !important;
+  }
+  .weekly-header,
+  .weekly-body,
+  .weekly-habit-row,
+  .weekly-totals-row {
+    min-width: 720px !important;
+    width: 100% !important;
+  }
+  
+  .habits-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .habits-header-left {
+    justify-content: space-between;
+    width: 100%;
+  }
+  .cal-nav-title {
+    min-width: 130px;
+    font-size: 14px;
+  }
 }
+
+.calendar-container::-webkit-scrollbar,
+.weekly-grid::-webkit-scrollbar {
+  height: 6px;
+}
+
+.calendar-container::-webkit-scrollbar-thumb,
+.weekly-grid::-webkit-scrollbar-thumb {
+  background: rgba(108, 99, 255, 0.4);
+  border-radius: 10px;
+}
+
+
+

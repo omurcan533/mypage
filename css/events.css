@@ -432,8 +432,74 @@ body.light-theme .event-check-btn.is-done {
   border-color: rgba(239, 68, 68, 0.3);
 }
 
+@media (max-width: 768px) {
+  .events-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .travel-events-tabs {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 4px;
+    gap: 4px;
+  }
+  .travel-events-tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .te-tab-btn {
+    padding: 7px 14px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .events-controls-bar {
+    justify-content: stretch;
+  }
+  .events-controls-bar > div {
+    width: 100%;
+  }
+  .events-controls-bar select {
+    flex: 1;
+    width: 100%;
+  }
+}
+
 @media (max-width: 640px) {
   .events-grid {
     grid-template-columns: 1fr;
   }
+  .travel-header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+  .travel-header-row > div:last-child {
+    flex-direction: column;
+    width: 100%;
+  }
+  .travel-header-row .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .event-stat-card {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+  .event-stat-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+  .event-stat-val {
+    font-size: 20px;
+  }
 }
+
+@media (max-width: 400px) {
+  .events-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+

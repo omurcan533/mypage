@@ -1418,8 +1418,31 @@
         .en-stats-row{grid-template-columns:1fr;}
         .en-places-grid{grid-template-columns:1fr;}
         .en-phrase-card{max-width:95%;padding:14px 16px;}
-        .knowledge-master-tabs{width:100%;}
-        .knowledge-master-tab{flex:1;justify-content:center;padding:9px 12px;font-size:13px;}
+        .knowledge-master-tabs{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap;}
+        .knowledge-master-tabs::-webkit-scrollbar{display:none;}
+        .knowledge-master-tab{flex-shrink:0;padding:8px 14px;font-size:12.5px;}
+        
+        .culture-hero-card{padding:18px 16px;}
+        .culture-hero-title{font-size:19px;}
+        .culture-week-grid,
+        .culture-vocab-grid,
+        .culture-roadmap-grid,
+        .culture-flashcards-grid,
+        .trivia-grid{grid-template-columns:1fr !important;}
+        .trivia-stats-grid,
+        .culture-vocab-stats-grid{grid-template-columns:repeat(2, 1fr);}
+        
+        .culture-nav-bar{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap;}
+        .culture-nav-bar::-webkit-scrollbar{display:none;}
+        .culture-nav-btn{flex-shrink:0;padding:6px 12px;font-size:12px;}
+        .culture-spotlight-body{padding:16px 14px;}
+        .culture-day-card{padding:16px 14px;}
+        .culture-vocab-card{padding:16px 14px;}
+      }
+      @media(max-width:400px){
+        .trivia-stats-grid,
+        .culture-vocab-stats-grid{grid-template-columns:1fr;}
+        .books-stats{grid-template-columns:1fr;}
       }
     </style>
   </head>
@@ -2297,6 +2320,18 @@
         const demoBooks = [
           {
             id: "b-1",
+            title: "Nutuk",
+            author: "Mustafa Kemal Atatürk",
+            genre: "Tarih / Otobiyografi",
+            cover_url: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80",
+            status: "completed",
+            rating: 5,
+            is_favorite: true,
+            review: "Türkiye Cumhuriyeti'nin kuruluş sürecini ve verilen bağımsızlık mücadelesini kurucusunun kaleminden okumak eşsiz bir deneyim.",
+            quotes: "Bağımsızlık ve egemenlik ilkeleri; gençliğe hitabe bölümü özellikle ilham verici."
+          },
+          {
+            id: "b-2",
             title: "Atomik Alışkanlıklar",
             author: "James Clear",
             genre: "Kişisel Gelişim",
@@ -2308,7 +2343,19 @@
             quotes: "Her eylem, gelecekte olmak istediğiniz kişiye verdiğiniz bir oydur."
           },
           {
-            id: "b-2",
+            id: "b-3",
+            title: "Simyacı",
+            author: "Paulo Coelho",
+            genre: "Felsefi Roman",
+            cover_url: "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80",
+            status: "completed",
+            rating: 5,
+            is_favorite: true,
+            review: "Kişisel menzillerini takip eden insanların evrenin işaretleriyle nasıl buluştuğunu anlatan masalsı bir yolculuk.",
+            quotes: "Bir şeyi gerçekten istersen, bütün evren onu gerçekleştirmen için iş birliği yapar."
+          },
+          {
+            id: "b-4",
             title: "Kürk Mantolu Madonna",
             author: "Sabahattin Ali",
             genre: "Edebiyat / Roman",

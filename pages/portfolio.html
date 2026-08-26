@@ -242,7 +242,6 @@
     <script src="../js/supabase.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/live_api.js"></script>
-    <script src="../js/finance_api.js"></script>
     <script src="../js/modal.js"></script>
     <script src="../js/nav.js"></script>
 
@@ -315,27 +314,6 @@
       }
 
       async function updatePricesAndRender() {
-        if (window.FinanceAPI) {
-          try {
-            const liveMarkets = await window.FinanceAPI.fetchMarketSummary();
-            if (liveMarkets) {
-              portfolioItems.forEach(item => {
-                if (item.symbol.includes('BIST') || item.symbol === 'BIST 100') {
-                  item.currentPrice = liveMarkets.bist.raw;
-                } else if (item.symbol.includes('Altın') || item.type === 'gold') {
-                  item.currentPrice = liveMarkets.goldGram.raw;
-                } else if (item.symbol === 'USD/TRY' || item.symbol === 'USD') {
-                  item.currentPrice = liveMarkets.usd.raw;
-                } else if (item.symbol === 'EUR/TRY' || item.symbol === 'EUR') {
-                  item.currentPrice = liveMarkets.eur.raw;
-                } else if (item.symbol === 'BTC' || item.symbol === 'Bitcoin') {
-                  item.currentPrice = liveMarkets.btc.raw;
-                }
-              });
-            }
-          } catch (e) {}
-        }
-
         renderPortfolio();
       }
 

@@ -146,7 +146,7 @@
             <span>Medya, Sinema &</span> <span class="gradient-text">Spor Dünyam</span> 🍿
           </h1>
           <p class="hero-desc">
-            Favori filmlerim, takip ettiğim diziler, Fenerbahçe maç takvimi ve anlık finans piyasaları.
+            Favori filmlerim, takip ettiğim diziler ve Fenerbahçe maç takvimi.
           </p>
           <div class="hero-date" id="hero-date">📅 Bugün</div>
           <div class="hero-quick-links">
@@ -164,7 +164,7 @@
         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
           <div>
             <h2 class="page-title" style="font-size: 24px; margin-bottom: 4px;">🎬 Medya & Sinema Panosu</h2>
-            <p class="page-subtitle">Filmler, diziler, maç takvimi ve borsa verileri</p>
+            <p class="page-subtitle">Filmler, diziler ve maç takvimi</p>
           </div>
           <div style="display: flex; gap: 10px; align-items: center;">
             <button type="button" class="btn btn-primary" id="add-media-btn" style="display: none;">
@@ -177,7 +177,6 @@
         <div class="media-tab-bar" id="main-media-tabs">
           <button type="button" class="media-tab-btn active" data-tab="movies_tv">🎬 Filmler & Diziler</button>
           <button type="button" class="media-tab-btn" data-tab="sports">⚽ Spor & Fenerbahçe</button>
-          <button type="button" class="media-tab-btn" data-tab="markets">📈 Borsa & Piyasalar</button>
         </div>
 
         <!-- Sub View Switcher (for Movies & TV Shows) -->
@@ -188,9 +187,6 @@
           <button type="button" class="sub-view-btn" data-sub="watchlist">📌 İzlenecekler</button>
           <button type="button" class="sub-view-btn" data-sub="completed">✅ Tamamlananlar</button>
         </div>
-
-        <!-- Borsa & Finans Piyasası Container -->
-        <div id="finance-market-container" style="display: none;"></div>
 
         <!-- Fenerbahçe Fixture Widget Container -->
         <div id="fenerbahce-fixture-container" style="display: none;"></div>
@@ -253,7 +249,6 @@
     <script src="../js/auth.js"></script>
     <script src="../js/i18n.js"></script>
     <script src="../js/nav.js"></script>
-    <script src="../js/finance_api.js"></script>
     <script>
       const MEDIA_KEY = "oyp_media_items";
       const DEFAULT_MEDIA = [
@@ -469,61 +464,6 @@
         `;
       }
 
-      async function renderFinanceMarketContainer(forceRefresh = false) {
-        const container = document.getElementById("finance-market-container");
-        if (!container) return;
-
-        if (activeMainTab !== "markets") {
-          container.style.display = "none";
-          return;
-        }
-
-        container.style.display = "block";
-        if (!container.innerHTML || forceRefresh) {
-          container.innerHTML = `
-            <div class="finance-market-card">
-              <div class="finance-market-header">
-                <div class="finance-header-title">
-                  <div class="finance-icon-badge">📈</div>
-                  <div>
-                    <div class="finance-title-text">Borsa İstanbul & Canlı Piyasalar</div>
-                    <div class="finance-sub-text">Anlık Döviz Kurları, Altın Fiyatları, Kripto & BIST 100 Endeksi</div>
-                  </div>
-                </div>
-                <button type="button" class="finance-refresh-btn" onclick="renderFinanceMarketContainer(true)" title="Verileri Güncelle">
-                  <span>🔄</span> <span>Canlı Yenile</span>
-                </button>
-              </div>
-              <div class="finance-grid" id="finance-items-grid">
-                <div class="skeleton-card" style="min-height:100px; grid-column:1/-1;">Canlı piyasa verileri yükleniyor...</div>
-              </div>
-            </div>
-          `;
-        }
-
-        const itemsGrid = document.getElementById("finance-items-grid");
-        if (!window.FinanceAPI) return;
-        const data = await window.FinanceAPI.fetchMarketData(forceRefresh);
-
-        if (!itemsGrid || !data) return;
-
-        itemsGrid.innerHTML = data.map(item => `
-          <div class="finance-item-card">
-            <div class="finance-item-top">
-              <span class="finance-item-name">${item.icon} ${item.name}</span>
-              <span class="market-pill ${item.isUp ? 'market-pill-up' : 'market-pill-down'}">
-                ${item.isUp ? '▲' : '▼'} ${item.changeFormatted}
-              </span>
-            </div>
-            <div class="finance-item-price">${item.priceFormatted}</div>
-            <div class="finance-item-sub">
-              <span>${item.code}</span>
-              <span>${item.source}</span>
-            </div>
-          </div>
-        `).join("");
-      }
-
       function renderMedia() {
         const grid = document.getElementById("media-cards-grid");
         const moviesSubBar = document.getElementById("movies-sub-view-bar");
@@ -533,7 +473,6 @@
         if (activeMainTab === "movies_tv") {
           moviesSubBar.style.display = "flex";
           renderFenerbahceFixture();
-          renderFinanceMarketContainer();
 
           let items = allMedia.filter((x) => x.category === "movies_tv");
           if (activeSubView === "movies") items = items.filter((x) => x.subType === "movie");
@@ -573,7 +512,6 @@
           moviesSubBar.style.display = "none";
           grid.innerHTML = "";
           renderFenerbahceFixture();
-          renderFinanceMarketContainer();
         }
       }
 

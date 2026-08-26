@@ -280,6 +280,21 @@
         border-color: var(--accent);
         color: var(--accent-light);
       }
+
+      @media (max-width: 640px) {
+        .projects-grid,
+        .project-skeleton {
+          grid-template-columns: 1fr !important;
+          gap: 12px;
+        }
+        .project-card {
+          padding: 18px 16px;
+        }
+        .project-actions {
+          opacity: 1;
+          transform: none;
+        }
+      }
     </style>
   </head>
   <body>

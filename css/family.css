@@ -932,3 +932,149 @@ html[data-theme="light"] .recom-step-item {
     gap: 8px !important;
   }
 }
+
+/* ===== COMPREHENSIVE FAMILY PAGE MOBILE RESPONSIVE RULES ===== */
+@media (max-width: 768px) {
+  .family-top-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+  
+  .family-section,
+  .travels-section {
+    padding: 18px 14px !important;
+    border-radius: var(--radius-lg) !important;
+  }
+
+  .family-section-header {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+
+  .family-title-with-date {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  .family-section-header > div:last-child {
+    display: flex !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+  }
+
+  .family-section-header .btn,
+  .family-section-header .dinner-filter {
+    flex: 1 1 auto !important;
+    text-align: center !important;
+    justify-content: center !important;
+    font-size: 12.5px !important;
+    padding: 7px 10px !important;
+  }
+
+  /* Dinners Responsive Table / Cards */
+  .dinner-table-container {
+    max-height: 420px !important;
+    border: none !important;
+    background: transparent !important;
+  }
+
+  .dinner-table,
+  .dinner-table thead,
+  .dinner-table tbody,
+  .dinner-table tr,
+  .dinner-table th,
+  .dinner-table td {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .dinner-table thead {
+    display: none !important;
+  }
+
+  .dinner-table-row {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 14px !important;
+    margin-bottom: 10px !important;
+  }
+
+  .dinner-table td {
+    padding: 4px 0 !important;
+    border-bottom: none !important;
+  }
+
+  .dinner-table td:last-child {
+    margin-top: 6px !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+  }
+
+  /* Birthday Cards */
+  .birthday-card-item {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    padding: 12px 14px !important;
+  }
+
+  .birthday-avatar {
+    font-size: 24px !important;
+    width: 36px !important;
+    height: 36px !important;
+    border-radius: 50% !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+  }
+
+  .birthday-person-name {
+    font-size: 15px !important;
+    font-weight: 700 !important;
+  }
+
+  .bday-date-badge {
+    font-size: 11px !important;
+    color: var(--text-muted) !important;
+  }
+
+  .bday-countdown-badge {
+    font-size: 11px !important;
+    padding: 3px 8px !important;
+    border-radius: var(--radius-pill) !important;
+    background: rgba(108, 99, 255, 0.15) !important;
+    color: var(--accent-light) !important;
+    font-weight: 700 !important;
+  }
+
+  .bday-countdown-badge.today {
+    background: rgba(16, 185, 129, 0.2) !important;
+    color: #10b981 !important;
+  }
+
+  .bday-countdown-badge.tomorrow {
+    background: rgba(245, 158, 11, 0.2) !important;
+    color: #f59e0b !important;
+  }
+
+  /* Board Split Mobile */
+  .board-split-container {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+  }
+
+  .board-column:first-child {
+    padding-right: 0 !important;
+    border-right: none !important;
+    padding-bottom: 20px !important;
+    border-bottom: 1px solid var(--glass-border) !important;
+  }
+}
+

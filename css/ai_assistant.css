@@ -305,3 +305,37 @@ body.light-theme .ai-input {
   border-color: #cbd5e1;
   color: #0f172a;
 }
+
+/* ===== AI ASSISTANT MOBILE RESPONSIVE ===== */
+@media (max-width: 640px) {
+  .ai-assistant-wrapper {
+    bottom: max(16px, env(safe-area-inset-bottom, 16px));
+    right: 14px;
+  }
+  .ai-trigger-btn {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+  }
+  .ai-chat-window {
+    width: calc(100vw - 20px);
+    max-width: calc(100vw - 20px);
+    max-height: calc(100dvh - 82px);
+    max-height: calc(100vh - 82px);
+    bottom: 60px;
+    right: -4px;
+    border-radius: 18px;
+  }
+  .ai-chat-header {
+    padding: 12px 14px;
+  }
+  .ai-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 15px;
+  }
+  .ai-title {
+    font-size: 13px;
+  }
+}
+
