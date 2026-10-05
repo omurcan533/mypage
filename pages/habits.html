@@ -1136,7 +1136,8 @@
                   <button
                     type="button"
                     class="day-modal-check${done ? " checked" : ""}"
-                    onclick="toggleDayModal('${h.id}', '${dateKey}', this)"
+                    data-habit-id="${h.id}"
+                    onclick="this.classList.toggle('checked'); this.textContent = this.classList.contains('checked') ? '✓' : '';"
                   >
                     ${done ? "✓" : ""}
                   </button>
@@ -1249,6 +1250,17 @@
           const noteText = document.getElementById("day-modal-note-input").value;
           setButtonLoading(saveBtn, true, "Kaydediliyor...");
           try {
+            const checkButtons = document.querySelectorAll('#day-modal-habits-list .day-modal-check');
+            const logs = HabitStore.getLogs();
+            const completions = logs[dateKey] || {};
+            for (const btn of checkButtons) {
+               const habitId = btn.getAttribute('data-habit-id');
+               const isNowChecked = btn.classList.contains('checked');
+               const wasChecked = Boolean(completions[HabitStore._id(habitId)]);
+               if (isNowChecked !== wasChecked) {
+                  await HabitStore.toggle(habitId, dateKey);
+               }
+            }
             await HabitStore.saveNote(dateKey, noteText);
             refreshUI();
             Modal.close("day-modal");

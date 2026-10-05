@@ -924,12 +924,8 @@
             dueHabits.slice(0, 6).map(async (h) => {
               const done = await HabitStore.isCompleted(h.id, todayKey);
               const streak = await HabitStore.getStreak(h.id);
-              const checkBtnHtml = isAdmin ? `
-                <button class="today-check ${done ? "done" : ""}" onclick="toggleHabit('${h.id}')" title="${done ? "Geri al" : "Tamamla"}">
-                  ${done ? "✓" : ""}
-                </button>
-              ` : `
-                <span class="today-check ${done ? "done" : ""}" style="cursor: default; opacity: ${done ? '1' : '0.4'}; pointer-events: none;" title="İşaretlemek için yönetici girişi yapmalısınız">
+              const checkBtnHtml = `
+                <span class="today-check ${done ? "done" : ""}" style="cursor: default; opacity: ${done ? '1' : '0.4'}; pointer-events: none;" title="${done ? "Tamamlandı" : "Tamamlanmadı"}">
                   ${done ? "✓" : ""}
                 </span>
               `;
