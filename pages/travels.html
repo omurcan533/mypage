@@ -486,7 +486,7 @@
           <div class="hero-date" id="hero-date">📅 Bugün</div>
           <div class="hero-quick-links">
             <a href="home.html" class="quick-link">🏠 Ana Sayfa</a>
-            <a href="habits.html" class="quick-link" data-i18n="home_quick_habits">✅ Alışkanlıklar</a>
+            <a href="habits.html" class="quick-link" data-i18n="home_quick_habits">📅 Takvim</a>
             <a href="travels.html" class="quick-link active" data-i18n="home_quick_travels">✈️ Gezilerim</a>
             <a href="knowledge.html" class="quick-link">💡 Bilgi</a>
             <a href="media.html" class="quick-link">🎬 Medya & Eğlence</a>
@@ -1687,8 +1687,8 @@
 
             districts[district].forEach(item => {
               // Checkbox: sadece admin tıklayabilir
-              const checkboxClick = isAdmin ? `onclick="toggleWishlistVisited('${item.id}', event)"` : '';
-              const checkboxCursor = isAdmin ? '' : 'style="cursor: default; opacity: 0.6;"';
+              
+              
               const itemThumb = item.image
                 ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.place_name)}" style="width:28px; height:28px; border-radius:6px; object-fit:cover; flex-shrink:0;" onerror="this.style.display='none';" />`
                 : '';
@@ -1701,7 +1701,7 @@
 
               containerHtml += `
                 <div class="wishlist-item-row ${item.is_visited ? 'visited' : ''}" data-id="${item.id}" onclick="openWishlistDetailModal('${item.id}', event)">
-                  <div class="wishlist-checkbox" title="${item.is_visited ? 'Gidildi' : 'Gidilecek'}" ${checkboxClick} ${checkboxCursor}></div>
+                  
                   <div class="wishlist-item-content">
                     <div style="display:flex; align-items:center; gap:8px;">
                       ${itemThumb}
@@ -1789,7 +1789,7 @@
       let currentWishlistDetailItem = null;
 
       window.openWishlistDetailModal = function(id, e) {
-        if (e && (e.target.closest('.wishlist-checkbox') || e.target.closest('.wishlist-actions') || e.target.closest('a'))) {
+        if (e && (e.target.closest('.wishlist-actions') || e.target.closest('a'))) {
           return;
         }
         const item = allWishlistItems.find(i => i.id === id);

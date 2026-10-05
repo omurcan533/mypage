@@ -375,7 +375,12 @@ const Nav = {
     const btn = document.getElementById('admin-access-btn');
     if (!btn) return;
 
-    btn.addEventListener('click', () => this.openAdminAccessModal());
+    btn.addEventListener('click', () => {
+        const isNowAdmin = window.Auth && window.Auth.canAccessHabits();
+        if (!isNowAdmin) {
+          this.openAdminAccessModal();
+        }
+      });
     this._updateAdminAccessButton();
   },
 
@@ -803,7 +808,7 @@ const Nav = {
         </a>
         <ul class="footer-links">
           <li><a href="home.html">🏠 Ana Sayfa</a></li>
-          <li><a href="habits.html">✅ Alışkanlıklar</a></li>
+          <li><a href="habits.html">📅 Takvim</a></li>
           <!-- <li><a href="projects.html">🚀 Projelerim</a></li> -->
           <li><a href="travels.html">✈️ Gezilerim</a></li>
           <li><a href="knowledge.html">💡 Bilgi</a></li>

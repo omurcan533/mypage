@@ -545,13 +545,13 @@
             <span class="gradient-text">Ömür Can'ın dünyasına</span> 👋
           </h1>
           <p class="hero-desc" data-i18n="home_welcome_desc">
-            Kişisel panoya hoş geldin. Alışkanlıklarını takip et, projelerini
+            Kişisel panoya hoş geldin. Takvimini takip et, projelerini
             yönet ve hayatını organize et.
           </p>
           <div class="hero-date" id="hero-date">📅 Bugün</div>
           <div class="hero-quick-links">
             <a href="home.html" class="quick-link active">🏠 Ana Sayfa</a>
-            <a href="habits.html" class="quick-link" data-i18n="home_quick_habits">✅ Alışkanlıklar</a>
+            <a href="habits.html" class="quick-link" data-i18n="home_quick_habits">📅 Takvim</a>
             <a href="travels.html" class="quick-link" data-i18n="home_quick_travels">✈️ Gezilerim</a>
             <a href="knowledge.html" class="quick-link">💡 Bilgi</a>
             <a href="media.html" class="quick-link">🎬 Medya & Eğlence</a>
@@ -640,7 +640,7 @@
         <!-- Section 3: Habits & Activity -->
         <div class="dashboard-section animate-fade-up" style="animation-delay: 0.45s;">
           <div class="dashboard-section-head">
-            <span class="dashboard-section-label">⚡ Alışkanlıklar & Günlük Akış</span>
+            <span class="dashboard-section-label">⚡ Takvim & Günlük Akış</span>
             <span class="dashboard-section-sub">Rutinlerini tamamla ve güncel aktiviteleri incele</span>
           </div>
           <div class="grid-2">
@@ -952,7 +952,7 @@
       async function toggleHabit(id) {
         const isAdmin = window.Auth && window.Auth.canAccessHabits();
         if (!isAdmin) {
-          if (window.Toast) Toast.info("Alışkanlıkları işaretlemek için lütfen yönetici girişi yapın.");
+          if (window.Toast) Toast.info("Takvimi işaretlemek için lütfen yönetici girişi yapın.");
           return;
         }
         const key = DateUtils.today();

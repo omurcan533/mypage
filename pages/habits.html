@@ -79,9 +79,9 @@
     <div id="habits-lock-gate" class="habits-gate" style="display: none;">
       <div class="habits-gate-card">
         <div class="habits-gate-badge">🔒 Admin Özel Alanı</div>
-        <h1 class="habits-gate-title">Alışkanlıklar & Rutinler</h1>
+        <h1 class="habits-gate-title">Takvim & Rutinler</h1>
         <p class="habits-gate-subtitle">
-          Kişisel alışkanlıklarınızı ve günlük takip sisteminizi yönetmek için lütfen admin girişi yapın.
+          Kişisel takviminizi ve günlük takip sisteminizi yönetmek için lütfen admin girişi yapın.
         </p>
         <form class="habits-gate-form" id="habits-gate-login-form">
           <div class="input-group">
@@ -251,7 +251,7 @@
           <div class="hero-date" id="hero-date">📅 Bugün</div>
           <div class="hero-quick-links">
             <a href="home.html" class="quick-link">🏠 Ana Sayfa</a>
-            <a href="habits.html" class="quick-link active" data-i18n="home_quick_habits">✅ Alışkanlıklar</a>
+            <a href="habits.html" class="quick-link active" data-i18n="home_quick_habits">📅 Takvim</a>
             <a href="travels.html" class="quick-link" data-i18n="home_quick_travels">✈️ Gezilerim</a>
             <a href="knowledge.html" class="quick-link">💡 Bilgi</a>
             <a href="media.html" class="quick-link">🎬 Medya & Eğlence</a>
@@ -260,10 +260,10 @@
           </div>
         </div>
 
-        <!-- Alışkanlıklar & Etkinlikler Tab Switcher -->
+        <!-- Takvim & Etkinlikler Tab Switcher -->
         <div class="travel-events-tabs" id="habits-events-tab-bar" style="margin-bottom: 24px;">
           <a href="habits.html" class="te-tab-btn active">
-            ✅ Alışkanlıklarım
+            📅 Takvimım
           </a>
           <a href="events.html" class="te-tab-btn" id="habits-tab-events">
             📅 Etkinlikler & Planlarım <span class="te-tab-badge-lock">Admin</span>
@@ -275,7 +275,7 @@
             ✅ <span data-i18n="habits_title">Alışkanlıklar</span>
           </h1>
           <p class="page-subtitle" data-i18n="habits_subtitle">
-            Alışkanlıklarını günlük, haftalık ve aylık olarak takip et
+            Takvimini günlük, haftalık ve aylık olarak takip et
           </p>
         </div>
 
@@ -377,7 +377,7 @@
 
             <!-- Habits List -->
             <div class="sidebar-section">
-              <div class="sidebar-section-title">📋 Alışkanlıklarım</div>
+              <div class="sidebar-section-title">📋 Takvimim</div>
               <div id="sidebar-habits-list">
                 <div class="empty-state" style="padding: 20px 0">
                   <div class="empty-icon" style="font-size: 28px">🌱</div>
@@ -395,9 +395,10 @@
     <!-- ===== DAY MODAL ===== -->
     <div class="modal-overlay" id="day-modal">
       <div class="modal" style="max-width: 440px">
-        <div class="modal-header">
-          <div>
-            <div class="modal-title" id="day-modal-title">1 Ocak 2025</div>
+        <div class="modal-header" style="align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 16px;">
+          <button class="btn btn-ghost" id="day-modal-prev" style="padding: 4px 12px; font-size: 18px;" title="Önceki Gün">←</button>
+          <div style="text-align: center; flex: 1;">
+            <div class="modal-title" id="day-modal-title" style="margin: 0;">1 Ocak 2025</div>
             <div
               style="font-size: 12px; color: var(--text-muted); margin-top: 2px"
               id="day-modal-weekday"
@@ -405,7 +406,10 @@
               Çarşamba
             </div>
           </div>
-          <button class="modal-close">✕</button>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-ghost" id="day-modal-next" style="padding: 4px 12px; font-size: 18px;" title="Sonraki Gün">→</button>
+            <button class="modal-close">✕</button>
+          </div>
         </div>
 
         <div id="day-modal-match-box"></div>
@@ -624,7 +628,7 @@
         if (calArea) {
           calArea.innerHTML = `<div class="skeleton-grid" style="min-height:360px; display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; grid-column:1/-1; background: var(--bg-card); border: 1px solid var(--glass-border); border-radius: var(--radius-xl);">
             <span class="btn-spinner" style="width:34px; height:34px; border-width:3px; margin-bottom:14px; border-color: var(--accent); border-right-color: transparent;"></span>
-            <div style="font-size:14px; font-weight:600; color: var(--text-primary); margin-bottom:4px;">Alışkanlıklar & Takvim Yükleniyor...</div>
+            <div style="font-size:14px; font-weight:600; color: var(--text-primary); margin-bottom:4px;">Takvim Yükleniyor...</div>
             <div style="font-size:12px; color: var(--text-muted);">Verileriniz eşleniyor, lütfen bekleyin</div>
           </div>`;
         }
@@ -893,7 +897,7 @@
                         <div class="day-num">${cell.day}</div>
                         
                         <div class="day-badges-container">
-                          ${isFullyCompleted ? `<span class="day-complete-badge" title="Tüm alışkanlıklar tamamlandı">✓</span>` : ""}
+                          ${isFullyCompleted ? `<span class="day-complete-badge" title="Tüm etkinlikler tamamlandı">✓</span>` : ""}
                           ${isFBMatch ? `<span class="day-match-badge" title="⚽ Fenerbahçe Maçı">⚽</span>` : ""}
                           ${dayBdays.length > 0 ? `<span class="day-bday-badge" title="🎂 Doğum Günü: ${dayBdays.map(b=>b.name).join(', ')}">🎂</span>` : ""}
                           ${dayEvts.length > 0 ? `<span class="day-evt-badge" title="📅 Etkinlik: ${dayEvts.map(e=>e.title).join(', ')}">📅</span>` : ""}
@@ -1078,7 +1082,24 @@
       }
 
       // ─── Day Modal ───
+      let currentDayModalDateKey = null;
+
+      document.getElementById('day-modal-prev').addEventListener('click', () => {
+        if (!currentDayModalDateKey) return;
+        const date = DateUtils.fromKey(currentDayModalDateKey);
+        date.setDate(date.getDate() - 1);
+        openDayModal(DateUtils.toKey(date));
+      });
+
+      document.getElementById('day-modal-next').addEventListener('click', () => {
+        if (!currentDayModalDateKey) return;
+        const date = DateUtils.fromKey(currentDayModalDateKey);
+        date.setDate(date.getDate() + 1);
+        openDayModal(DateUtils.toKey(date));
+      });
+
       function openDayModal(dateKey) {
+        currentDayModalDateKey = dateKey;
         const date = DateUtils.fromKey(dateKey);
 
         // 1. Open modal instantly (< 10ms)
