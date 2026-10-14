@@ -19,6 +19,7 @@ const Nav = {
     if (!this._clockInterval) {
       this._clockInterval = setInterval(() => this._updateGlobalGreeting(), 1000);
     }
+    this._ensureScrollToTop();
     this._ensureFooter();
     this._ensureLiveScoreBanner();
     this.syncLiveScoreStateFromSupabase();
@@ -834,6 +835,60 @@ const Nav = {
     mainContent.appendChild(spacer);
     
     mainContent.appendChild(footer);
+  },
+
+  _ensureScrollToTop() {
+    if (document.getElementById('scroll-to-top-btn')) return;
+
+    const btn = document.createElement('button');
+    btn.id = 'scroll-to-top-btn';
+    btn.className = 'scroll-to-top';
+    btn.setAttribute('type', 'button');
+    btn.setAttribute('aria-label', 'Yukarı Çık');
+    btn.setAttribute('title', 'Yukarı Çık');
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 19V5M5 12l7-7 7 7"/>
+      </svg>
+    `;
+
+    document.body.appendChild(btn);
+
+    const getScrollTop = () => {
+      const winScroll = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
+      const mainContent = document.querySelector('.main-content');
+      const mainScroll = mainContent ? mainContent.scrollTop : 0;
+      return Math.max(winScroll, mainScroll);
+    };
+
+    const updateVisibility = () => {
+      if (getScrollTop() > 260) {
+        btn.classList.add('visible');
+      } else {
+        btn.classList.remove('visible');
+      }
+    };
+
+    window.addEventListener('scroll', updateVisibility, { passive: true });
+    const mainEl = document.querySelector('.main-content');
+    if (mainEl) {
+      mainEl.addEventListener('scroll', updateVisibility, { passive: true });
+    }
+    updateVisibility();
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      if (mainEl && mainEl.scrollTop > 0) {
+        mainEl.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      }
+    });
   },
 
   _updateAdminAccessButton() {

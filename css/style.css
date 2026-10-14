@@ -3659,3 +3659,86 @@ body.light-theme .status-want_to_read {
 }
 
 
+/* ── Scroll to Top Button ── */
+.scroll-to-top {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 9999;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(108, 99, 255, 0.35);
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.85), rgba(139, 92, 246, 0.85));
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(108, 99, 255, 0.35), 0 0 0 0 rgba(108, 99, 255, 0);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(16px) scale(0.85);
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s ease,
+              background 0.25s ease;
+  pointer-events: none;
+}
+.scroll-to-top.visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.scroll-to-top:hover {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 1), rgba(139, 92, 246, 1));
+  box-shadow: 0 8px 32px rgba(108, 99, 255, 0.5), 0 0 20px rgba(139, 92, 246, 0.25);
+  transform: translateY(-3px) scale(1.08);
+}
+.scroll-to-top:active {
+  transform: translateY(0) scale(0.95);
+  transition-duration: 0.1s;
+}
+.scroll-to-top svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Light theme */
+[data-theme="light"] .scroll-to-top,
+html[data-theme="light"] .scroll-to-top,
+body.light-theme .scroll-to-top {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.9), rgba(99, 102, 241, 0.9));
+  border-color: rgba(108, 99, 255, 0.3);
+  box-shadow: 0 4px 20px rgba(108, 99, 255, 0.2);
+}
+[data-theme="light"] .scroll-to-top:hover,
+html[data-theme="light"] .scroll-to-top:hover,
+body.light-theme .scroll-to-top:hover {
+  box-shadow: 0 8px 32px rgba(108, 99, 255, 0.35);
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .scroll-to-top {
+    bottom: 24px;
+    right: 20px;
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+  .scroll-to-top svg {
+    width: 20px;
+    height: 20px;
+  }
+}
