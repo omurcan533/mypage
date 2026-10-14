@@ -958,6 +958,49 @@
   color: var(--accent-light);
 }
 
+.custom-days-picker {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.custom-day-btn {
+  padding: 10px 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 700;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
+  user-select: none;
+}
+
+.custom-day-btn:hover {
+  border-color: var(--accent-light);
+  color: var(--text-primary);
+  transform: translateY(-2px);
+}
+
+.custom-day-btn.active {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.35), rgba(34, 211, 238, 0.25));
+  border-color: var(--accent);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(108, 99, 255, 0.35);
+  font-weight: 800;
+}
+
+[data-theme="light"] .custom-day-btn.active {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.18), rgba(34, 211, 238, 0.18));
+  border-color: #6366f1;
+  color: #4f46e5;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
+}
+
 /* ── Responsive ── */
 @media (max-width: 1100px) {
   .habits-layout { grid-template-columns: 1fr; }

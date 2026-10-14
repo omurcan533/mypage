@@ -567,63 +567,49 @@
             <span class="dashboard-section-sub">Kişisel hedefler ve aktif veriler</span>
           </div>
           <div class="grid-5" id="stats-row">
-            <div class="stat-card animate-fade-up" style="animation-delay: 0.1s">
+            <a href="knowledge.html?tab=books" class="stat-card animate-fade-up" style="animation-delay: 0.1s" title="Okuduklarım sayfasına git">
               <div class="stat-icon">📚</div>
               <div class="stat-value" id="stat-books">0</div>
               <div class="stat-label" data-i18n="home_stat_books">Okuduklarım</div>
-            </div>
-            <div class="stat-card animate-fade-up" style="animation-delay: 0.15s">
+            </a>
+            <a href="travels.html" class="stat-card animate-fade-up" style="animation-delay: 0.15s" title="Gezilerim sayfasına git">
               <div class="stat-icon">📍</div>
               <div class="stat-value" id="stat-cities">0</div>
               <div class="stat-label" data-i18n="home_stat_cities">
                 Gezilen Şehir
               </div>
-            </div>
-            <div class="stat-card animate-fade-up" style="animation-delay: 0.2s">
+            </a>
+            <a href="travels.html" class="stat-card animate-fade-up" style="animation-delay: 0.2s" title="Gezilerim sayfasına git">
               <div class="stat-icon">🌍</div>
               <div class="stat-value" id="stat-countries">0</div>
               <div class="stat-label" data-i18n="home_stat_countries">
                 Gezilen Ülke
               </div>
-            </div>
-            <div class="stat-card animate-fade-up" style="animation-delay: 0.25s">
+            </a>
+            <a href="habits.html" class="stat-card animate-fade-up" style="animation-delay: 0.25s" title="Takvim & Alışkanlıklar sayfasına git">
               <div class="stat-icon">✅</div>
               <div class="stat-value" id="stat-habits">0</div>
               <div class="stat-label" data-i18n="home_stat_active">
                 Aktif Alışkanlık
               </div>
-            </div>
-            <div class="stat-card animate-fade-up" style="animation-delay: 0.3s">
+            </a>
+            <a href="habits.html" class="stat-card animate-fade-up" style="animation-delay: 0.3s" title="Takvim & Alışkanlıklar sayfasına git">
               <div class="stat-icon">🔥</div>
               <div class="stat-value" id="stat-streak">0</div>
               <div class="stat-label" data-i18n="home_stat_streak">
                 Günlük Seri
               </div>
-            </div>
+            </a>
           </div>
         </div>
 
-        <!-- Section 2: Daily Focus & Agenda -->
+        <!-- Section 2: Agenda & Habits (Events & Habits above Culture) -->
         <div class="dashboard-section animate-fade-up" style="animation-delay: 0.35s;">
           <div class="dashboard-section-head">
-            <span class="dashboard-section-label">🎯 Günlük Odak & Ajanda</span>
-            <span class="dashboard-section-sub">Bugünün öğrenme hedefi ve yaklaşan planlar</span>
+            <span class="dashboard-section-label">📅 Ajanda & Alışkanlıklar</span>
+            <span class="dashboard-section-sub">Yaklaşan etkinlikler, maçlar ve bugünün rutinleri</span>
           </div>
           <div class="grid-2">
-            <!-- Culture Card -->
-            <div class="dashboard-card card-culture" id="home-culture-card">
-              <div class="dashboard-card-header">
-                <h2 class="dashboard-card-title">💡 Bugünün Genel Kültür Odağı</h2>
-                <a href="knowledge.html?tab=trivia" class="dashboard-card-action">Müfredat & Notlar →</a>
-              </div>
-              <div class="card-body" id="home-culture-container">
-                <div class="skeleton-card" style="min-height:90px; padding:12px;">
-                  <div class="skeleton-line long"></div>
-                  <div class="skeleton-line short"></div>
-                </div>
-              </div>
-            </div>
-            
             <!-- Events Card -->
             <div class="dashboard-card card-events" id="home-upcoming-events-card">
               <div class="dashboard-card-header">
@@ -634,16 +620,7 @@
                 <!-- Rendered via JS dynamically -->
               </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Section 3: Habits & Activity -->
-        <div class="dashboard-section animate-fade-up" style="animation-delay: 0.45s;">
-          <div class="dashboard-section-head">
-            <span class="dashboard-section-label">⚡ Takvim & Günlük Akış</span>
-            <span class="dashboard-section-sub">Rutinlerini tamamla ve güncel aktiviteleri incele</span>
-          </div>
-          <div class="grid-2">
             <!-- Today's Habits -->
             <div class="dashboard-card card-habits" id="home-habits-card">
               <div class="dashboard-card-header">
@@ -702,6 +679,29 @@
                 <!-- Rendered via JS -->
               </div>
             </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Culture & Activity -->
+        <div class="dashboard-section animate-fade-up" style="animation-delay: 0.45s;">
+          <div class="dashboard-section-head">
+            <span class="dashboard-section-label">💡 Genel Kültür & Akış</span>
+            <span class="dashboard-section-sub">Bugünün öğrenme odağı ve güncel aktiviteler</span>
+          </div>
+          <div class="grid-2">
+            <!-- Culture Card -->
+            <div class="dashboard-card card-culture" id="home-culture-card">
+              <div class="dashboard-card-header">
+                <h2 class="dashboard-card-title">💡 Bugünün Genel Kültür Odağı</h2>
+                <a href="knowledge.html?tab=trivia" class="dashboard-card-action">Müfredat & Notlar →</a>
+              </div>
+              <div class="card-body" id="home-culture-container">
+                <div class="skeleton-card" style="min-height:90px; padding:12px;">
+                  <div class="skeleton-line long"></div>
+                  <div class="skeleton-line short"></div>
+                </div>
+              </div>
+            </div>
 
             <!-- Recent Activity -->
             <div class="dashboard-card card-activity" id="home-activity-card">
@@ -731,16 +731,32 @@
     <script>
       Nav.init();
 
-      // Greeting based on time
+      // Greeting based on time & live clock
       function updateGreeting() {
-        const hour = new Date().getHours();
+        const now = new Date();
+        const hour = now.getHours();
         let gKey = "home_greeting_night";
         if (hour < 12) gKey = "home_greeting_morning";
         else if (hour < 17) gKey = "home_greeting_afternoon";
         else if (hour < 21) gKey = "home_greeting_evening";
-        document.getElementById("greeting-text").textContent = i18n.t(gKey);
-        document.getElementById("hero-date").innerHTML =
-          "📅 " + DateUtils.format(new Date(), true);
+        const greetingEl = document.getElementById("greeting-text");
+        if (greetingEl && window.i18n) {
+          greetingEl.textContent = i18n.t(gKey);
+        }
+
+        const dateEl = document.getElementById("hero-date");
+        if (dateEl && window.DateUtils) {
+          const timeStr =
+            String(now.getHours()).padStart(2, "0") + ":" +
+            String(now.getMinutes()).padStart(2, "0") + ":" +
+            String(now.getSeconds()).padStart(2, "0");
+          const dateText = DateUtils.format(now, true);
+          dateEl.innerHTML = `
+            <span class="hero-date-icon">📅</span>
+            <span class="hero-date-text">${dateText}</span>
+            <span class="hero-date-time" title="Şu anki saat">⏰ ${timeStr}</span>
+          `;
+        }
       }
 
       window.addEventListener("languageChanged", () => {
@@ -748,6 +764,7 @@
         loadStats();
       });
       updateGreeting();
+      setInterval(updateGreeting, 1000);
 
       // Load stats
       async function loadStats() {

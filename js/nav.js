@@ -16,6 +16,9 @@ const Nav = {
     this._ensureMobileHeader();
     this._initMobileHeaderScroll();
     this._updateGlobalGreeting();
+    if (!this._clockInterval) {
+      this._clockInterval = setInterval(() => this._updateGlobalGreeting(), 1000);
+    }
     this._ensureFooter();
     this._ensureLiveScoreBanner();
     this.syncLiveScoreStateFromSupabase();
@@ -142,7 +145,7 @@ const Nav = {
 
     if (dateEl && window.DateUtils) {
       const now = new Date();
-      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+      const timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
       const dateText = DateUtils.format(now, true);
       dateEl.innerHTML = `
         <span class="hero-date-icon">📅</span>

@@ -194,11 +194,33 @@ const HabitStore = {
           ]);
 
           if (!habitsRes.error && habitsRes.data && habitsRes.data.length > 0) {
+            const existingLocalHabits = this.getHabits();
+            const localHabitsMap = new Map(existingLocalHabits.map((h) => [String(h.id), h]));
+
             // Find duplicate IDs to clean up in Supabase
             const seenKeys = new Map();
             const duplicateIdsToDelete = [];
 
             habitsRes.data.forEach((h) => {
+              // Parse custom_days if frequency is custom:1,3 or if custom_days is present
+              if (h.frequency && typeof h.frequency === "string" && h.frequency.startsWith("custom:")) {
+                const parts = h.frequency.replace("custom:", "").split(",").map(Number).filter((n) => !isNaN(n));
+                h.custom_days = parts;
+                h.frequency = "custom";
+              } else if (typeof h.custom_days === "string") {
+                try {
+                  const parsed = JSON.parse(h.custom_days);
+                  if (Array.isArray(parsed)) h.custom_days = parsed.map(Number);
+                } catch (e) {
+                  h.custom_days = h.custom_days.split(",").map(Number).filter((n) => !isNaN(n));
+                }
+              } else if (!h.custom_days) {
+                const localH = localHabitsMap.get(String(h.id));
+                if (localH && localH.custom_days) {
+                  h.custom_days = localH.custom_days;
+                }
+              }
+
               const key = getHabitDedupKey(h.name);
               const prev = seenKeys.get(key);
               if (!prev) {
@@ -307,13 +329,25 @@ const HabitStore = {
   async add(habit) {
     const user = window.Auth ? await window.Auth.getUser() : null;
     const newId = generateUUID();
+    let customDays = null;
+    if (Array.isArray(habit.custom_days)) {
+      customDays = habit.custom_days.map(Number);
+    } else if (typeof habit.custom_days === "string") {
+      try {
+        const parsed = JSON.parse(habit.custom_days);
+        if (Array.isArray(parsed)) customDays = parsed.map(Number);
+      } catch (e) {
+        customDays = habit.custom_days.split(",").map(Number).filter((n) => !isNaN(n));
+      }
+    }
+
     const record = {
       id: newId,
       name: habit.name,
       icon: habit.icon || "⭐",
       color: habit.color || "#6c63ff",
       frequency: habit.frequency || "daily",
-      custom_days: habit.custom_days || null,
+      custom_days: customDays,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
     };
@@ -325,13 +359,27 @@ const HabitStore = {
           name: record.name,
           icon: record.icon,
           color: record.color,
-          frequency: record.frequency,
+          frequency: customDays && customDays.length ? `custom:${customDays.join(",")}` : record.frequency,
           user_id: user.id,
         };
-        const { data, error } = await window.supabaseClient
+        if (customDays) {
+          dbPayload.custom_days = customDays;
+        }
+        let { data, error } = await window.supabaseClient
           .from("habits")
           .insert([dbPayload])
           .select();
+
+        if (error && (String(error.message || "").includes("custom_days") || error.code === "42703")) {
+          delete dbPayload.custom_days;
+          const retryRes = await window.supabaseClient
+            .from("habits")
+            .insert([dbPayload])
+            .select();
+          error = retryRes.error;
+          data = retryRes.data;
+        }
+
         if (error) {
           console.error("Supabase habit insert error:", error);
           if (window.Toast) window.Toast.error("Supabase ekleme hatası: " + error.message);
@@ -357,6 +405,20 @@ const HabitStore = {
 
     if (index === -1) return null;
 
+    let customDays = null;
+    if (Array.isArray(changes.custom_days)) {
+      customDays = changes.custom_days.map(Number);
+    } else if (typeof changes.custom_days === "string") {
+      try {
+        const parsed = JSON.parse(changes.custom_days);
+        if (Array.isArray(parsed)) customDays = parsed.map(Number);
+      } catch (e) {
+        customDays = changes.custom_days.split(",").map(Number).filter((n) => !isNaN(n));
+      }
+    } else if (changes.custom_days === undefined && habits[index].custom_days) {
+      customDays = habits[index].custom_days;
+    }
+
     const user = window.Auth ? await window.Auth.getUser() : null;
     if (user && window.supabaseClient) {
       try {
@@ -364,12 +426,25 @@ const HabitStore = {
           name: changes.name,
           icon: changes.icon,
           color: changes.color,
-          frequency: changes.frequency,
+          frequency: customDays && customDays.length ? `custom:${customDays.join(",")}` : changes.frequency,
         };
-        const { error } = await window.supabaseClient
+        if (customDays) {
+          dbPayload.custom_days = customDays;
+        }
+        let { error } = await window.supabaseClient
           .from("habits")
           .update(dbPayload)
           .eq("id", id);
+
+        if (error && (String(error.message || "").includes("custom_days") || error.code === "42703")) {
+          delete dbPayload.custom_days;
+          const retryRes = await window.supabaseClient
+            .from("habits")
+            .update(dbPayload)
+            .eq("id", id);
+          error = retryRes.error;
+        }
+
         if (error) console.error("Supabase habit update error:", error);
       } catch (err) {
         console.warn("Supabase habit update error:", err);
@@ -382,7 +457,7 @@ const HabitStore = {
       icon: changes.icon,
       color: changes.color,
       frequency: changes.frequency,
-      custom_days: changes.custom_days || null,
+      custom_days: customDays,
       updated_at: new Date().toISOString(),
     };
 
@@ -757,11 +832,64 @@ const HabitStore = {
       return dayOfWeek === 0 || dayOfWeek === 6;
     }
 
-    if (freq === "custom" && Array.isArray(habit.custom_days)) {
-      return habit.custom_days.includes(dayOfWeek);
+    if (freq === "custom" || freq.startsWith("custom:")) {
+      let days = [];
+      if (Array.isArray(habit.custom_days)) {
+        days = habit.custom_days.map(Number);
+      } else if (typeof habit.custom_days === "string") {
+        try {
+          const parsed = JSON.parse(habit.custom_days);
+          if (Array.isArray(parsed)) days = parsed.map(Number);
+        } catch (e) {
+          days = habit.custom_days.split(",").map(Number).filter((n) => !isNaN(n));
+        }
+      } else if (freq.startsWith("custom:")) {
+        days = freq.replace("custom:", "").split(",").map(Number).filter((n) => !isNaN(n));
+      }
+      return days.includes(dayOfWeek);
     }
 
     return true;
+  },
+
+  formatFrequency(habit) {
+    if (!habit) return "Her Gün";
+    const freq = String(habit.frequency || "daily").toLowerCase();
+    if (freq === "daily" || freq === "günlük") return "Her Gün";
+    if (freq === "weekdays" || freq === "hafta içi" || freq === "haftaici") return "Hafta İçi";
+    if (freq === "weekend" || freq === "hafta sonu" || freq === "haftasonu") return "Hafta Sonu";
+
+    let days = [];
+    if (Array.isArray(habit.custom_days)) {
+      days = habit.custom_days.map(Number);
+    } else if (typeof habit.custom_days === "string") {
+      try {
+        const parsed = JSON.parse(habit.custom_days);
+        if (Array.isArray(parsed)) days = parsed.map(Number);
+      } catch (e) {
+        days = habit.custom_days.split(",").map(Number).filter((n) => !isNaN(n));
+      }
+    } else if (freq.startsWith("custom:")) {
+      days = freq.replace("custom:", "").split(",").map(Number).filter((n) => !isNaN(n));
+    }
+
+    if (days.length === 0) return "Özel Günler";
+    if (days.length === 7) return "Her Gün";
+
+    const order = [1, 2, 3, 4, 5, 6, 0];
+    const sorted = [...days].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+
+    const dayNamesFull = {
+      1: "Pazartesi", 2: "Salı", 3: "Çarşamba", 4: "Perşembe", 5: "Cuma", 6: "Cumartesi", 0: "Pazar"
+    };
+    const dayNamesShort = {
+      1: "Pzt", 2: "Sal", 3: "Çar", 4: "Per", 5: "Cum", 6: "Cmt", 0: "Paz"
+    };
+
+    if (sorted.length === 1) {
+      return `Özel: Sadece ${dayNamesFull[sorted[0]]}`;
+    }
+    return `Özel: ${sorted.map(d => dayNamesShort[d] || d).join(", ")}`;
   },
 
   async getTodayStats(targetDate = DateUtils.today()) {

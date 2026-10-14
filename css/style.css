@@ -1032,6 +1032,11 @@ html[data-theme="light"] .modal-close:hover {
   position: relative;
   overflow: hidden;
   transition: var(--transition);
+  text-decoration: none !important;
+  color: inherit !important;
+  display: block;
+  cursor: pointer;
+  user-select: none;
 }
 
 .stat-card::before {
@@ -1048,7 +1053,8 @@ html[data-theme="light"] .modal-close:hover {
 
 .stat-card:hover {
   border-color: var(--glass-border-hover);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.22);
 }
 
 .stat-card:hover::before {

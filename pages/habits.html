@@ -486,6 +486,25 @@
             </div>
           </div>
 
+          <div class="input-group" id="custom-days-group" style="display: none; margin-bottom: 20px;">
+            <label class="input-label" style="display: flex; justify-content: space-between; align-items: center;">
+              <span>Özel Günleri Seçin</span>
+              <span id="custom-days-count" style="font-size: 11px; font-weight: 600; color: var(--accent-light);">0 gün seçildi</span>
+            </label>
+            <div class="custom-days-picker" id="custom-days-picker">
+              <button type="button" class="custom-day-btn" data-day="1" title="Pazartesi">Pzt</button>
+              <button type="button" class="custom-day-btn" data-day="2" title="Salı">Sal</button>
+              <button type="button" class="custom-day-btn" data-day="3" title="Çarşamba">Çar</button>
+              <button type="button" class="custom-day-btn" data-day="4" title="Perşembe">Per</button>
+              <button type="button" class="custom-day-btn" data-day="5" title="Cuma">Cum</button>
+              <button type="button" class="custom-day-btn" data-day="6" title="Cumartesi">Cmt</button>
+              <button type="button" class="custom-day-btn" data-day="0" title="Pazar">Paz</button>
+            </div>
+            <div class="custom-days-hint" style="font-size: 11.5px; color: var(--text-muted); margin-top: 7px;">
+              💡 Alışkanlığın tekrarlanacağı günleri seçin (Örn: sadece Çarşamba veya Pazartesi ve Çarşamba).
+            </div>
+          </div>
+
           <div style="display: flex; gap: 10px; justify-content: flex-end">
             <button type="button" class="btn btn-ghost modal-close modal-close-btn">
               İptal
@@ -535,7 +554,7 @@
     <script src="../js/telegram_service.js"></script>
     <script src="../js/ai_assistant.js"></script>
     <script src="../js/nav.js"></script>
-    <script src="../js/habits.js?v=20260811_1"></script>
+    <script src="../js/habits.js?v=20261014_customdays"></script>
     <script>
       Nav.init();
       Modal.setup("day-modal");
@@ -555,6 +574,7 @@
         selectedEmoji: "⭐",
         selectedColor: "#6c63ff",
         selectedFreq: "daily",
+        selectedCustomDays: [],
         editingId: null,
         pendingDeleteId: null,
       };
@@ -1388,6 +1408,36 @@
         updateColorSelection();
       }
 
+      function updateCustomDaysUI() {
+        const groupEl = document.getElementById("custom-days-group");
+        if (!groupEl) return;
+        const isCustom = state.selectedFreq === "custom";
+        groupEl.style.display = isCustom ? "block" : "none";
+
+        if (!isCustom) return;
+
+        const dayBtns = document.querySelectorAll(".custom-day-btn");
+        dayBtns.forEach((btn) => {
+          const dayNum = parseInt(btn.dataset.day, 10);
+          btn.classList.toggle("active", state.selectedCustomDays.includes(dayNum));
+        });
+
+        const countEl = document.getElementById("custom-days-count");
+        if (countEl) {
+          const len = state.selectedCustomDays.length;
+          if (len === 0) {
+            countEl.textContent = "Henüz gün seçilmedi";
+            countEl.style.color = "var(--rose)";
+          } else {
+            const dayNamesShort = { 1: "Pzt", 2: "Sal", 3: "Çar", 4: "Per", 5: "Cum", 6: "Cmt", 0: "Paz" };
+            const order = [1, 2, 3, 4, 5, 6, 0];
+            const sorted = [...state.selectedCustomDays].sort((a, b) => order.indexOf(a) - order.indexOf(b));
+            countEl.textContent = `${len} gün seçildi (${sorted.map((d) => dayNamesShort[d]).join(", ")})`;
+            countEl.style.color = "var(--accent-light)";
+          }
+        }
+      }
+
       function attachAddHabit() {
         document
           .getElementById("add-habit-btn")
@@ -1401,11 +1451,13 @@
             state.selectedEmoji = "⭐";
             state.selectedColor = "#6c63ff";
             state.selectedFreq = "daily";
+            state.selectedCustomDays = [];
             updateEmojiSelection();
             updateColorSelection();
             document.querySelectorAll(".freq-btn").forEach((b) => {
               b.classList.toggle("active", b.dataset.freq === "daily");
             });
+            updateCustomDaysUI();
             Modal.open("add-modal");
           });
 
@@ -1416,6 +1468,20 @@
               .querySelectorAll(".freq-btn")
               .forEach((b) => b.classList.remove("active"));
             btn.classList.add("active");
+            updateCustomDaysUI();
+          });
+        });
+
+        document.querySelectorAll(".custom-day-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const day = parseInt(btn.dataset.day, 10);
+            const idx = state.selectedCustomDays.indexOf(day);
+            if (idx > -1) {
+              state.selectedCustomDays.splice(idx, 1);
+            } else {
+              state.selectedCustomDays.push(day);
+            }
+            updateCustomDaysUI();
           });
         });
 
@@ -1428,6 +1494,13 @@
               .value.trim();
             if (!name) return;
 
+            if (state.selectedFreq === "custom") {
+              if (!state.selectedCustomDays || state.selectedCustomDays.length === 0) {
+                if (window.Toast) Toast.warn("Lütfen özel alışkanlık için en az bir gün seçin.");
+                return;
+              }
+            }
+
             const saveBtn = document.getElementById("save-habit-btn");
             setButtonLoading(saveBtn, true, "Kaydediliyor...");
 
@@ -1438,6 +1511,7 @@
                 icon: state.selectedEmoji,
                 color: state.selectedColor,
                 frequency: state.selectedFreq,
+                custom_days: state.selectedFreq === "custom" ? [...state.selectedCustomDays] : null,
               };
 
               if (editId) {
@@ -1483,7 +1557,24 @@
 
         state.selectedColor = h.color;
 
-        state.selectedFreq = h.frequency || "daily";
+        let freq = h.frequency || "daily";
+        let customDays = [];
+        if (Array.isArray(h.custom_days)) {
+          customDays = h.custom_days.map(Number);
+        } else if (typeof h.custom_days === "string") {
+          try {
+            const parsed = JSON.parse(h.custom_days);
+            if (Array.isArray(parsed)) customDays = parsed.map(Number);
+          } catch (e) {
+            customDays = h.custom_days.split(",").map(Number).filter((n) => !isNaN(n));
+          }
+        } else if (typeof freq === "string" && freq.startsWith("custom:")) {
+          customDays = freq.replace("custom:", "").split(",").map(Number).filter((n) => !isNaN(n));
+          freq = "custom";
+        }
+
+        state.selectedFreq = (freq === "custom" || customDays.length > 0) ? "custom" : freq;
+        state.selectedCustomDays = customDays;
 
         buildEmojiPicker();
 
@@ -1492,6 +1583,8 @@
         document.querySelectorAll(".freq-btn").forEach((b) => {
           b.classList.toggle("active", b.dataset.freq === state.selectedFreq);
         });
+
+        updateCustomDaysUI();
 
         Modal.open("add-modal");
       }
@@ -1574,7 +1667,7 @@
                           </div>
 
                           <div class="habit-list-meta">
-                              ${h.frequency || "Günlük"}
+                              ${HabitStore.formatFrequency(h)}
                           </div>
 
                       </div>
